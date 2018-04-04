@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title></title>
-</head>
-<body>
+<div>
 	for BUILD : Make <br/>
 	for RUN : make run <br/>
-</body>
-</html>
+</div>
