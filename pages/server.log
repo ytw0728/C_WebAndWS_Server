@@ -1,0 +1,83 @@
+ INFO: http server starting | 
+80:88
+
+ INFO: request | 
+GET / HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Upgrade-Insecure-Requests: 1 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:1
+
+ INFO: SEND | 
+index.html:1
+
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:2
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:3
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:4
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:5
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:6
+
+SORRY: file extension type not supported:GET /favicon.ico
