@@ -146,7 +146,6 @@ void *web(void *args) {
 	
 	while (	(ret = read(file_fd, buffer, BUFSIZE)) > 0 ) {
 		(void)write(fd,buffer,ret);
-		printf("%s", buffer);
 	}
 	
 

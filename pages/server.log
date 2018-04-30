@@ -1,0 +1,701 @@
+ INFO: http server starting | 
+80:53
+
+ INFO: request | 
+GET / HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Upgrade-Insecure-Requests: 1 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:1
+
+ INFO: SEND | 
+index.html:1
+
+ INFO: request | 
+GET /css/font.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:2
+
+ INFO: SEND | 
+css/font.css:2
+
+ INFO: request | 
+GET /css/index.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:3
+
+ INFO: SEND | 
+css/index.css:3
+
+ INFO: request | 
+GET /js/index.js HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:4
+
+ INFO: SEND | 
+js/index.js:4
+
+ INFO: request | 
+GET /css/font/NotoSansKR-Light.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:6
+ INFO: request | 
+GET /css/font/NotoSansKR-Bold.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:5
+
+
+ INFO: SEND | 
+css/font/NotoSansKR-Bold.otf:5
+
+ INFO: SEND | 
+css/font/NotoSansKR-Light.otf:6
+
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:7
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:8
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: http server starting | 
+80:101
+
+ INFO: request | 
+GET / HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Cache-Control: max-age=0 
+Upgrade-Insecure-Requests: 1 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:1
+
+ INFO: SEND | 
+index.html:1
+
+ INFO: request | 
+GET /css/index.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:3
+
+ INFO: request | 
+GET /js/index.js HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:4
+ INFO: request | 
+GET /css/font.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:2
+
+
+ INFO: SEND | 
+css/index.css:3
+
+ INFO: SEND | 
+css/font.css:2
+
+ INFO: SEND | 
+js/index.js:4
+
+ INFO: request | 
+GET /css/font/NotoSansKR-Bold.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:5
+
+ INFO: SEND | 
+css/font/NotoSansKR-Bold.otf:5
+
+ INFO: request | 
+GET /css/font/NotoSansKR-Light.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:6
+
+ INFO: SEND | 
+css/font/NotoSansKR-Light.otf:6
+
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Pragma: no-cache 
+Cache-Control: no-cache 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:7
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET / HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Cache-Control: max-age=0 
+Upgrade-Insecure-Requests: 1 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:8
+
+ INFO: SEND | 
+index.html:8
+
+ INFO: request | 
+GET /css/index.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:10
+
+ INFO: request | 
+GET /js/index.js HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:11
+
+ INFO: request | 
+GET /css/font.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:9
+
+ INFO: SEND | 
+css/index.css:10
+
+ INFO: SEND | 
+js/index.js:11
+
+ INFO: SEND | 
+css/font.css:9
+
+ INFO: request | 
+GET /css/font/NotoSansKR-Bold.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:12
+
+ INFO: SEND | 
+css/font/NotoSansKR-Bold.otf:12
+
+ INFO: request | 
+GET /css/font/NotoSansKR-Light.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:13
+
+ INFO: SEND | 
+css/font/NotoSansKR-Light.otf:13
+
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Pragma: no-cache 
+Cache-Control: no-cache 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:14
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET /testWeb.html HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Upgrade-Insecure-Requests: 1 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:15
+
+ INFO: SEND | 
+testWeb.html:15
+
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/testWeb.html 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:16
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: http server starting | 
+80:145
+
+ INFO: request | 
+GET / HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Upgrade-Insecure-Requests: 1 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:1
+
+ INFO: SEND | 
+index.html:1
+
+ INFO: request | 
+GET /css/font.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:2
+
+ INFO: request | 
+GET /js/index.js HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:4
+
+ INFO: SEND | 
+css/font.css:2
+ INFO: request | 
+GET /css/index.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:3
+
+
+ INFO: SEND | 
+js/index.js:4
+
+ INFO: SEND | 
+css/index.css:3
+
+ INFO: request | 
+GET /css/font/NotoSansKR-Bold.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:5
+
+ INFO: request | 
+GET /css/font/NotoSansKR-Light.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:6
+
+ INFO: SEND | 
+css/font/NotoSansKR-Bold.otf:5
+
+ INFO: SEND | 
+css/font/NotoSansKR-Light.otf:6
+
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:7
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET / HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Cache-Control: max-age=0 
+Upgrade-Insecure-Requests: 1 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:8
+
+ INFO: SEND | 
+index.html:8
+
+ INFO: request | 
+GET /css/font.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:9
+
+ INFO: request | 
+GET /css/index.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:10
+
+ INFO: request | 
+GET /js/index.js HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:11
+
+ INFO: SEND | 
+css/font.css:9
+
+ INFO: SEND | 
+css/index.css:10
+
+ INFO: SEND | 
+js/index.js:11
+
+ INFO: request | 
+GET /css/font/NotoSansKR-Light.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:13
+ INFO: request | 
+GET /css/font/NotoSansKR-Bold.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:12
+
+
+ INFO: SEND | 
+css/font/NotoSansKR-Light.otf:13
+
+ INFO: SEND | 
+css/font/NotoSansKR-Bold.otf:12
+
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:14
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:15
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:16
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:17
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:18
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:19
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:20
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:21
+
+SORRY: file extension type not supported:GET /favicon.ico
+ INFO: request | 
+GET /testWeb.html HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Upgrade-Insecure-Requests: 1 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:22
+
+ INFO: SEND | 
+testWeb.html:22
+
+ INFO: request | 
+GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/testWeb.html 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+:23
+
+SORRY: file extension type not supported:GET /favicon.ico
