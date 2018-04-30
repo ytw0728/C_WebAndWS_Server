@@ -27,3 +27,10 @@ sudo apt-get install libssl-dev
 ## PAGES
 * index.html : doodle index page
 * testWeb.html : page to test ws ( echo )
+
+
+## File Hierarchical Structure
+```sh
+Includes.h 	┬ webServer.h 		┬ server.c 
+			┕ webSocketServer.h ┘
+```
