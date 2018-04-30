@@ -1,8 +1,9 @@
 CC 		= gcc
-CFLAGS 	= -Wall -Wextra -Werror -pedantic -ggdb -DRUPIFY -g
-
-INCL 	= Handshake.c
-OBJECTS = Errors.o Datastructures.o Communicate.o sha1.o md5.o base64.o utf8.o Websocket.o
+# CFLAGS 	= -Wall -Wextra -Werror -pedantic -ggdb -DRUPIFY -g -lssl -lcrypto
+CFLAGS = -Wall
+# INCL = -L /usr/include/openssl -I /usr/include/openssl
+LIBRARIES = -lssl -lcrypto 
+OBJECTS = Includes.o webServer.o webSocketServer.o
 EXEC 	= server
 
 .PHONY: server
@@ -10,7 +11,7 @@ EXEC 	= server
 all: clean server
 
 server: $(OBJECTS) 
-	$(CC) $(CFLAGS) $(INCL) $(OBJECTS) -lpthread $(EXEC).c -o $(EXEC) -std=c99
+	$(CC) $(INCL) $(CFLAGS) $(OBJECTS) -lpthread $(EXEC).c -o $(EXEC) -std=c99 $(LIBRARIES)
 
 clean:
 	rm -f $(EXEC) *.o
@@ -18,33 +19,13 @@ clean:
 run: all
 	./$(EXEC) $(PORT) $(DIR)
 
-valgrind: all
-	valgrind --leak-check=full --log-file="LOG" --track-origins=yes --show-reachable=yes ./$(EXEC) $(PORT) $(DIR)
+Includes.o: Includes.c Includes.h
+	$(CC) $(CFLAGS) -c Includes.c
 
-base64.o: base64.c base64.h
-	$(CC) $(CFLAGS) -c base64.c
+webServer.o: webServer.c webServer.h Includes.h
+	$(CC) $(CFLAGS) -c webServer.c
 
-md5.o: md5.c md5.h
-	$(CC) $(CFLAGS) -c md5.c
+webSocketServer.o: webSocketServer.c webSocketServer.h Includes.h
+	$(CC) $(CFLAGS) -c webSocketServer.c 
 
-utf8.o: utf8.c utf8.h
-	$(CC) $(CFLAGS) -c utf8.c
-
-sha1.o: sha1.c sha1.h
-	$(CC) $(CFLAGS) -c sha1.c
-
-Communicate.o: Communicate.c Communicate.h Datastructures.h
-	$(CC) $(CFLAGS) -c Communicate.c
-
-Datastructures.o: Datastructures.c Datastructures.h
-	$(CC) $(CFLAGS) -c Datastructures.c
-
-Errors.o: Errors.c Errors.h Datastructures.h
-	$(CC) $(CFLAGS) -c Errors.c
-
-Websocket.o: Websocket.c Websocket.h
-	$(CC) $(CFLAGS) -c Websocket.c
-
-
-
-
+	

@@ -1,27 +1,33 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+	<title>Doodle!</title>
+	<link rel="stylesheet" type="text/css" href="/css/font.css">
+	<link rel="stylesheet" type="text/css" href="/css/index.css">
+	<script type = "text/javascript" src = "/js/index.js"></script>
 </head>
 <body>
-	<div id = "app">
-		[ message ]
-		<p id = "message">
-		</p>
+	<div id = "wrap">
+		<div id = "app">
+			<header><a href = "/">DOODLE</a></header>
+			<container>
+				<div id = "leftUsers" class = "userContainer">
+					<div class = "users"></div>
+					<div class = "users"></div>
+					<div class = "users"></div>
+				</div>
+				<div id = "playBoard">
+					<canvas>
+					</canvas>
+				</div>
+				<div id = "leftUsers" class = "userContainer">
+					<div class = "users"></div>
+					<div class = "users"></div>
+					<div class = "users"></div>
+				</div>
+			</container>
+			<footer>NETWORK PROGRAMMING_SOONGSIL UNIV._MIT LICENSE</footer>
+		</div>
 	</div>
-	<script>
-		let p = document.getElementById("message");
-		let app = document.getElementById("app");
-
-		let ws = new WebSocket("ws://localhost:12345");
-
-		ws.onopen = function (event) {
-		  ws.send("Hello, Server?"); 
-		};
-
-		ws.onmessage = function (event) {
-			p.innerHTML = event.data;
-		}
-	</script>
 </body>
 </html>
