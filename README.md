@@ -32,5 +32,5 @@ sudo apt-get install libssl-dev
 ## File Hierarchical Structure
 ```sh
 Includes.h 	┬ webServer.h 		┬ server.c 
-			┕ webSocketServer.h ┘
+		┕ webSocketServer.h ┘
 ```
