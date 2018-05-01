@@ -6,7 +6,12 @@
 pthread_attr_t pthread_attr;
 pthread_t pthread_id;
 
+
 int main(int argc, char **argv){
+	// struct sigaction act;
+	// sigaction();
+
+	system("clear");
 
 	pthread_attr_init(&pthread_attr);
 	pthread_attr_setdetachstate(&pthread_attr, PTHREAD_CREATE_DETACHED);

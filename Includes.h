@@ -22,7 +22,11 @@
 #include <fcntl.h>
 
 
-void server_error(const char *message, int server_socket);
+// void server_error(const char *message, int server_socket);
+void error_handler(const char* msg);
 
+// signals
+void brokenPipe(int sig);
+void inturrupt(int sig);
 
 #endif

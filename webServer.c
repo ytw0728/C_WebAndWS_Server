@@ -35,25 +35,26 @@ void webServerLog(int type, char *s1, char *s2, int num){
 	char logbuffer[BUFSIZE*2];
 
 	switch (type) {
-		case ERROR: (void)sprintf(logbuffer,"ERROR: %s:%s Errno=%d exiting pid=%d",s1, s2, errno,getpid()); break;
-		return;
+		case ERROR: 
+			(void)sprintf(logbuffer,"[ ERROR ] %s:%s Errno=%d exiting pid=%d",s1, s2, errno,getpid()); 
+			break;
+			return;
 
 		case SORRY:
-			(void)sprintf(logbuffer, "<HTML><BODY><H1>404 Not Found: %s %s</H1></BODY></HTML>\r\n", s1, s2);
-			// (void)write(num,logbuffer,strlen(logbuffer));
-			(void)sprintf(logbuffer,"SORRY: %s:%s",s1, s2);
+			(void)sprintf(logbuffer,"[ SORRY ] 404 not found %s:%s",s1, s2);
 			break;
 
 		case LOG:
-			(void)sprintf(logbuffer," INFO: %s | \n%s:%d\n",s1, s2, num);
+			(void)printf("Web Server >> [INFO: %s ] %s\n",s1, s2);
+
+		case FILELOG:
+			(void)sprintf(logbuffer,"[ INFO: %s ] %s:%d\n",s1, s2, num);
 			break;
 	}	
 	
 	if( (fd = open("server.log", O_CREAT| O_WRONLY | O_APPEND,0644)) >= 0 ){
 		(void)write(fd,logbuffer,strlen(logbuffer)); 
 		(void)write(fd,"\n",1);
-		
-		(void)printf("[log] %s\n", logbuffer);
 
 		(void)close(fd);
 	}
@@ -70,18 +71,22 @@ web_client_info* web_client_new(int client_sock, char* addr){
 
 void *web(void *args) {
 	web_client_info *n = args;
-	int j, file_fd, buflen, len;
+	int j, file_fd, buflen, len, STATUSCODE = 200;
 	long i, ret;
 	char * fstr;
 	char buffer[BUFSIZE+1];
+	char* logBuffer;
+
 
 	int fd 		= n->socket_id;
 	int hitCnt 	= n->client_idx;
+	
+
 
 	ret =read(fd,buffer,BUFSIZE);
 	if(ret == 0 || ret == -1) {
 		webServerLog(SORRY,"failed to read browser request","",fd);
-		goto END;
+		goto IGNORE;
 	}
 	if(ret > 0 && ret < BUFSIZE)
 		buffer[ret]=0;
@@ -95,11 +100,13 @@ void *web(void *args) {
 			buffer[i] = '\n';
 		}
 	}
-	webServerLog(LOG,"request",buffer, hitCnt);
+
+	webServerLog(FILELOG,"request",buffer, hitCnt);
+
 
 	if( strncmp(buffer,"GET ",4) && strncmp(buffer,"get ",4) ){
 		webServerLog(SORRY,"Only simple GET operation supported",buffer,fd);
-		goto END;
+		goto IGNORE;
 	}
 	for(i=4;i<BUFSIZE;i++){
 		if(buffer[i] == ' '){
@@ -110,9 +117,10 @@ void *web(void *args) {
 	for(j=0;j<i-1;j++){
 		if(buffer[j] == '.' && buffer[j+1] == '.'){
 			webServerLog(SORRY,"Parent directory (..) path names not supported",buffer,fd);
-			goto END;
+			goto IGNORE;
 		}
 	}
+
 
 	if( !strncmp(&buffer[0],"GET /\0",6) || !strncmp(&buffer[0],"get /\0",6) ) 
 		(void)strcpy(buffer,"GET /index.html");
@@ -128,32 +136,52 @@ void *web(void *args) {
 	}
 	if(fstr == 0) {
 		webServerLog(SORRY,"file extension type not supported",buffer,fd);
-		goto END;
+		goto IGNORE;
 	}
+
+	char* fileName =  (char *) malloc( sizeof(char)*(strlen(&buffer[5])+1) );
+	strcpy(fileName, &buffer[5]);
+	if( fileName)
 
 	if(( file_fd = open(&buffer[5],O_RDONLY)) == -1){
-		webServerLog(SORRY, "failed to open file",&buffer[5],0);
+		webServerLog(SORRY, "failed to open file",fileName,0);
+
+		// 404 error send
 		(void)sprintf(buffer,"HTTP/1.0 404 Not Found\r\n\r\n");
-		(void)write(fd,buffer,sizeof(buffer));
+		(void)write(fd,buffer,strlen(buffer));
+
+		// 404 error page send
+		file_fd = open("ERROR/error.html", O_RDONLY);
+		while (	(ret = read(file_fd, buffer, BUFSIZE)) > 0 ) {
+			(void)write(fd,buffer,ret);
+		}
+		(void)sprintf(buffer,"The requested : <span>%s</span> was not found on this server", fileName);
+		(void)write(fd,buffer,strlen(buffer));
+
+		STATUSCODE = 404;
+
 		goto END;
 	}
 
-	webServerLog(LOG,"SEND",&buffer[5],hitCnt);
-
+	// 200 OK send
+	webServerLog(FILELOG,"SEND",&buffer[5],hitCnt);
 	(void)sprintf(buffer,"HTTP/1.0 200 OK\r\nContent-Type: %s\r\n\r\n", fstr);
 	(void)write(fd,buffer,strlen(buffer));
 
-	
+	// 202 OK file send
 	while (	(ret = read(file_fd, buffer, BUFSIZE)) > 0 ) {
 		(void)write(fd,buffer,ret);
 	}
-	
 
-	#ifdef LINUX
-		sleep(1);
-	#endif
+
 
 END:
+
+	logBuffer = (char*)malloc(sizeof(char)*BUFSIZE);
+	sprintf(logBuffer, "request %s \t\t%d", fileName, STATUSCODE);
+	webServerLog(LOG,"SEND",logBuffer, hitCnt);
+
+IGNORE:
 	close(fd);
 	pthread_detach(n->thread_id);
 
@@ -190,7 +218,7 @@ int webServerHandle(int argc, char** argv){
 
 	if(chdir(argv[2]) == -1){ 
 		(void)printf("ERROR: Can't Change to directory %s\n",argv[2]);
-		// exit(4);
+		exit(4);
 		return 0;
 	}
 
@@ -202,8 +230,8 @@ int webServerHandle(int argc, char** argv){
 		(void)close(i);
 	// (void)setpgrp();	 // 데몬 안해 
 
-
-	webServerLog(LOG,"http server starting",argv[1], getpid());
+	printf("Web Server >> http server starting ( port: %s, pid: %d )\n",argv[1], getpid());
+	webServerLog(FILELOG,"http server starting",argv[1], getpid());
 	
 	if((server_sock = socket(AF_INET, SOCK_STREAM,0)) <0)
 		webServerLog(ERROR, "system call","socket",0);
@@ -213,7 +241,8 @@ int webServerHandle(int argc, char** argv){
 	 * Allow reuse of address, when the server shuts down.
 	 */
 	if ( (setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on))) < 0 ){
-		server_error(strerror(errno), server_sock);
+		// server_error(strerror(errno), server_sock);
+		error_handler(strerror(errno));
 	}
 
 

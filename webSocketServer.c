@@ -79,13 +79,13 @@ int shakehands(int cli_fd){
 
 	if (read(cli_fd,buffer,sizeof(buffer))<=0)
 		perror("read");
-	printf("request\n");
-	printf("%s\n",buffer);
+	// printf("request\n"); // packet data print
+	// printf("%s\n",buffer); // 
 
 	do {
 		memset(linebuf,0,sizeof(linebuf));
 		level = _readline(buffer,level,linebuf);
-		printf("line:%s\n",linebuf);
+		// printf("line:%s\n",linebuf); // line buffer print
 
 		if (strstr(linebuf,"Sec-WebSocket-Key")!=NULL)
 		{
@@ -102,8 +102,8 @@ int shakehands(int cli_fd){
 					"Sec-WebSocket-Accept: %s\r\n" \
 					"\r\n",sec_accept);
 
-			printf("response\n");
-			printf("%s",head);
+			// printf("response\n"); // response header print
+			// printf("%s",head);
 			if (write(cli_fd,head,strlen(head))<0)
 				perror("write");
 
