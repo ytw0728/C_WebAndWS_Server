@@ -30,36 +30,6 @@ struct extension_type{
 	{0,0}
 };
 
-void webServerLog(int type, char *s1, char *s2, int num){
-	int fd ;
-	char logbuffer[BUFSIZE*2];
-
-	switch (type) {
-		case ERROR: 
-			(void)sprintf(logbuffer,"[ ERROR ] %s:%s Errno=%d exiting pid=%d",s1, s2, errno,getpid()); 
-			break;
-			return;
-
-		case SORRY:
-			(void)sprintf(logbuffer,"[ SORRY ] 404 not found %s:%s",s1, s2);
-			break;
-
-		case LOG:
-			(void)printf("Web Server >> [INFO: %s ] %s\n",s1, s2);
-
-		case FILELOG:
-			(void)sprintf(logbuffer,"[ INFO: %s ] %s:%d\n",s1, s2, num);
-			break;
-	}	
-	
-	if( (fd = open("server.log", O_CREAT| O_WRONLY | O_APPEND,0644)) >= 0 ){
-		(void)write(fd,logbuffer,strlen(logbuffer)); 
-		(void)write(fd,"\n",1);
-
-		(void)close(fd);
-	}
-}
-
 web_client_info* web_client_new(int client_sock, char* addr){
 	web_client_info *n = (web_client_info *) malloc(sizeof(web_client_info));
 
@@ -85,7 +55,7 @@ void *web(void *args) {
 
 	ret =read(fd,buffer,BUFSIZE);
 	if(ret == 0 || ret == -1) {
-		webServerLog(SORRY,"failed to read browser request","",fd);
+		serverLog(WEBSERVER,ERROR,"failed to read browser request","");
 		goto IGNORE;
 	}
 	if(ret > 0 && ret < BUFSIZE)
@@ -101,11 +71,11 @@ void *web(void *args) {
 		}
 	}
 
-	webServerLog(FILELOG,"request",buffer, hitCnt);
+	serverLog(WEBSERVER,FILELOG,"request",buffer);
 
 
 	if( strncmp(buffer,"GET ",4) && strncmp(buffer,"get ",4) ){
-		webServerLog(SORRY,"Only simple GET operation supported",buffer,fd);
+		serverLog(WEBSERVER,ERROR,"Only simple GET operation supported",buffer);
 		goto IGNORE;
 	}
 	for(i=4;i<BUFSIZE;i++){
@@ -116,7 +86,7 @@ void *web(void *args) {
 	}
 	for(j=0;j<i-1;j++){
 		if(buffer[j] == '.' && buffer[j+1] == '.'){
-			webServerLog(SORRY,"Parent directory (..) path names not supported",buffer,fd);
+			serverLog(WEBSERVER,ERROR,"Parent directory (..) path names not supported",buffer);
 			goto IGNORE;
 		}
 	}
@@ -135,7 +105,7 @@ void *web(void *args) {
 		}
 	}
 	if(fstr == 0) {
-		webServerLog(SORRY,"file extension type not supported",buffer,fd);
+		serverLog(WEBSERVER,ERROR,"file extension type not supported",buffer);
 		goto IGNORE;
 	}
 
@@ -144,7 +114,7 @@ void *web(void *args) {
 	if( fileName)
 
 	if(( file_fd = open(&buffer[5],O_RDONLY)) == -1){
-		webServerLog(SORRY, "failed to open file",fileName,0);
+		serverLog(WEBSERVER,ERROR, "failed to open file",fileName);
 
 		// 404 error send
 		(void)sprintf(buffer,"HTTP/1.0 404 Not Found\r\n\r\n");
@@ -164,7 +134,7 @@ void *web(void *args) {
 	}
 
 	// 200 OK send
-	webServerLog(FILELOG,"SEND",&buffer[5],hitCnt);
+	serverLog(WEBSERVER,FILELOG,&buffer[5],"SEND");
 	(void)sprintf(buffer,"HTTP/1.0 200 OK\r\nContent-Type: %s\r\n\r\n", fstr);
 	(void)write(fd,buffer,strlen(buffer));
 
@@ -179,7 +149,7 @@ END:
 
 	logBuffer = (char*)malloc(sizeof(char)*BUFSIZE);
 	sprintf(logBuffer, "request %s \t\t%d", fileName, STATUSCODE);
-	webServerLog(LOG,"SEND",logBuffer, hitCnt);
+	serverLog(WEBSERVER,LOG,logBuffer,"SEND");
 
 IGNORE:
 	close(fd);
@@ -230,18 +200,17 @@ int webServerHandle(int argc, char** argv){
 		(void)close(i);
 	// (void)setpgrp();	 // 데몬 안해 
 
-	printf("Web Server >> http server starting ( port: %s, pid: %d )\n",argv[1], getpid());
-	webServerLog(FILELOG,"http server starting",argv[1], getpid());
+	serverLog(WEBSERVER,LOG,"http server starting", "MESSAGE"); // pid 넣을지말지 
 	
 	if((server_sock = socket(AF_INET, SOCK_STREAM,0)) <0)
-		webServerLog(ERROR, "system call","socket",0);
+		serverLog(WEBSERVER,ERROR, "system call","socket");
 
 	
 	/**
 	 * Allow reuse of address, when the server shuts down.
 	 */
 	if ( (setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on))) < 0 ){
-		// server_error(strerror(errno), server_sock);
+		serverLog(WEBSERVER, ERROR, "webServer setting Socket option Error\n","");
 		error_handler(strerror(errno));
 	}
 
@@ -249,17 +218,17 @@ int webServerHandle(int argc, char** argv){
 	port = atoi(argv[1]);
 	
 	if(port < 0 || port >60000)
-		webServerLog(ERROR,"Invalid port number try [1,60000]",argv[1],0);
+		serverLog(WEBSERVER,ERROR,"Invalid port number try [1,60000]",argv[1]);
 	
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	serv_addr.sin_port = htons(port);
 	
 	if(bind(server_sock, (struct sockaddr *)&serv_addr,sizeof(serv_addr)) <0)
-		webServerLog(ERROR,"system call","bind",0);
+		serverLog(WEBSERVER,ERROR,"system call","bind");
 	
 	if( listen(server_sock,64) <0)
-		webServerLog(ERROR,"system call","listen",0);
+		serverLog(WEBSERVER,ERROR,"system call","listen");
 
 
 	for(hitCnt=1; ;hitCnt++, pthread_id++) {
@@ -269,7 +238,7 @@ int webServerHandle(int argc, char** argv){
 
 		length = sizeof(cli_addr);
 		if( ( client_sock = accept(server_sock, (struct sockaddr *)&cli_addr, &length ) ) < 0 )
-			webServerLog(ERROR,"system call","accept",0);
+			serverLog(WEBSERVER,ERROR,"system call","accept");
 
 		#ifdef DEV
 			printf("[System Dev] Accepted with fd %d!\n", client_sock);

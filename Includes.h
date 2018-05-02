@@ -21,12 +21,23 @@
 
 #include <fcntl.h>
 
+#define BUFSIZE 8096
 
-// void server_error(const char *message, int server_socket);
+// for log
+#define SYSTEM 		10
+#define WEBSERVER 	11
+#define	WSSERVER	12
+#define ERROR 	40
+#define LOG 	41
+#define FILELOG 42
+
+
 void error_handler(const char* msg);
 
 // signals
 void brokenPipe(int sig);
-void inturrupt(int sig);
+void interrupt_handle(int sig);
 
+// log
+void serverLog(int from, int type, char* msg, char* subMsg );
 #endif

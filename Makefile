@@ -11,7 +11,7 @@ EXEC 	= server
 all: clean server
 
 server: $(OBJECTS) 
-	$(CC) $(INCL) $(CFLAGS) $(OBJECTS) -lpthread $(EXEC).c -o $(EXEC) -std=c99 $(LIBRARIES)
+	$(CC) $(INCL) $(CFLAGS) $(OBJECTS) -lpthread $(EXEC).c -o $(EXEC) $(LIBRARIES) #-std=c99 
 
 clean:
 	rm -f $(EXEC) *.o

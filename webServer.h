@@ -3,13 +3,6 @@
 
 #include "Includes.h"
 
-#define BUFSIZE 8096
-#define ERROR 		42
-#define SORRY 		43
-#define LOG 	44
-#define FILELOG   	45
-
-
 typedef struct web_client_info{
 	int socket_id;
 	int client_idx;
