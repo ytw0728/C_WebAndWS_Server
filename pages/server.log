@@ -3452,3 +3452,315 @@ Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
 
 [ ERROR ] failed to read browser request ( pid : 511 )
 
+[ INFO:  ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO:  ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO:  ] 경로 이동 성공
+[ INFO: MESSAGE ] WebSocketServer Start
+
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO:  ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO:  ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO:  ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO:  ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WebSocketServer Start
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO:  ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO:  ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO: MESSAGE ] WebSocketServer Start
+
+[ INFO:  ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO: MESSAGE ] WebSocketServer Start
+
+[ INFO:  ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO: SEND ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO: fd = 5 ] Accepted
+
+[ INFO: fd = 6 ] Accepted
+
+[ INFO: GET / HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Upgrade-Insecure-Requests: 1 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+Cookie: locale=ko_KR 
+ 
+ ] request
+
+[ INFO: fd = 7 ] Accepted
+
+[ INFO: SEND ] index.html
+
+[ INFO: fd = 9 ] Accepted
+
+[ INFO: SEND ] request index.html 		200
+
+[ INFO: fd = 10 ] Accepted
+
+[ INFO: GET /css/font.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+Cookie: locale=ko_KR 
+ 
+ ] request
+
+[ INFO: GET /css/index.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+Cookie: locale=ko_KR 
+ 
+ ] request
+
+[ INFO: SEND ] css/index.css
+
+[ INFO: SEND ] css/font.css
+
+[ INFO: GET /js/index.js HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+Cookie: locale=ko_KR 
+ 
+ ] request
+[ INFO: SEND ] request css/index.css 		200
+
+
+[ INFO: SEND ] request css/font.css 		200
+
+[ INFO: SEND ] js/index.js
+
+[ INFO: SEND ] request js/index.js 		200
+
+[ INFO: fd = 6 ] Accepted
+
+[ INFO: GET /css/font/NotoSansKR-Bold.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+Cookie: locale=ko_KR 
+ 
+ ] request
+
+[ INFO: SEND ] css/font/NotoSansKR-Bold.otf
+
+[ INFO: GET /css/font/NotoSansKR-Light.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+Cookie: locale=ko_KR 
+ 
+ ] request
+
+[ INFO: SEND ] css/font/NotoSansKR-Light.otf
+
+[ INFO: SEND ] request css/font/NotoSansKR-Light.otf 		200
+
+[ INFO: SEND ] request css/font/NotoSansKR-Bold.otf 		200
+
+[ INFO: fd = 6 ] Accepted
+
+[ INFO: GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+Cookie: locale=ko_KR 
+ 
+ ] request
+
+[ ERROR ] file extension type not supported ( pid : 410 )
+
+[ INFO: fd = 6 ] Accepted
+
+[ INFO: GET /testWeb.html HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Upgrade-Insecure-Requests: 1 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+Cookie: locale=ko_KR 
+ 
+ ] request
+
+[ INFO: SEND ] testWeb.html
+
+[ INFO: SEND ] request testWeb.html 		200
+
+[ INFO: fd = 6 ] Accepted
+
+[ INFO: fd = 13 ] Accepted
+
+[ INFO: fd = 14 ] Accepted
+
+[ INFO: fd = 15 ] Accepted
+
+[ INFO: fd = 16 ] Accepted
+
+[ INFO: GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/testWeb.html 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+Cookie: locale=ko_KR 
+ 
+ ] request
+
+[ ERROR ] file extension type not supported ( pid : 410 )
+
+[ INFO: GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/testWeb.html 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+Cookie: locale=ko_KR 
+ 
+ ] request
+
+[ ERROR ] file extension type not supported ( pid : 410 )
+
+[ INFO: GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/testWeb.html 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+Cookie: locale=ko_KR 
+ 
+ ] request
+
+[ ERROR ] file extension type not supported ( pid : 410 )
+
+[ INFO: GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/testWeb.html 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+Cookie: locale=ko_KR 
+ 
+ ] request
+
+[ ERROR ] file extension type not supported ( pid : 410 )
+
+[ INFO: GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/testWeb.html 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+Cookie: locale=ko_KR 
+ 
+ ] request
+
+[ ERROR ] file extension type not supported ( pid : 410 )
+
+[ INFO: fd = 13 ] Accepted
+
+[ INFO: GET /favicon.ico HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36 
+Accept: image/webp,image/apng,image/*,*/*;q=0.8 
+Referer: http://localhost/testWeb.html 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+Cookie: locale=ko_KR 
+ 
+ ] request
+
+[ ERROR ] file extension type not supported ( pid : 410 )
+
+[ INFO: fd = 13 ] Accepted
+
+[ ERROR ] failed to read browser request ( pid : 410 )
+
+[ INFO: MESSAGE ] WebSocketServer Start
+
+[ INFO: SEND ] 경로 이동 성공
+
+[ INFO: accept() ] connect!
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO: SEND ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+

@@ -242,12 +242,13 @@ int passive_server( int port, int iDontKnowButIGuessItIsProtocol){
 */
 
 
-void *webSocketServerHandle(){	
+void *webSocketServerHandle(){
+	serverLog(WSSERVER, LOG, "WEBSOCKET SERVER FUNCTION START", "MESSAGE");
 
 	int sock;
 	if( (sock = socket(PF_INET, SOCK_STREAM, 0)) < -1 ){
-		printf("socket error\n");
-		exit(1);
+		serverLog(WSSERVER, ERROR, "system call error", "socket()");
+		exit(EXIT_FAILURE);
 	}
 
 	struct sockaddr_in server_addr;
@@ -257,32 +258,35 @@ void *webSocketServerHandle(){
 	server_addr.sin_addr.s_addr 	= htonl( INADDR_ANY);
 
 	if( bind( sock, (struct sockaddr*)&server_addr, sizeof( server_addr)) < -1  ){
-		printf("bind error\n");
-		exit(1);
+		serverLog(WSSERVER, ERROR, "system call error", "bind()");
+		exit(EXIT_FAILURE);
 	}
 	
 	if( listen(sock, 64) < 0 ){
-		printf("listenning error\n");
-		exit(1);
+		serverLog(WSSERVER, ERROR, "system call error", "listen()");
+		exit(EXIT_FAILURE);
 	}
+
+	serverLog(WSSERVER, LOG, "WebSocketServer Start", "MESSAGE");
 
 	int ser_fd = sock;
 
 	struct sockaddr_in client_addr;
 	socklen_t addr_length = sizeof(client_addr);
-	int conn = accept(ser_fd,(struct sockaddr*)&client_addr, &addr_length);
-
-	printf("connected!\n");
 	
-	shakehands(conn);
+    while (1){
+    	int conn = accept(ser_fd,(struct sockaddr*)&client_addr, &addr_length);
+		if( conn == -1 ) serverLog(WSSERVER,ERROR,"system call error","accept()");
 
-    int count = 10;
-    while (count--){
+		serverLog(WSSERVER,LOG,"connect","accept()");
+		// need threading process
+		shakehands(conn);
+
         frame_head head;
         int rul = recv_frame_head(conn,&head);
         if (rul < 0)
             break;
-        printf("fin=%d\nopcode=0x%X\nmask=%d\npayload_len=%llu\n",head.fin,head.opcode,head.mask,head.payload_length);
+        // printf("fin=%d\nopcode=0x%X\nmask=%d\npayload_len=%llu\n",head.fin,head.opcode,head.mask,head.payload_length);
 
         //echo head
         send_frame_head(conn,&head);
@@ -297,16 +301,16 @@ void *webSocketServerHandle(){
             size+=rul;
 
             umask_setting(payload_data,size,head.masking_key);
-            printf("recive:%s",payload_data);
+            // printf("recive:%s",payload_data);
 
             //echo data
             if (write(conn,payload_data,rul)<=0)
                 break;
         }while(size< (int)head.payload_length);
-        printf("\n-----------\n");
+    	close(conn);
+
     }
 
-    close(conn);
     close(ser_fd);
 
     return NULL;

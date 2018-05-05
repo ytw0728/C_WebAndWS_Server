@@ -2,10 +2,8 @@
 #include "webSocketServer.h"
 #include <sys/stat.h> 			/* stat */
 
-
 pthread_attr_t pthread_attr;
 pthread_t pthread_id;
-
 
 int main(int argc, char **argv){
 	struct sigaction act;
@@ -18,8 +16,6 @@ int main(int argc, char **argv){
 		serverLog(SYSTEM, ERROR, "sigaction() error with SIGINT\n", "" );
 		exit(1);
 	}
-
-	
 
 	memset( &act, '\0', sizeof(act));
 	act.sa_handler = SIG_IGN;
@@ -44,7 +40,3 @@ int main(int argc, char **argv){
 
 	webServerHandle(argc, argv);
 }
-
-
-
-

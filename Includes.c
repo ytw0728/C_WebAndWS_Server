@@ -7,12 +7,6 @@ void error_handler(const char* msg){
 	exit(EXIT_FAILURE);
 }
 
-void brokenPipe(int sig){
-	if( sig == SIGPIPE ){
-
-	}
-}
-
 void interrupt_handle(int sig){
 	if( sig == SIGINT){
 		char input;
@@ -43,17 +37,20 @@ void serverLog(int from, int type, char* msg, char* subMsg ){
 
 	switch (type) {
 		case ERROR: 
-			(void)sprintf(logbuffer,"[ ERROR ] %s ( pid : %d )\n",msg,getpid()); 
-			printf("%s", logbuffer);
+			(void)sprintf(logbuffer,"[ ERROR ] %s ( pid : %d )\n",msg,getpid());
+			fputs(logbuffer, stderr);
+
 			break;
 
 		case LOG:
-			(void)printf("[INFO: %s ] %s\n",subMsg, msg);
+			#ifdef DEV
+				(void)printf("[INFO: %s ] %s\n",subMsg, msg);
+			#endif
 
 		case FILELOG:
 			(void)sprintf(logbuffer,"[ INFO: %s ] %s\n",subMsg, msg);
 			break;
-	}	
+	}
 	
 	if( (fd = open("server.log", O_CREAT| O_WRONLY | O_APPEND,0644)) >= 0 ){
 		(void)write(fd,logbuffer,strlen(logbuffer)); 

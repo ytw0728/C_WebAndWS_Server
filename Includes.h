@@ -35,7 +35,6 @@
 void error_handler(const char* msg);
 
 // signals
-void brokenPipe(int sig);
 void interrupt_handle(int sig);
 
 // log
