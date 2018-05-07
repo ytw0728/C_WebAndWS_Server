@@ -17,6 +17,13 @@ make run PORT=80 DIR=./pages
 
 ++ websocket port : 12345 ( default )
 
+## DEV
+'''sh
+make dev PORT=80 DIR='/pages
+'''
+
+print log를 콘솔 상에 출력합니다.
+make run 은 print log 를 출력하지 않음.
 
 ## MEMO
 libssl 및 libcrypto 설치를 위해 다음을 실행해주세요. ( ubuntu )
