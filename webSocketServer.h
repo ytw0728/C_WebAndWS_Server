@@ -2,6 +2,7 @@
 #define _WEBSOCKET_H
 
 #include "Includes.h"
+// #include "utf8.h"
 
 #include <openssl/sha.h>
 #include <openssl/pem.h>
@@ -14,13 +15,20 @@
 #define WSPORT 12345
 
 typedef struct _frame_head {
-	char fin;
-	char opcode;
-	char mask;
+	unsigned char fin;
+	unsigned char rev[3];
+	unsigned char opcode;
+	unsigned char mask;
 	unsigned long long payload_length;
-	char masking_key[4];
+	unsigned char masking_key[4];
 } frame_head;
 
+typedef struct WSclient_data{
+	int fd;
+	int gameRoom;
+	int userIdx;
+	pthread_t thread_id;
+} client_data;
 
 
 int base64_encode(unsigned char *in_str, int in_len, char *out_str);
@@ -31,6 +39,7 @@ void umask_setting(char *data,int len,char *mask);
 
 int send_frame_head(int fd,frame_head* head);
 // int passive_server( int port, int iDontKnowButIGuessItIsProtocol);
+void *Wsconnect(void *args);
 void *webSocketServerHandle();
 
 

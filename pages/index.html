@@ -1,7 +1,9 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-	<title>Doodle!</title>
+	<link rel = "shortcut icon" href = "/pics/favicon.ico" type ="image/x-icon" />
+	<link rel = "icon" href= "/pics/favicon.ico" type = "image/x-icon"/>
+	<title>Doodle</title>
 	<link rel="stylesheet" type="text/css" href="/css/font.css">
 	<link rel="stylesheet" type="text/css" href="/css/index.css">
 	<script type = "text/javascript" src = "/js/index.js"></script>
@@ -10,21 +12,26 @@
 	<div id = "wrap">
 		<div id = "app">
 			<header><a href = "/">DOODLE</a></header>
-			<container>
+			<container id = "main">
 				<div id = "leftUsers" class = "userContainer">
 					<div class = "users"></div>
 					<div class = "users"></div>
 					<div class = "users"></div>
 				</div>
 				<div id = "playBoard">
-					<canvas>
-					</canvas>
+					<canvas id = "canvas">이 브라우저는 canvas 태그를 지원하지 않습니다.</canvas>
 				</div>
 				<div id = "leftUsers" class = "userContainer">
 					<div class = "users"></div>
 					<div class = "users"></div>
 					<div class = "users"></div>
 				</div>
+			</container>
+			<container id = "chat">
+				<div class = "chattingBox">
+				</div>
+				<textarea id = "chatInput" onkeydown="keypressHandle(event)"></textarea>
+				<input type = "button" onclick="sendMessage(event)" value = "버튼"/>
 			</container>
 			<footer>NETWORK PROGRAMMING_SOONGSIL UNIV._MIT LICENSE</footer>
 		</div>

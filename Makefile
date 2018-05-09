@@ -32,6 +32,8 @@ Includes.o: Includes.c Includes.h
 DEVIncludes.o: Includes.c Includes.h
 	$(CC) $(CFLAGS) -D DEV -c Includes.c
 
+# utf8.o: utf8.c utf8.h
+# 	$(CC) $(CFLAGS) -c utf8.c	
 
 webServer.o: webServer.c webServer.h Includes.h
 	$(CC) $(CFLAGS) -c webServer.c

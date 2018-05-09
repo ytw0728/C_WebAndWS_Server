@@ -10,14 +10,18 @@ void error_handler(const char* msg){
 void interrupt_handle(int sig){
 	if( sig == SIGINT){
 		char input;
+		char c;
+
 		do{
 			printf("\r작업을 종료하시겠습니까 ? ( y / n ) >> ");
-			input = getchar();
-			char c;
-			while( ( c = getchar() != '\n') && c != ' ' );
-
+			while( input = getchar() ){
+				if( input == '\n' || 0 < input && input <= 32 /* all interrupt key and space*/) continue;
+				else{
+					while( ( c = getchar() != '\n' ) && 0 >= c && c > 32 );
+					break;
+				}
+			};
 		}while( input != 'y' && input != 'n' && input != 'Y' && input != 'N');
-
 		if( input == 'y' || input == 'Y' ){
 			printf("\nBye Bye~! :)\n\n");
 			exit(0);			
@@ -29,17 +33,21 @@ void interrupt_handle(int sig){
 void serverLog(int from, int type, char* msg, char* subMsg ){
 	int fd ;
 	char logbuffer[BUFSIZE*2];
-	switch( from ){
-		case SYSTEM : printf("\rSYSTEM >> "); break;
-		case WEBSERVER : printf("\rWEBSERVER >> "); break;
-		case WSSERVER :	printf("\rWSSERVER >> "); break;
-	}
+	#ifdef DEV
+		switch( from ){
+			case SYSTEM : printf("\rSYSTEM >> "); break;
+			case WEBSERVER : printf("\rWEBSERVER >> "); break;
+			case WSSERVER :	printf("\rWSSERVER >> "); break;
+		}
+	#endif
 
 	switch (type) {
 		case ERROR: 
-			(void)sprintf(logbuffer,"[ ERROR ] %s ( pid : %d )\n",msg,getpid());
+			(void)sprintf(logbuffer,"[ ERROR ] %s ( point : %s )\n",msg,subMsg);
 			fputs(logbuffer, stderr);
-
+			#ifdef DEV
+				printf("%s\n", logbuffer);
+			#endif
 			break;
 
 		case LOG:

@@ -26,6 +26,10 @@
 	font-family: 'NotoSans_Thin-Windows';
 	src: url('./font/NotoSansKR-Thin-Windows.otf');
 }
+@font-face{
+	font-family: 'Pangolin';
+	src: url('./font/Pangolin-Regular.ttf');
+}
 
 
 

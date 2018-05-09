@@ -24,8 +24,12 @@ header{
 	padding-bottom: 2rem;
 	width: 100%;
 	height: 3rem;
-	font-size: 1.6rem;
-	font-family: "NoToSans_Bold";	
+	font-size: 2rem;
+	font-family: "Pangolin";
+}
+header::selection{
+	background: none;
+	color: black;
 }
 	header > a{
 		display: inline-block;
@@ -38,7 +42,7 @@ header{
 		text-decoration: none;
 	}
 
-container{
+container#main{
 	display: inline-block;
 	width: 100%;
 	height: 70vh;
@@ -46,14 +50,51 @@ container{
 }
 
 
-	container > div.userContainer{
+	container#main > div.userContainer{
 		display: inline-block;
 		width: 20%;
 		background-color: blue;
 		height: 100%;
 	}
-	container > div#playBoard{
+	container#main > div#playBoard{
 		display: inline-block;
 		height: 100%;
 		width: 59%;
 	}
+	
+
+
+container#chat{
+	display: inline-block;
+	width: 100%;
+	height: 20vh;
+}
+	container#chat > div.chattingBox{
+		display: inline-block;
+		width: 100%;
+		height: 60%;
+
+		overflow: auto;
+	}
+	container#chat > textarea#chatInput{
+		display: inline-block;
+		width: 78%;
+		height: 30%;
+		vertical-align: top;
+	}
+
+	container#chat > input[type=button]{
+		display: inline-block;
+		width: 20%;
+		height: 30%;
+		vertical-align: top;
+	}
+
+
+
+footer{
+	display: inline-block;
+	width: 100%;
+	height: 2rem;
+
+}

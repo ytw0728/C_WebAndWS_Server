@@ -26,6 +26,7 @@ struct extension_type{
    	{"ttf", "font/ttf"	},
    	{"eot", "font/eot"	},
    	{"otf", "font/otf"	},
+   	{"ico", "image/x-icon"	},
    	{"opentype", "font/opentype"},
 	{0,0}
 };
@@ -185,12 +186,6 @@ int webServerHandle(int argc, char** argv){
 	}
 
 	serverLog(WEBSERVER, LOG, "경로 이동 성공", "SEND");
-
-
-	for(i=4;i<32;i++)
-		(void)close(i);
-	// (void)setpgrp();	 // 데몬 안해 
-
 	
 	
 	if((server_sock = socket(AF_INET, SOCK_STREAM,0)) <0)

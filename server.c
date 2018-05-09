@@ -25,6 +25,11 @@ int main(int argc, char **argv){
 		serverLog(SYSTEM, ERROR, "sigaction() error with SIGPIPE\n", "" );
 		exit(1);
 	}
+	
+	int i;
+	for(i=4;i<32;i++)
+		(void)close(i);
+	// (void)setpgrp();	 // 데몬 안해 
 
 	system("clear");
 	serverLog(SYSTEM,LOG, "Server start", "MESSAGE");
