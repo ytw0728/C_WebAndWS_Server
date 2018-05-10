@@ -1,0 +1,183 @@
+[ INFO: MESSAGE ] Server start
+
+[ INFO: MESSAGE ] WEB SERVER FUNCTION START
+
+[ INFO: MESSAGE ] WEBSOCKET SERVER FUNCTION START
+
+[ INFO: SEND ] Í≤ΩÎ°ú ÏñëÌò∏
+
+[ INFO: MESSAGE ] Server start
+
+[ INFO: MESSAGE ] WEBSOCKET SERVER FUNCTION START
+
+[ INFO: MESSAGE ] WEB SERVER FUNCTION START
+
+[ INFO: SEND ] Í≤ΩÎ°ú ÏñëÌò∏
+
+[ INFO: MESSAGE ] WebSocketServer Start
+
+[ INFO: MESSAGE ] Server start
+
+[ INFO: MESSAGE ] WEB SERVER FUNCTION START
+
+[ INFO: MESSAGE ] WEBSOCKET SERVER FUNCTION START
+
+[ INFO: SEND ] Í≤ΩÎ°ú ÏñëÌò∏
+
+[ INFO: MESSAGE ] Server start
+
+[ INFO: MESSAGE ] WEB SERVER FUNCTION START
+
+[ INFO: MESSAGE ] WEBSOCKET SERVER FUNCTION START
+
+[ INFO: SEND ] Í≤ΩÎ°ú ÏñëÌò∏
+
+[ INFO: SEND ] Í≤ΩÎ°ú Ïù¥Îèô ÏÑ±Í≥µ
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO: fd = 4 ] Accepted
+
+[ INFO: fd = 6 ] Accepted
+
+[ INFO: GET / HTTP/1.1
+Host: localhost
+Connection: keep-alive
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: fd = 7 ] Accepted
+
+[ INFO: SEND ] index.html
+
+[ INFO: fd = 9 ] Accepted
+
+[ INFO: fd = 10 ] Accepted
+
+[ INFO: GET /js/index.js HTTP/1.1
+Host: localhost
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: */*
+Referer: http://localhost/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: GET /css/index.css HTTP/1.1
+Host: localhost
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: text/css,*/*;q=0.1
+Referer: http://localhost/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: fd = 11 ] Accepted
+
+[ INFO: SEND ] css/index.css
+
+[ INFO: SEND ] request index.html 		200
+
+[ INFO: GET /css/font.css HTTP/1.1
+Host: localhost
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: text/css,*/*;q=0.1
+Referer: http://localhost/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+[ INFO: SEND ] js/index.js
+
+
+[ INFO: SEND ] request css/index.css 		200
+
+[ INFO: SEND ] request js/index.js 		200
+
+[ INFO: SEND ] css/font.css
+
+[ INFO: SEND ] request css/font.css 		200
+
+[ INFO: GET /css/font/Pangolin-Regular.ttf HTTP/1.1
+Host: localhost
+Connection: keep-alive
+Origin: http://localhost
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: */*
+Referer: http://localhost/css/font.css
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: SEND ] css/font/Pangolin-Regular.ttf
+
+[ INFO: GET /css/font/NotoSansKR-Light.otf HTTP/1.1
+Host: localhost
+Connection: keep-alive
+Origin: http://localhost
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: */*
+Referer: http://localhost/css/font.css
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: SEND ] css/font/NotoSansKR-Light.otf
+
+[ INFO: SEND ] request css/font/Pangolin-Regular.ttf 		200
+
+[ INFO: SEND ] request css/font/NotoSansKR-Light.otf 		200
+
+[ INFO: accept() ] connect
+
+[ INFO: fd = 9 ] Accepted
+
+[ INFO: GET /pics/favicon.ico HTTP/1.1
+Host: localhost
+Connection: keep-alive
+Pragma: no-cache
+Cache-Control: no-cache
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: image/webp,image/apng,image/*,*/*;q=0.8
+Referer: http://localhost/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+CXPRYX <Y.±.+-∞B,∞9+ä  <∞#Bä8# .F∞%F∞CXPRYX <Y.±.+∞C.∞.+-∞C,∞ ] request
+
+[ INFO: SEND ] pics/favicon.ico
+
+[ INFO: SEND ] request pics/favicon.ico 		200
+
+[ INFO: fd = 9 ] Accepted
+
+[ INFO: GET /pics/favicon.ico HTTP/1.1
+Host: localhost
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: image/webp,image/apng,image/*,*/*;q=0.8
+Referer: http://localhost/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: SEND ] pics/favicon.ico
+
+[ INFO: SEND ] request pics/favicon.ico 		200
+
+[ INFO: fd = 9 ] Accepted
+

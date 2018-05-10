@@ -60,10 +60,13 @@ void serverLog(int from, int type, char* msg, char* subMsg ){
 			break;
 	}
 	
-	if( (fd = open("server.log", O_CREAT| O_WRONLY | O_APPEND,0644)) >= 0 ){
+	if( (fd = open("../server.log", O_CREAT| O_WRONLY | O_APPEND,0644)) >= 0 ){
 		(void)write(fd,logbuffer,strlen(logbuffer)); 
 		(void)write(fd,"\n",1);
 
 		(void)close(fd);
+	}
+	else{
+		printf("server.log FILE is not found.\n");
 	}
 }

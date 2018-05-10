@@ -32772,3 +32772,687 @@ Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
 
 [ INFO: accept() ] connect
 
+[ INFO: MESSAGE ] WebSocketServer Start
+
+[ INFO: SEND ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO: fd = 5 ] Accepted
+
+[ INFO: GET / HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Upgrade-Insecure-Requests: 1 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: fd = 6 ] Accepted
+
+[ INFO: fd = 7 ] Accepted
+
+[ INFO: SEND ] index.html
+
+[ INFO: fd = 9 ] Accepted
+
+[ INFO: SEND ] request index.html 		200
+
+[ INFO: fd = 5 ] Accepted
+
+[ INFO: GET /css/font.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: GET /js/index.js HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: GET /css/index.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+[ INFO: fd = 10 ] Accepted
+
+
+[ INFO: SEND ] css/font.css
+
+[ INFO: SEND ] js/index.js
+
+[ INFO: SEND ] css/index.css
+
+[ INFO: SEND ] request js/index.js 		200
+[ INFO: SEND ] request css/font.css 		200
+
+
+[ INFO: SEND ] request css/index.css 		200
+
+[ INFO: GET /css/font/Pangolin-Regular.ttf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: GET /css/font/NotoSansKR-Light.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: SEND ] css/font/NotoSansKR-Light.otf
+
+[ INFO: SEND ] css/font/Pangolin-Regular.ttf
+
+[ INFO: SEND ] request css/font/Pangolin-Regular.ttf 		200
+
+[ INFO: SEND ] request css/font/NotoSansKR-Light.otf 		200
+
+[ INFO: accept() ] connect
+
+[ INFO: SEND ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO: fd = 5 ] Accepted
+
+[ INFO: fd = 6 ] Accepted
+
+[ INFO: GET / HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Upgrade-Insecure-Requests: 1 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: fd = 7 ] Accepted
+
+[ INFO: SEND ] index.html
+
+[ INFO: SEND ] request index.html 		200
+
+[ INFO: fd = 8 ] Accepted
+
+[ INFO: GET /css/font.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: SEND ] css/font.css
+
+[ INFO: GET /css/index.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: SEND ] request css/font.css 		200
+
+[ INFO: fd = 10 ] Accepted
+
+[ INFO: GET /js/index.js HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: SEND ] css/index.css
+
+[ INFO: SEND ] js/index.js
+
+[ INFO: SEND ] request js/index.js 		200
+
+[ INFO: SEND ] request css/index.css 		200
+
+[ INFO: fd = 12 ] Accepted
+
+[ INFO: GET /css/font/Pangolin-Regular.ttf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: GET /css/font/NotoSansKR-Light.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: SEND ] css/font/NotoSansKR-Light.otf
+
+[ INFO: SEND ] css/font/Pangolin-Regular.ttf
+
+[ INFO: SEND ] request css/font/Pangolin-Regular.ttf 		200
+
+[ INFO: SEND ] request css/font/NotoSansKR-Light.otf 		200
+
+[ INFO: accept() ] connect
+
+[ INFO: fd = 10 ] Accepted
+
+[ INFO: fd = 12 ] Accepted
+
+[ INFO: GET /css/font.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: SEND ] css/font.css
+
+[ INFO: GET /css/index.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: SEND ] css/index.css
+
+[ INFO: SEND ] request css/font.css 		200
+
+[ INFO: SEND ] request css/index.css 		200
+
+[ INFO: fd = 10 ] Accepted
+
+[ INFO: GET / HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Cache-Control: max-age=0 
+Upgrade-Insecure-Requests: 1 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: SEND ] index.html
+
+[ INFO: SEND ] request index.html 		200
+
+[ INFO: fd = 10 ] Accepted
+
+[ INFO: fd = 15 ] Accepted
+[ INFO: GET /css/font.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+
+[ INFO: fd = 16 ] Accepted
+
+[ INFO: GET /css/index.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: SEND ] css/font.css
+
+[ INFO: fd = 18 ] Accepted
+[ INFO: GET /js/index.js HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+
+[ INFO: SEND ] css/index.css
+
+[ INFO: SEND ] js/index.js
+
+[ INFO: SEND ] request css/index.css 		200
+
+[ INFO: SEND ] request css/font.css 		200
+
+[ INFO: fd = 21 ] Accepted
+
+[ INFO: SEND ] request js/index.js 		200
+
+[ INFO: GET /css/font/Pangolin-Regular.ttf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: GET /css/font/NotoSansKR-Light.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: SEND ] css/font/NotoSansKR-Light.otf
+
+[ INFO: SEND ] css/font/Pangolin-Regular.ttf
+
+[ INFO: SEND ] request css/font/Pangolin-Regular.ttf 		200
+
+[ INFO: SEND ] request css/font/NotoSansKR-Light.otf 		200
+
+[ INFO: accept() ] connect
+
+[ INFO: fd = 16 ] Accepted
+
+[ INFO: fd = 18 ] Accepted
+
+[ INFO: fd = 21 ] Accepted
+
+[ INFO: fd = 22 ] Accepted
+
+[ INFO: fd = 23 ] Accepted
+
+[ INFO: fd = 24 ] Accepted
+
+[ INFO: accept() ] connect
+
+[ ERROR ] failed to read browser request ( point :  )
+
+[ ERROR ] failed to read browser request ( point :  )
+
+[ ERROR ] failed to read browser request ( point :  )
+
+[ ERROR ] failed to read browser request ( point :  )
+
+[ ERROR ] failed to read browser request ( point :  )
+
+[ ERROR ] failed to read browser request ( point :  )
+
+[ INFO: MESSAGE ] WebSocketServer Start
+
+[ INFO: SEND ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO: fd = 5 ] Accepted
+
+[ INFO: fd = 6 ] Accepted
+
+[ INFO: GET / HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Upgrade-Insecure-Requests: 1 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: fd = 7 ] Accepted
+
+[ INFO: SEND ] index.html
+
+[ INFO: SEND ] request index.html 		200
+
+[ INFO: fd = 9 ] Accepted
+
+[ INFO: fd = 5 ] Accepted
+
+[ INFO: GET /css/font.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: fd = 10 ] Accepted
+
+[ INFO: GET /css/index.css HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: text/css,*/*;q=0.1 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: SEND ] css/index.css
+
+[ INFO: GET /js/index.js HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/ 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+[ INFO: SEND ] request css/index.css 		200
+[ INFO: SEND ] css/font.css
+
+
+
+[ INFO: SEND ] js/index.js
+
+[ INFO: SEND ] request js/index.js 		200
+
+[ INFO: SEND ] request css/font.css 		200
+
+[ INFO: GET /css/font/NotoSansKR-Light.otf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: GET /css/font/Pangolin-Regular.ttf HTTP/1.1 
+Host: localhost 
+Connection: keep-alive 
+Origin: http://localhost 
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 
+Accept: */* 
+Referer: http://localhost/css/font.css 
+Accept-Encoding: gzip, deflate, br 
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7 
+ 
+ ] request
+
+[ INFO: SEND ] css/font/NotoSansKR-Light.otf
+
+[ INFO: SEND ] css/font/Pangolin-Regular.ttf
+
+[ INFO: SEND ] request css/font/Pangolin-Regular.ttf 		200
+
+[ INFO: SEND ] request css/font/NotoSansKR-Light.otf 		200
+
+[ INFO: accept() ] connect
+
+[ INFO: SEND ] 경로 이동 성공
+
+[ INFO: MESSAGE ] WebSocketServer Start
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO: fd = 3 ] Accepted
+
+[ INFO: GET / HTTP/1.1
+Host: localhost
+Connection: keep-alive
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: fd = 6 ] Accepted
+
+[ INFO: SEND ] index.html
+
+[ INFO: fd = 8 ] Accepted
+
+[ INFO: SEND ] request index.html 		200
+
+[ INFO: fd = 9 ] Accepted
+[ INFO: GET /css/index.css HTTP/1.1
+Host: localhost
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: text/css,*/*;q=0.1
+Referer: http://localhost/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: SEND ] css/index.css
+
+
+[ INFO: GET /css/font.css HTTP/1.1
+Host: localhost
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: text/css,*/*;q=0.1
+Referer: http://localhost/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: fd = 11 ] Accepted
+
+[ INFO: fd = 12 ] Accepted
+
+[ INFO: GET /js/index.js HTTP/1.1
+Host: localhost
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: */*
+Referer: http://localhost/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+x.css">
+	<script type = "text/javascript" src = "/js/index.js"></script>
+</head>
+<body>
+	<div id = "wrap">
+		<div id = "app">
+			<header><a href = "/">DOODLE</a></header>
+			<container id = "main">
+				<div id = "leftUsers" class = "userContainer">
+					<div class = "users"></div>
+					<div class = "users"></div>
+					<div class = "users"></div>
+				</div>
+				<div id = "playBoard">
+					<canvas id = "canvas">이 브라우저는 canvas 태그를 지원하지 않습니다.</canvas>
+				</div>
+				<div id = "leftUsers" class = "userContainer">
+					<div class = "users"></div>
+					<div class = "users"></div>
+					<div class = "users"></div>
+				</div>
+			</container>
+			<container id = "chat">
+				<div class = "chattingBox">
+				</div>
+				<textarea id = "chatInput" onkeydown="keypressHandle(event)"></textarea>
+				<input type = "button" onclick="sendMessage(event)" value = "버튼"/>
+			</container>
+			<footer>NETWORK PROGRAMMING_SOONGSIL UNIV._MIT LICENSE</footer>
+		</div>
+	</div>
+</body>
+</html> ] request
+
+[ INFO: SEND ] js/index.js
+
+[ INFO: SEND ] css/font.css
+
+[ INFO: SEND ] request js/index.js 		200
+[ INFO: SEND ] request css/index.css 		200
+
+
+[ INFO: SEND ] request css/font.css 		200
+
+[ INFO: GET /css/font/Pangolin-Regular.ttf HTTP/1.1
+Host: localhost
+Connection: keep-alive
+Origin: http://localhost
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: */*
+Referer: http://localhost/css/font.css
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: GET /css/font/NotoSansKR-Light.otf HTTP/1.1
+Host: localhost
+Connection: keep-alive
+Origin: http://localhost
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: */*
+Referer: http://localhost/css/font.css
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+[ INFO: SEND ] css/font/Pangolin-Regular.ttf
+
+
+[ INFO: SEND ] css/font/NotoSansKR-Light.otf
+
+[ INFO: SEND ] request css/font/Pangolin-Regular.ttf 		200
+
+[ INFO: SEND ] request css/font/NotoSansKR-Light.otf 		200
+
+[ INFO: accept() ] connect
+
+[ INFO: fd = 11 ] Accepted
+
+[ INFO: GET /pics/favicon.ico HTTP/1.1
+Host: localhost
+Connection: keep-alive
+Pragma: no-cache
+Cache-Control: no-cache
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: image/webp,image/apng,image/*,*/*;q=0.8
+Referer: http://localhost/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+CXPRYX <Y.�.+-�B,�9+�  <�#B�8# .F�%F�CXPRYX <Y.�.+�C.�.+-�C,� ] request
+
+[ INFO: SEND ] pics/favicon.ico
+
+[ INFO: SEND ] request pics/favicon.ico 		200
+
+[ INFO: fd = 11 ] Accepted
+
+[ INFO: GET /pics/favicon.ico HTTP/1.1
+Host: localhost
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36
+Accept: image/webp,image/apng,image/*,*/*;q=0.8
+Referer: http://localhost/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: SEND ] pics/favicon.ico
+
+[ INFO: SEND ] request pics/favicon.ico 		200
+
+[ INFO: fd = 11 ] Accepted
+

@@ -56,6 +56,9 @@ void *web(void *args) {
 		serverLog(WEBSERVER,ERROR,"failed to read browser request","");
 		goto IGNORE;
 	}
+	
+	serverLog(WEBSERVER,FILELOG,"request",buffer);
+
 	if(ret > 0 && ret < BUFSIZE) buffer[ret]=0;
 	else buffer[0]=0;
 
@@ -68,7 +71,6 @@ void *web(void *args) {
 		}
 	}
 
-	serverLog(WEBSERVER,FILELOG,"request",buffer);
 
 	if( strncmp(buffer,"GET ",4) && strncmp(buffer,"get ",4) ){
 		serverLog(WEBSERVER,ERROR,"Only simple GET operation supported",buffer);
