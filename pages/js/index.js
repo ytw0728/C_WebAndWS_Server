@@ -1,7 +1,9 @@
 let ws;
 window.onload= function(){
-	let p = document.getElementsByClassName("chattingBox")[0];
+	let p = document.getElementsByClassName("chatHistory")[0];
 	let app = document.getElementById("app");
+
+
 
 	ws = new WebSocket("ws://localhost:12345");
 
@@ -13,9 +15,9 @@ window.onload= function(){
 	ws.onmessage = function (event) {
 		let tmp = event.data.replace( /(?:\r\n|\r|\n)/g, '<br>');
 
-		p.innerHTML += "client : " + tmp + "<br/>";
-		let chattingBox = document.getElementsByClassName("chattingBox")[0];
-		chattingBox.scrollTop = chattingBox.scrollHeight;
+		p.innerHTML += "<div class = 'msg'><span class = 'sender'>client | </span><span class = 'contents'>" + tmp + "</span></div>";
+		let chatHistory = document.getElementsByClassName("chatHistory")[0];
+		chatHistory.scrollTop = chatHistory.scrollHeight;
 	}
 
 	ws.onclose = function(event){

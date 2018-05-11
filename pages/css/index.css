@@ -2,6 +2,12 @@ html, body, container, footer, header{
 	padding : 0;
 	margin: 0;
 	font-family: "NotoSans_Light";
+
+	text-align:center;
+}
+
+body > *{
+	text-align: left;
 }
 
 div#wrap,div#app{
@@ -19,13 +25,17 @@ div#app{
 	width: 100%;
 }
 header{
+	text-align: left;
 	display: inline-block;
-	padding-top: 2rem;
-	padding-bottom: 2rem;
-	width: 100%;
+	margin-top: 2rem;
+	width: 99%;
 	height: 3rem;
+	line-height: 3rem;
 	font-size: 2rem;
 	font-family: "Pangolin";
+
+	border: .1rem solid #000000;
+	border-radius: 1rem;
 }
 header::selection{
 	background: none;
@@ -44,57 +54,149 @@ header::selection{
 
 container#main{
 	display: inline-block;
+	max-width: 1920px;
 	width: 100%;
+	min-height: 70vh;
 	height: 70vh;
+	overflow: visible;
 	text-align: center;
-}
-
-
-	container#main > div.userContainer{
-		display: inline-block;
-		width: 20%;
-		background-color: blue;
-		height: 100%;
-	}
-	container#main > div#playBoard{
-		display: inline-block;
-		height: 100%;
-		width: 59%;
-	}
 	
+	font-size: 0;
 
-
-container#chat{
-	display: inline-block;
-	width: 100%;
-	height: 20vh;
+	
 }
-	container#chat > div.chattingBox{
-		display: inline-block;
-		width: 100%;
-		height: 60%;
+
+	container#main > * {
+		font-size: 1rem;
+		vertical-align: top;
+		height: 100%;
+	}
+
+
+	container#main > div#userBox{
+		display: inline-block;	
+		width: 13%;
+
+		height: auto;
+		
 
 		overflow: auto;
+
+		max-height: 100%;
+		border: .1rem solid #000000;
+		border-radius: .3rem;
 	}
-	container#chat > textarea#chatInput{
+		container#main > div#userBox > ul.users{
+			display: inline-block;
+			width: 90%;
+			height: auto;
+			padding: 5%;
+		}
+			container#main > div#userBox > ul.users > li.user{
+				display: inline-block;
+				list-style: none;
+				width: 96%;
+				margin: 2%;
+
+				height: 3rem;
+
+				background: #ffffff;
+
+				border: .1rem solid #000000;
+				border-radius: .3rem;
+
+				line-height: 3rem;
+
+
+			}
+	container#main > div#playBoard{
 		display: inline-block;
-		width: 78%;
-		height: 30%;
-		vertical-align: top;
+		width: 48%;
+		min-height: 100%;
+		margin-left: .3rem;
+		margin-right: .3rem;
+		
+		border: .1rem solid #000000;
+		border-radius: .3rem;
 	}
-
-	container#chat > input[type=button]{
+	container#main > div#chat{
+		position: relative;
 		display: inline-block;
-		width: 20%;
-		height: 30%;
-		vertical-align: top;
+		width: 33%;
+		min-height: 100%;
+		border: .1rem solid #000000;
+		border-radius: .3rem;	
 	}
+		container#main > div#chat > div.chatHistory{
+			position: relative;
+			display: inline-block;
+			
+			width: 90%;
+			height: 90%;
+			padding: 5%;
 
+			overflow-y: auto;
+			overflow-x: hidden;
 
+			top : 0;
+			left : 0;
 
-footer{
-	display: inline-block;
-	width: 100%;
-	height: 2rem;
+			text-align: left;
+		
+		}
+			container#main > div#chat > div.chatHistory > div.msg{
+				display: inline-block;
+				width: 90%;
+				margin: 2%;
+				padding : .2rem;
 
-}
+			}
+				container#main > div#chat > div.chatHistory > div.msg > span.sender{
+					display: inline-block;
+					width: 100%;
+					height: 2rem;
+					font-weight: bold;
+				}
+				container#main > div#chat > div.chatHistory > div.msg > span.contents{
+					display: inline-block;
+					width: 100%;
+				}
+
+			container#main > div#chat > div.inputBox{
+				position: absolute;
+				display: inline-block;
+				width: 100%;
+				height: 5rem;
+
+				bottom : 0;
+				left : 0;
+				font-size : 0;
+				padding-bottom: .5rem;
+			}
+				container#main > div#chat > div.inputBox > * {
+					font-size: 1rem;
+				}
+
+				container#main > div#chat > div.inputBox > textarea#chatInput{
+					padding: 0;
+					margin : 0;
+					resize : none;
+
+					font-size: 1.2rem;
+
+					display: inline-block;
+					width: 83%;
+					height: 100%;
+					vertical-align: top;
+
+					border : .1rem solid #aaaaaa;
+					border-radius : .2rem;
+
+				}
+
+				container#main > div#chat > div.inputBox > input[type=button]{
+					display: inline-block;
+					width: 15%;
+					height: 100%;
+					vertical-align: top;
+				}
