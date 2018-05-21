@@ -1,49 +1,191 @@
-let ws;
+﻿let ws;
+
 window.onload= function(){
-	let p = document.getElementsByClassName("chatHistory")[0];
-	let app = document.getElementById("app");
+	ws = new Websocket();
+	layout();
+	initEventHandler();
 
+	canvas = new Draw();
+}
 
+function layout(){
+	let chat = document.getElementById("chat");
+	let chatHistory = document.getElementsByClassName("chatHistory")[0];
+	let inputBox = document.getElementsByClassName("inputBox")[0];
 
-	ws = new WebSocket("ws://localhost:12345");
+	chatHistory.style.height = ( chat.offsetHeight - inputBox.clientHeight - chat.offsetHeight / 100 * 5 ) + "px";
+}
+function initEventHandler(){
+	let chatInput = document.getElementById("chatInput");
+	let sendBtn = document.getElementById("sendBtn");
 
-	ws.onopen = function (event) {
-	  // ws.send("Hello, Server?"); 
-	  ws.send("안녕, 서버?"); 
-	};
-
-	ws.onmessage = function (event) {
-		let tmp = event.data.replace( /(?:\r\n|\r|\n)/g, '<br>');
-
-		p.innerHTML += "<div class = 'msg'><span class = 'sender'>client | </span><span class = 'contents'>" + tmp + "</span></div>";
-		let chatHistory = document.getElementsByClassName("chatHistory")[0];
-		chatHistory.scrollTop = chatHistory.scrollHeight;
-	}
-
-	ws.onclose = function(event){
-		console.log("ws is closed");
-	}
-	ws.onerror = function(event){
-		console.log("Err");
-		ws.close();
-	}
+	sendBtn.addEventListener("click", ws.sendMessage);
+	chatInput.addEventListener("keydown", ws.keyPressHandle);
 }
 
 
-function sendMessage(event){
-	event.preventDefault();
-	console.log("connected");
-	let box = document.getElementById("chatInput");
-	ws.send(box.value);
-	box.value = null;
-}
+class Websocket{
+	constructor(){
+		this.ws = new WebSocket("ws://localhost:12345");
+		this.ws.onopen = function (event) {
+		  this.send("Hello, Server? 안녕, 서버?");
+		};
+		this.ws.onmessage = function (event) {
+			let tmp = event.data.replace( /(?:\r\n|\r|\n)/g, '<br>');
+			let chatHistory = document.getElementsByClassName("chatHistory")[0];
+			console.log(event.data);
 
-function keypressHandle(event){
-	let keycode =  event.which? event.which : event.keyCode;
+			chatHistory.innerHTML += "\
+					<div class = 'msg'>\
+						<span class = 'sender'>\
+							client | \
+						</span>\
+						<span class = 'contents'>"
+						 + tmp + 
+						"</span>\
+					</div>";
 
-	if( keycode == 	13 ){
-		if( !event.shiftKey){
-			sendMessage(event);
+			chatHistory.scrollTop = chatHistory.scrollHeight;
+		}
+		this.ws.onclose = function(event){
+			console.log("ws is closed");
+		}
+		this.ws.onerror = function(event){
+			console.log("Err");
+			this.close();
 		}
 	}
+
+	sendMessage(event){
+		event.preventDefault();
+		let box = document.getElementById("chatInput");
+		ws.send(box.value);
+
+		box.value = null;
+	}	
+
+	keyPressHandle(event){
+		let keycode =  event.which? event.which : event.keyCode;
+		if( keycode == 	13 ){
+			if( !event.shiftKey){
+				this.sendMessage(event);
+			}
+		}
+	}
+}
+
+class Draw{
+	constructor(){
+		
+		this.tag = document.getElementById("canvas");
+		this.tag.width = this.tag.offsetWidth;
+		this.tag.height = this.tag.offsetHeight;
+		canvas.addEventListener("mousedown", this.mouseHandle.bind(this));
+		canvas.addEventListener("mousemove", this.mouseHandle.bind(this));
+		canvas.addEventListener("mouseup", this.mouseHandle.bind(this));
+		this.canvas = this.tag.getContext("2d");
+		
+		this.color = "#000000";
+		this.canvas.fillStyle = this.color;
+        this.canvas.strokeStyle = this.color;
+
+        this.canvas.lineWidth = "5";
+        this.canvas.lineCap = "round";
+        this.canvas.lineJoin = "round";
+
+		this.prevX = this.prevY = 0;
+		this.x = this.y = 0;
+
+		this.initEvent();
+	}
+
+	initEvent(){
+		let colors = document.getElementsByClassName("color");
+		for( let i = 0 ; i < colors.length ; i++){
+			colors[i].addEventListener("click", this.colorChange.bind(this));
+		}
+
+		let brush = document.getElementsByClassName("brush");
+		for( let i = 0 ; i < brush.length ; i++){
+			brush[i].addEventListener("click", this.brushChange.bind(this));
+		}
+
+		let pencil = document.getElementsByClassName("pencil")[0];
+		pencil.addEventListener("click", this.setPencil.bind(this));
+		let eraser = document.getElementsByClassName("eraser")[0];
+		eraser.addEventListener("click", this.setEraser.bind(this));
+
+		let clear = document.getElementsByClassName("clear")[0];
+		clear.addEventListener("click", this.clearCanvas.bind(this));
+	}
+
+	mouseHandle(event){
+		event.preventDefault();
+		if( event.type == "mousedown"){
+			let position = this.getMousePos(event);
+			this.flag = true;
+			this.prevX = this.x = position.x;
+			this.prevY = this.y = position.y;
+			this.draw();
+		}
+		else if( event.type == "mousemove"){
+			if( this.flag ){
+				let position = this.getMousePos(event);
+				this.prevX = this.x;
+				this.prevY = this.y;
+				this.x = position.x;
+				this.y = position.y;
+				this.draw();
+			}
+		}
+		else if( event.type == "mouseup"){
+			let position = this.getMousePos(event);
+			this.flag = false;
+			this.prevX = this.x;
+			this.prevY = this.y;
+			this.x = position.x;
+			this.y = position.y;
+			this.draw();
+		}
+	}
+
+	getMousePos(evt) {
+		let rect = this.tag.getBoundingClientRect();
+		return {
+			x: evt.offsetX,
+			y: evt.offsetY
+		};
+  	}
+
+  	draw(){
+        this.canvas.beginPath();
+        this.canvas.moveTo(this.prevX,this.prevY);
+        this.canvas.lineTo(this.x, this.y);
+        // this.canvas.arc(this.x, this.y,  this.canvas.lineWidth, 0,Math.PI*2,true);
+        // this.canvas.fill();
+        this.canvas.stroke();
+  	}
+
+  	colorChange(event){
+  		let target = event.target;
+  		let color = target.getAttribute("data-color");
+		this.canvas.fillStyle = this.canvas.strokeStyle = this.color = color;
+  	}
+
+  	brushChange(event){
+  		let target = event.target;
+  		let px = target.getAttribute("data-px");
+  		this.canvas.lineWidth = px;
+  	}
+  	setPencil(event){
+  		this.canvas.fillStyle = this.color;
+  		this.canvas.strokeStyle = this.color;
+  	}
+  	setEraser(event){
+		this.canvas.fillStyle = "#ffffff";
+        this.canvas.strokeStyle = "#ffffff";
+  	}
+  	clearCanvas(event){
+  		this.canvas.clearRect(0, 0, this.tag.clientWidth, this.tag.clientHeight);
+  	}
 }

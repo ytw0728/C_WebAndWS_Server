@@ -286,8 +286,8 @@ void *WSconnect(void* args){
 	shakehands(client_fd);	
     int exitCondition = 0;
 
-    frame_head head;
-    int rul = recv_frame_head(client_fd,&head);
+    frame_head recvHead;
+    int rul = recv_frame_head(client_fd,&recvHead);
     if (rul < 0){
     	printf("recv_frame_head error\n");
     	exitCondition = 1;
@@ -299,11 +299,10 @@ void *WSconnect(void* args){
     int size = 0;
     // db 탐색해서 유저데이터 끌어오자
 
-
     //echo head
     if( !exitCondition ){
-		send_frame_head(client_fd,&head);
-	    
+    	frame_head sendHead = recvHead;
+		send_frame_head(client_fd,&sendHead);
 
 		do {
 			int rul;
@@ -314,14 +313,38 @@ void *WSconnect(void* args){
 			}
 			size+=rul;
 
-		   	umask_setting(payload_data,size,head.masking_key);
+		   	umask_setting(payload_data,size,recvHead.masking_key);
+
+		   	char *sendData = payload_data;
 
 		    // echo data
-		    if (write(client_fd,payload_data,rul)<=0){
+		    if (write(client_fd,sendData,rul)<=0){
 		    	exitCondition = 1;
 		    	break;
 		    }
-		}while(size < (int)head.payload_length);
+
+		    // printf("\n\n\n %d \n\n\n", strcmp(payload_data, "\x41\x42\x43") ); // utf-8 이랑 비교 가능
+
+		    // int t;
+		    // for(t = 0 ; t < rul; t++){
+		    // 	printf("%X  ", (uint16_t)payload_data[t]);
+		    // }
+		    // fflush(stdout);
+		    
+		 	// char *contents = "안녕~"; // utf8 변환하기 
+			// size_t length = iso8859_1_to_utf8(contents, strlen(contents));
+			// printf("length of %s~ : %d\n", contents, length);
+			// if(write(client_fd, contents, strlen(contents)) <= 0){
+			// 	exitCondition = 1;
+			// 	break;
+			// }
+
+		    // if (write(client_fd,"\x47\x45\x54",3)<=0){ // utf-8 로 보내기 GET // 숫자 파싱은 그냥 0x30 더하면 댐
+		    // 	exitCondition = 1;
+		    // 	break;
+		    // }
+		    
+		}while(size < (int)recvHead.payload_length);
 	}
 
 

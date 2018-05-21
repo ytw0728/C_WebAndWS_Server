@@ -1,6 +1,7 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
+	<meta charset = "utf8"/>
 	<link rel = "shortcut icon" href = "/pics/favicon.ico" type ="image/x-icon" />
 	<link rel = "icon" href= "/pics/favicon.ico" type = "image/x-icon"/>
 	<title>Doodle</title>
@@ -36,13 +37,39 @@
 						<div id = "canvasBox">
 							<canvas id = "canvas">이 브라우저는 canvas 태그를 지원하지 않습니다.</canvas>
 						</div>
+						<div id = "toolBox">
+							<div id = "colorBox">
+								<ul id = "colors">
+									<li class = "color" data-color="#ffffff">white</li>
+									<li class = "color" data-color="#000000">black</li>
+									<li class = "color" data-color="#FE1B02">red</li>
+									<li class = "color" data-color="#FC9C00">orange</li>
+									<li class = "color" data-color="#FDFC06">yellow</li>
+									<li class = "color" data-color="#01FE02">green</li>
+									<li class = "color" data-color="#005FFF">lightBlue</li>
+									<li class = "color" data-color="#0212FF">Blue</li>
+									<li class = "color" data-color="#FF00FB">violet</li>
+								</ul>
+							</div>
+							<div id = "brushBox">
+								<ul id = "brushs">
+									<li class = "pencil">pencil</li>
+									<li class = "eraser">eraser</li>
+									<li class = "brush" data-px = "3">3px</li>
+									<li class = "brush" data-px = "6">6px</li>
+									<li class = "brush" data-px = "9">9px</li>
+									<li class = "brush" data-px = "12">12px</li>
+									<li class = "clear">deleteAll</li>
+								</ul>
+							</div>
+						</div>
 					</div> 
 					<div id = "chat">
 						<div class = "chatHistory">
 						</div>
 						<div class = "inputBox">
-							<textarea id = "chatInput" onkeydown="keypressHandle(event)"></textarea>
-							<input type = "button" onclick="sendMessage(event)" value = "버튼"/>
+							<textarea id = "chatInput" ></textarea>
+							<input id = "sendBtn" type = "button" value = "버튼"/>
 						</div>
 					</div>
 			</container>
