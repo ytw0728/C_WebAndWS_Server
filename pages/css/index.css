@@ -247,7 +247,8 @@ container#main{
 
 					border : .1rem solid #aaaaaa;
 					border-radius : .2rem;
-
+					
+					font-family: inherit;
 				}
 
 				container#main > div#chat > div.inputBox > input[type=button]{
