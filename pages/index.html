@@ -11,8 +11,36 @@
 </head>
 <body>
 	<div id = "wrap">
+		<div id = "waiting">
+			<header class = "waitingHeader"><a href = "/">DOODLE</a></header>
+			<container id = "waitingBoard">
+				<div class = "nicknameInputBox">
+					<label for="nickname">Nickname | </label><input type="text" placeholder="Type your nickname" id="nickname"/>
+					<button onclick = "statusManager.userAdd(event)">Play</button>
+				</div>
+				<div class = "roomLists">
+					<span id="prevBtn" onclick="waiting.prev(event)">&lt;</span>
+					<span id="nextBtn" onclick="waiting.next(event)">&gt;</span>
+					<ul class ="rooms">
+						
+					</ul>
+					<span class = "makeRoomBtn" onclick="statusManager.makeRoom(event)">
+						Make Room!
+					</span>
+				</div>
+				<div class = "waitingRoom">
+					<span class="title">WAITING ROOM</span>
+					<ul class = "waitingMembers">
+					</ul>
+					<div class = "waitingRoomBtns" >
+						<span class="exitRoom" onclick="statusManager.exitRoom(event)" >EXIT</span>
+						<span class="gameStart" onclick="statusManager.enterGameRoom(event)" >START!</span>
+					</div>
+				</div>
+			</container>
+		</div>
 		<div id = "app">
-			<header><a href = "/">DOODLE</a></header>
+			<header><a href = "/">DOODLE</a><div class = "answer"></div><div class = "clock">60.00</div></header>
 			<container id = "main">
 					<div id = "userBox">
 						<ul class = "users">
@@ -32,6 +60,7 @@
 								</span>
 							</li>
 						</ul>
+						<span class = "exitGameRoom" onclick="statusManager.exitGameRoom(event)">EXIT</span>
 					</div>
 					<div id = "playBoard">
 						<div id = "canvasBox">

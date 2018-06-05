@@ -5,30 +5,279 @@ html, body, container, footer, header{
 
 	text-align:center;
 }
-
+input[type='text']{
+	display: inline-block;
+	border:none;
+	border-radius: 1rem;
+	font-family: "Pangolin";
+	outline: none;
+	cursor:pointer;
+}
+button{
+	font-family: "Pangolin";
+	outline:none;
+	color: #fff;
+	border: .1rem solid #333333;
+	background-color: #333333;
+	border-radius: 1rem;
+	transition: background-color .2s ease;
+	cursor: pointer;
+}
+button:hover{
+	background-color: #fff;	
+	color: #000;
+}
 body > *{
 	text-align: left;
 }
-
-div#wrap,div#app{
+div#wrap,div#app, div#waiting{
 	height: auto;
-	position: relative;
 }
 div#wrap{
 	display: block;
 	text-align: center;
+	position: relative;
 }
-div#app{
+div#app, div#waiting{
 	text-align: left;
 	display: inline-block;
+	position: absolute;
 	max-width: 1920px;
 	width: 100%;
+	top: 0;
+	left: 0;
+	background: #fff;	
+	text-align: center;
 }
+div#app > *,
+div#waiting > *{
+	text-align: left;
+}
+
+div#app{
+	z-index: 0;
+}
+div#waiting{
+	z-index: 1000;
+}
+
+div#waiting > header{
+	display: none;
+}
+div#waiting > container#waitingBoard{
+	display: inline-block;
+	width: 100%;
+	height: 100vh;
+	padding-top: 1rem;
+	background: #fff;
+	text-align:center;
+}
+	div#waiting > container#waitingBoard > *{
+		text-align:left;
+	}
+	div#waiting > container#waitingBoard > div.nicknameInputBox:after{
+		content:"DOODLE";
+		position: absolute;
+		top: -15vh;
+		left: 10vw;
+		width: 10vw;
+		text-align:center;
+		font-family: "Pangolin";
+		font-size: 2rem;
+	}
+	div#waiting > container#waitingBoard > div.nicknameInputBox{
+		position: relative;
+		margin: 0 auto;
+		display: block;
+		text-align:center;
+		margin-top: 20vh;
+		width: 20vw;
+		padding: 10vw 10vh;
+		border: .1rem solid #000000;
+		border-radius: 1rem;
+	}
+		div#waiting > container#waitingBoard > div.nicknameInputBox > label{
+			display: inline-block;
+			font-family: "Pangolin";
+			width: 8vw;
+			height: 2rem;
+			font-size: 1.3rem;
+		}
+		div#waiting > container#waitingBoard > div.nicknameInputBox > input[type="text"]{
+			margin-left: 1vw;
+			font-size: 1.2rem;
+			width: 11vw;
+		}
+		div#waiting > container#waitingBoard > div.nicknameInputBox > button{
+			display: block;
+			margin: 0 auto;
+			width: 20vw;
+			height: 2rem;
+			font-size: 1.5rem;
+			margin-top: 1rem;
+		}
+	div#waiting > container#waitingBoard > div.roomLists{
+		display: none;
+		width: 95%;
+		position: relative;
+	}
+		div#waiting > container#waitingBoard > div.roomLists > span{
+			display: inline-block;
+			position:absolute;
+			width: 2rem;
+			top: calc( 50% - 1rem);
+			font-size: 1.5rem;
+			font-family: "Pangolin";
+			transition: all .3s ease;
+			cursor: pointer;
+		}
+		div#waiting > container#waitingBoard > div.roomLists > span#prevBtn{
+			left: 1rem;
+		}
+		div#waiting > container#waitingBoard > div.roomLists > span#nextBtn{
+			right: 1rem;
+		}
+		div#waiting > container#waitingBoard > div.roomLists > span:hover{
+			color: #ccc;
+		}
+		div#waiting > container#waitingBoard > div.roomLists > ul{
+			display: block;
+			margin: 0;
+			width: 96%;
+			padding-left : 2%;
+			padding-right: 2%;
+			padding-top: 1%;
+			padding-bottom: 1%;
+
+			border : .1rem solid #000;			
+			border-radius: 1rem;
+			list-style-type: none;
+			text-align:center;
+		}
+		
+			div#waiting > container#waitingBoard > div.roomLists > ul > li{
+				display: inline-block;
+				max-width: 40%;
+				min-width: 40%;
+				width: 40%;
+				margin: .5vw;
+				padding: 1vw;
+
+				border : .1rem solid #000;
+				border-radius: 1rem;
+
+				font-family: "Pangolin";
+				cursor:pointer;
+				transition: all .3s ease;
+			}
+			div#waiting > container#waitingBoard > div.roomLists > ul > li:hover{
+				color: #fff;
+				background: #333;
+			}
+				div#waiting > container#waitingBoard > div.roomLists > ul > li > span{
+					display: inline-block;
+					height: 2rem;
+					line-height: 2rem;
+				}
+				div#waiting > container#waitingBoard > div.roomLists > ul > li > span.roomID{
+					width: 70%;
+					text-align: left;
+					font-size: 1.5rem;
+				}
+			div#waiting > container#waitingBoard > div.roomLists > ul > span.empty{
+				display: inline-block;
+				max-width: 40%;
+				min-width: 40%;
+				width: 40%;
+				margin: .5vw;
+				padding: 1vw;
+			}
+	div#waiting > container#waitingBoard > div.roomLists > span.makeRoomBtn{
+		display: inline-block;
+		position: absolute;
+		width: 9rem;
+		height: 2rem;
+		line-height: 2rem;
+		background: #333;
+		color: white;
+		border-radius : .5rem;
+		border: .1rem solid #333;
+		right : 1rem;
+		top : -3.7rem;
+		text-align: center;
+		font-size: 1.3rem;
+		transition: background .3s ease;
+	}
+	div#waiting > container#waitingBoard > div.roomLists > span.makeRoomBtn:hover{
+		background: white;
+		color: #333;
+	}
+
+div#waiting > container#waitingBoard > div.waitingRoom{
+	display: none;
+	width: 100%;
+	height: 100%;
+	text-align:center;
+	font-family: "Pangolin";
+}
+	div#waiting > container#waitingBoard > div.waitingRoom > span.title{
+		display: inline-block;
+		width: 100%;
+		text-align:center;
+		
+		height: 3rem;
+		line-height: 3rem;
+		font-size: 2rem;
+	}
+	div#waiting > container#waitingBoard > div.waitingRoom > ul{
+		display: inline-block;
+		width: 25%;
+		padding: 1vw;
+		padding-bottom: 0;
+		border : .1rem solid #333;
+		border-radius: 1rem;
+		list-style-type: none;
+	}
+		div#waiting > container#waitingBoard > div.waitingRoom > ul > li{
+			display: inline-block;
+			width: 100%;
+			height: 2rem;
+			line-height: 2rem;
+			margin-bottom: 1vw;
+			border : .1rem solid #333;
+			border-radius : 1rem;
+		}
+	div#waiting > container#waitingBoard > div.waitingRoom > div.waitingRoomBtns{
+		display: block;
+		margin: 0 auto;
+		width: 25%;
+	}
+		div#waiting > container#waitingBoard > div.waitingRoom > div.waitingRoomBtns > span{
+			display: inline-block;
+			width: 45%;
+			height: 3rem;
+			line-height: 3rem;
+			background: #fff;
+			color: #333;
+			border-radius: 1rem;
+			border: .1rem solid #333;
+
+			margin-right: 2%;
+
+			transition: background .3s ease;
+			cursor: pointer;
+		}
+		div#waiting > container#waitingBoard > div.waitingRoom > div.waitingRoomBtns > span:hover{
+			background: #333;
+			color: #fff;
+		}
+
+
 header{
 	text-align: left;
 	display: inline-block;
 	margin-top: 2rem;
-	width: 99%;
+	width: 95%;
 	height: 3rem;
 	line-height: 3rem;
 	font-size: 2rem;
@@ -42,6 +291,7 @@ header::selection{
 	color: black;
 }
 	header > a{
+		width: 10%;
 		display: inline-block;
 		margin-left: 2rem;
 		color: #333;
@@ -50,6 +300,21 @@ header::selection{
 	header > a:hover, header > a:visited, header > a:linked, header > a:active{
 		color: #333;
 		text-decoration: none;
+	}
+	header > div{
+		display: inline-block;
+		font-size: 1.5rem;
+	}
+
+	header > div.answer{
+		width: 78%;
+		text-align: center;
+		font-size: 2rem;
+
+
+	}
+	header > div.clock{
+		width: 8%;
 	}
 
 container#main{
@@ -60,54 +325,60 @@ container#main{
 	height: 80vh;
 	overflow: visible;
 	text-align: center;
-	
 	font-size: 0;
-
-	
 }
-
 	container#main > * {
 		font-size: 1rem;
 		vertical-align: top;
 		height: 100%;
 	}
 
-
 	container#main > div#userBox{
 		display: inline-block;	
 		width: 13%;
-
 		height: auto;
-		
-
 		overflow: auto;
-
 		max-height: 100%;
-		border: .1rem solid #000000;
-		border-radius: .3rem;
+	}
+	container#main > div#userBox > span.exitGameRoom{
+		display: inline-block;
+		width: 8rem;
+		height: 4rem
+		line-height: 4rem;
+		font-size: 1.5rem;
+		background: #333;
+
+		font-family: "Pangolin";
+
+		color: #fff;
+		border: .1rem solid #333;
+		border-radius: .5rem;
+		cursor: pointer;
+
+		transition: background .3s ease;
+	}
+	container#main > div#userBox > span.exitGameRoom:hover{
+		background: #fff;
+		color: #333;
 	}
 		container#main > div#userBox > ul.users{
 			display: inline-block;
 			width: 90%;
 			height: auto;
-			padding: 5%;
+			padding: 4%;
+			border: .1rem solid #000000;
+			border-radius: .3rem;
 		}
 			container#main > div#userBox > ul.users > li.user{
 				display: inline-block;
 				list-style: none;
 				width: 96%;
 				margin: 2%;
-
 				height: 3rem;
-
 				background: #ffffff;
-
 				border: .1rem solid #000000;
 				border-radius: .3rem;
-
 				line-height: 3rem;
-
-
 			}
 	container#main > div#playBoard{
 		display: inline-block;
