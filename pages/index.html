@@ -27,6 +27,7 @@
 					<span class = "makeRoomBtn" onclick="statusManager.makeRoom(event)">
 						Make Room!
 					</span>
+					<span class = "reFreshRoomBtn" onclick="statusManager.refreshRoomList(event)"></span>
 				</div>
 				<div class = "waitingRoom">
 					<span class="title">WAITING ROOM</span>
@@ -69,26 +70,26 @@
 						<div id = "toolBox">
 							<div id = "colorBox">
 								<ul id = "colors">
-									<li class = "color" data-color="#ffffff">white</li>
-									<li class = "color" data-color="#000000">black</li>
-									<li class = "color" data-color="#FE1B02">red</li>
-									<li class = "color" data-color="#FC9C00">orange</li>
-									<li class = "color" data-color="#FDFC06">yellow</li>
-									<li class = "color" data-color="#01FE02">green</li>
-									<li class = "color" data-color="#005FFF">lightBlue</li>
-									<li class = "color" data-color="#0212FF">Blue</li>
-									<li class = "color" data-color="#FF00FB">violet</li>
+									<li class = "color" data-color="#ffffff" ></li>
+									<li class = "color" data-color="#000000" ></li>
+									<li class = "color" data-color="#FE1B02" ></li>
+									<li class = "color" data-color="#FC9C00" ></li>
+									<li class = "color" data-color="#FDFC06" ></li>
+									<li class = "color" data-color="#01FE02" ></li>
+									<li class = "color" data-color="#005FFF" ></li>
+									<li class = "color" data-color="#0212FF" ></li>
+									<li class = "color" data-color="#FF00FB" ></li>
 								</ul>
 							</div>
 							<div id = "brushBox">
 								<ul id = "brushs">
-									<li class = "pencil">pencil</li>
-									<li class = "eraser">eraser</li>
-									<li class = "brush" data-px = "3">3px</li>
-									<li class = "brush" data-px = "6">6px</li>
-									<li class = "brush" data-px = "9">9px</li>
-									<li class = "brush" data-px = "12">12px</li>
-									<li class = "clear">deleteAll</li>
+									<li class = "pencil"></li>
+									<li class = "eraser"></li>
+									<li class = "brush" data-px = "3"><span></span></li>
+									<li class = "brush" data-px = "6"><span></span></li>
+									<li class = "brush" data-px = "9"><span></span></li>
+									<li class = "brush" data-px = "12"><span></span></li>
+									<li class = "clear"></li>
 								</ul>
 							</div>
 						</div>
@@ -97,8 +98,8 @@
 						<div class = "chatHistory">
 						</div>
 						<div class = "inputBox">
-							<textarea id = "chatInput" ></textarea>
-							<input id = "sendBtn" type = "button" value = "버튼"/>
+							<textarea id = "chatInput"></textarea>
+							<input id = "sendBtn" type = "button" value = "SEND"/>
 						</div>
 					</div>
 			</container>

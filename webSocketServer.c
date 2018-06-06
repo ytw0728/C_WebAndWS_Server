@@ -289,7 +289,7 @@ void *WSconnect(void* args){
     frame_head recvHead;
     int rul = recv_frame_head(client_fd,&recvHead);
     if (rul < 0){
-    	printf("recv_frame_head error\n");
+    	serverLog(WSSERVER,ERROR, "recv_frame_head error","wsconnect()");
     	exitCondition = 1;
     }
 
@@ -358,7 +358,7 @@ void *WSconnect(void* args){
 	    frame_head head;
 	    int rul = recv_frame_head(client_fd,&head);
 	    if (rul < 0){
-	    	printf("recv_frame_head error\n");
+	    	serverLog(WSSERVER,ERROR, "recv_frame_head error","wsconnect()");
 	    	exitCondition = 1;
 	    	continue;
 	    }
@@ -376,7 +376,8 @@ void *WSconnect(void* args){
 			size+=rul;
 
 	   		umask_setting(payload_data,size,head.masking_key);
-	   		printf("recive:%s\n",payload_data);
+
+	   		serverLog(WSSERVER,FILELOG,"receive message",payload_data);
 
 		    //echo data // 만약에 문자열을 직접 보내고 싶으면 utf8로 인코딩하면됩니다.
 		    if (write(client_fd,payload_data,rul)<=0){
@@ -386,7 +387,8 @@ void *WSconnect(void* args){
 	}
 
 
-	printf("close ws\n");
+
+	serverLog(WSSERVER,FILELOG,"ws closed","\n");
 	close(client_fd);
 }
 
@@ -440,7 +442,7 @@ void *webSocketServerHandle(){
 
 
 		if( (pthread_create(&(n->thread_id), &pthread_attr, WSconnect, (void *) &client_fd)) < 0 ){
-			serverLog(WEBSERVER, ERROR, "Thread Error", "");
+			serverLog(WSSERVER, ERROR, "Thread Error", "clientSocketThread");
 		}
     }
     close(ser_fd);

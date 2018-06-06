@@ -45,9 +45,9 @@ void serverLog(int from, int type, char* msg, char* subMsg ){
 		case ERROR: 
 			(void)sprintf(logbuffer,"[ ERROR ] %s ( point : %s )\n",msg,subMsg);
 			fputs(logbuffer, stderr);
-			#ifdef DEV
+			// #ifdef DEV
 				printf("%s\n", logbuffer);
-			#endif
+			// #endif
 			break;
 
 		case LOG:

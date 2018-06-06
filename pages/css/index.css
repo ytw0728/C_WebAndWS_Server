@@ -368,6 +368,9 @@ container#main{
 			padding: 4%;
 			border: .1rem solid #000000;
 			border-radius: .3rem;
+			margin: 0;
+
+			margin-bottom: 2rem;
 		}
 			container#main > div#userBox > ul.users > li.user{
 				display: inline-block;
@@ -409,7 +412,7 @@ container#main{
 				height: 50%;
 			}
 			container#main > div#playBoard > div#toolBox > div#colorBox{
-				background: red;
+				/*background: red;*/
 			}
 				container#main > div#playBoard > div#toolBox > div#colorBox > ul#colors{
 					display: inline-block;
@@ -420,14 +423,28 @@ container#main{
 				}
 					container#main > div#playBoard > div#toolBox > div#colorBox > ul#colors > li{
 						display: inline-block;
-						margin-right: .5rem;
 						width: 2rem;
 						height: 2rem;
-						background: white;
+						border : .1rem solid black;
+						border-radius: 1rem;
+						margin-right: 1rem;
+						cursor: pointer;
+						position: relative;
+					}
+					container#main > div#playBoard > div#toolBox > div#colorBox > ul#colors > li.on:after{
+						content:'';
+						position: absolute;
+						width: 100%;
+						height: 100%;
+						top: 0;
+						left: 0;
+						border-radius: 1rem;
+						background: black;
+						opacity:.3;
 					}
 
 			container#main > div#playBoard > div#toolBox > div#brushBox{
-				background: yellow;
+				/*background: yellow;*/
 			}			
 				container#main > div#playBoard > div#toolBox > div#brushBox > ul#brushs{
 					display: inline-block;
@@ -441,7 +458,32 @@ container#main{
 						margin-right: .5rem;
 						width: 2rem;
 						height: 2rem;
+						line-height: 2rem;
 						background: white;
+						cursor: pointer;
+						background-size: 80% 80%;
+						background-repeat: no-repeat;
+						background-position: 50% 50%;
+						margin-right: 2rem;
+						vertical-align: middle;
+						border: .1rem solid #333;
+						border-radius: .3rem;
+						text-align: center;
+
+					}
+					container#main > div#playBoard > div#toolBox > div#brushBox > ul#brushs > li.pencil{
+						background-image: url("../pics/paint-brush.png");
+					}
+					container#main > div#playBoard > div#toolBox > div#brushBox > ul#brushs > li.eraser{
+						background-image: url("../pics/rubber-eraser.png");
+					}
+					container#main > div#playBoard > div#toolBox > div#brushBox > ul#brushs > li.clear{
+						background-image: url("../pics/garbage.png");
+					}
+					container#main > div#playBoard > div#toolBox > div#brushBox > ul#brushs > li > span{
+						display: inline-block;
+						background: black;
+						vertical-align: middle;
 					}
 
 	container#main > div#chat{
@@ -493,12 +535,15 @@ container#main{
 				position: absolute;
 				display: inline-block;
 				width: 100%;
-				height: 5rem;
+				height: 3rem;
 
 				bottom : 0;
 				left : 0;
 				font-size : 0;
-				padding-bottom: .5rem;
+				
+
+				background: #333;
+				border-top: .1rem solid #333;
 			}
 				container#main > div#chat > div.inputBox > * {
 					font-size: 1rem;
@@ -509,22 +554,46 @@ container#main{
 					margin : 0;
 					resize : none;
 
-					font-size: 1.2rem;
-
 					display: inline-block;
-					width: 83%;
-					height: 100%;
+					width: 70%;
+					padding-left: 5%;
+					padding-right: 5%;
+					white-space: nowrap;
+					overflow: hidden;
+					height: 2rem;
+					line-height: 2rem;
+					font-size: 1.2rem;
+					margin-top: .5rem;
 					vertical-align: top;
-
-					border : .1rem solid #aaaaaa;
-					border-radius : .2rem;
+					border-radius : 2rem;
 					
-					font-family: inherit;
+					font-family : "NotoSans_Light";
+				}
+				container#main > div#chat > div.inputBox > textarea#chatInput:focus{
+					outline:none;
 				}
 
 				container#main > div#chat > div.inputBox > input[type=button]{
 					display: inline-block;
-					width: 15%;
-					height: 100%;
+					width: calc(15% - .3rem);
+					margin-left: 2%;
+					height: 2.2rem;
 					vertical-align: top;
+					margin-top: .5rem;
+
+					border: .1rem solid #999;					
+					border-radius: 1rem;
+					outline: none;
+					font-family: "Pangolin";
+					color: #fff;
+					background: #333;
+					cursor: pointer;
+					transition: background .1s ease;
 				}
+				container#main > div#chat > div.inputBox > input[type=button]:hover{
+					background: #505050;
+				}
+
+
+
+

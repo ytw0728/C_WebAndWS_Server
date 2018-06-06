@@ -53,7 +53,7 @@ void *web(void *args) {
 
 	ret =read(fd,buffer,BUFSIZE);
 	if(ret == 0 || ret == -1) {
-		serverLog(WEBSERVER,ERROR,"failed to read browser request","");
+		serverLog(WEBSERVER,ERROR,"failed to read browser request","web()");
 		goto IGNORE;
 	}
 	
@@ -73,7 +73,7 @@ void *web(void *args) {
 
 
 	if( strncmp(buffer,"GET ",4) && strncmp(buffer,"get ",4) ){
-		serverLog(WEBSERVER,ERROR,"Only simple GET operation supported",buffer);
+		serverLog(WEBSERVER,ERROR,buffer,"Only simple GET operation supported");
 		goto IGNORE;
 	}
 	for(i=4;i<BUFSIZE;i++){
@@ -84,7 +84,7 @@ void *web(void *args) {
 	}
 	for(j=0;j<i-1;j++){
 		if(buffer[j] == '.' && buffer[j+1] == '.'){
-			serverLog(WEBSERVER,ERROR,"Parent directory (..) path names not supported",buffer);
+			serverLog(WEBSERVER,ERROR,buffer,"Parent directory (..) path names not supported");
 			goto IGNORE;
 		}
 	}
@@ -103,7 +103,7 @@ void *web(void *args) {
 		}
 	}
 	if(fstr == 0) {
-		serverLog(WEBSERVER,ERROR,"file extension type not supported",buffer);
+		serverLog(WEBSERVER,ERROR,buffer,"file extension type not supported");
 		goto IGNORE;
 	}
 
@@ -112,7 +112,7 @@ void *web(void *args) {
 	if( fileName)
 
 	if(( file_fd = open(&buffer[5],O_RDONLY)) == -1){
-		serverLog(WEBSERVER,ERROR, "failed to open file",fileName);
+		serverLog(WEBSERVER,ERROR,fileName, "failed to open file");
 
 		// 404 error send
 		(void)sprintf(buffer,"HTTP/1.0 404 Not Found\r\n\r\n");
