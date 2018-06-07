@@ -1,0 +1,541 @@
+[ INFO: MESSAGE ] WebSocketServer Start
+
+[ INFO: SEND ] Í≤ΩÎ°ú Ïù¥Îèô ÏÑ±Í≥µ
+
+[ INFO: MESSAGE ] WEB SERVER SERVICE START
+
+[ INFO: fd = 5 ] Accepted
+
+[ INFO: fd = 6 ] Accepted
+
+[ INFO: GET / HTTP/1.1
+Host: localhost
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: fd = 8 ] Accepted
+
+[ INFO: fd = 7 ] Accepted
+
+[ INFO: SEND ] index.html
+
+[ INFO: fd = 11 ] Accepted
+
+[ INFO: SEND ] request index.html 		200
+
+[ INFO: fd = 5 ] Accepted
+
+[ INFO: GET /css/font.css HTTP/1.1
+Host: localhost
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36
+Accept: text/css,*/*;q=0.1
+Referer: http://localhost/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: GET /css/index.css HTTP/1.1
+Host: localhost
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36
+Accept: text/css,*/*;q=0.1
+Referer: http://localhost/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: SEND ] css/index.css
+
+[ INFO: GET /js/index.js HTTP/1.1
+Host: localhost
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36
+Accept: */*
+Referer: http://localhost/
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: SEND ] css/font.css
+
+[ INFO: SEND ] request css/font.css 		200
+
+[ INFO: SEND ] js/index.js
+
+[ INFO: SEND ] request css/index.css 		200
+
+[ INFO: SEND ] request js/index.js 		200
+
+[ INFO: GET /pics/garbage.png HTTP/1.1
+Host: localhost
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36
+Accept: image/webp,image/apng,image/*,*/*;q=0.8
+Referer: http://localhost/css/index.css
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+ ] request
+
+[ INFO: GET /pics/rubber-eraser.png HTTP/1.1
+Host: localhost
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36
+Accept: image/webp,image/apng,image/*,*/*;q=0.8
+Referer: http://localhost/css/index.css
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+cript" src = "/js/index.js"></script>
+</head>
+<body>
+	<div id = "wrap">
+		<div id = "waiting">
+			<header class = "waitingHeader"><a href = "/">DOODLE</a></header>
+			<container id = "waitingBoard">
+				<div class = "nicknameInputBox">
+					<label for="nickname">Nickname | </label><input type="text" placeholder="Type your nickname" id="nickname"/>
+					<button onclick = "statusManager.userAdd(event)">Play</button>
+				</div>
+				<div class = "roomLists">
+					<span id="prevBtn" onclick="waiting.prev(event)">&lt;</span>
+					<span id="nextBtn" onclick="waiting.next(event)">&gt;</span>
+					<ul class ="rooms">
+						
+					</ul>
+					<span class = "makeRoomBtn" onclick="statusManager.makeRoom(event)">
+						Make Room!
+					</span>
+					<span class = "reFreshRoomBtn" onclick="statusManager.refreshRoomList(event)"></span>
+				</div>
+				<div class = "waitingRoom">
+					<span class="title">WAITING ROOM</span>
+					<ul class = "waitingMembers">
+					</ul>
+					<div class = "waitingRoomBtns" >
+						<span class="exitRoom" onclick="statusManager.exitRoom(event)" >EXIT</span>
+						<span class="gameStart" onclick="statusManager.enterGameRoom(event)" >START!</span>
+					</div>
+				</div>
+			</container>
+		</div>
+		<div id = "app">
+			<header><a href = "/">DOODLE</a><div class = "answer"></div><div class = "clock">60.00</div></header>
+			<container id = "main">
+					<div id = "userBox">
+						<ul class = "users">
+							<li class = "user">
+								<span>
+									User01
+								</span>
+							</li>
+							<li class = "user">
+								<span>
+									User02
+								</span>
+							</li>
+							<li class = "user">
+								<span>
+									User03
+								</span>
+							</li>
+						</ul>
+						<span class = "exitGameRoom" onclick="statusManager.exitGameRoom(event)">EXIT</span>
+					</div>
+					<div id = "playBoard">
+						<div id = "canvasBox">
+							<canvas id = "canvas">Ïù¥ Î∏åÎùºÏö∞Ï†ÄÎäî canvas ÌÉúÍ∑∏Î•º ÏßÄÏõêÌïòÏßÄ ÏïäÏäµÎãàÎã§.</canvas>
+						</div>
+						<div id = "toolBox">
+							<div id = "colorBox">
+								<ul id = "colors">
+									<li class = "color" data-color="#ffffff" ></li>
+									<li class = "color" data-color="#000000" ></li>
+									<li class = "color" data-color="#FE1B02" ></li>
+									<li class = "color" data-color="#FC9C00" ></li>
+									<li class = "color" data-color="#FDFC06" ></li>
+									<li class = "color" data-color="#01FE02" ></li>
+									<li class = "color" data-color="#005FFF" ></li>
+									<li class = "color" data-color="#0212FF" ></li>
+									<li class = "color" data-color="#FF00FB" ></li>
+								</ul>
+							</div>
+							<div id = "brushBox">
+								<ul id = "brushs">
+									<li class = "pencil"></li>
+									<li class = "eraser"></li>
+									<li class = "brush" data-px = "3"><span></span></li>
+									<li class = "brush" data-px = "6"><span></span></li>
+									<li class = "brush" data-px = "9"><span></span></li>
+									<li class = "brush" data-px = "12"><span></span></li>
+									<li class = "clear"></li>
+								</ul>
+							</div>
+						</div>
+					</div> 
+					<div id = "chat">
+						<div class = "chatHistory">
+						</div>
+						<div class = "inputBox">
+							<textarea id = "chatInput"></textarea>
+							<input id = "sendBtn" type = "button" value = "SEND"/>
+						</div>
+					</div>
+			</container>
+		</div>
+	</div>
+</body>
+</html> ] request
+
+[ INFO: SEND ] pics/garbage.png
+
+[ INFO: SEND ] pics/rubber-eraser.png
+
+[ INFO: SEND ] request pics/garbage.png 		200
+
+[ INFO: SEND ] request pics/rubber-eraser.png 		200
+
+[ INFO: fd = 5 ] Accepted
+
+[ INFO: fd = 11 ] Accepted
+
+[ INFO: GET /css/font/Pangolin-Regular.ttf HTTP/1.1
+Host: localhost
+Connection: keep-alive
+Origin: http://localhost
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36
+Accept: */*
+Referer: http://localhost/css/font.css
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+Á$∞Ê·'⁄"$∑ñ∂ÇHhå¶-¬Iˆ&! ] request
+
+[ INFO: GET /css/font/NotoSansKR-Light.otf HTTP/1.1
+Host: localhost
+Connection: keep-alive
+Origin: http://localhost
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36
+Accept: */*
+Referer: http://localhost/css/font.css
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+NâOm‹väÈrï+¯Z|Z“æfÖt…Jâµ‚ö§≠ï.[©∞êk‚ìô§]c°tÈJÅ)úü §ÌS§ÀówFÒÖ¯4¶}¡(ÈÊõç‚S8ÿ∂Q∫ÑyfÆ¯Ù•—ÊJó—Eôt ] request
+
+[ INFO: SEND ] css/font/Pangolin-Regular.ttf
+[ INFO: SEND ] css/font/NotoSansKR-Light.otf
+
+
+[ INFO: fd = 14 ] Accepted
+
+[ INFO: GET /pics/paint-brush.png HTTP/1.1
+Host: localhost
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36
+Accept: image/webp,image/apng,image/*,*/*;q=0.8
+Referer: http://localhost/css/index.css
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+= document.getElementById("canvas");
+		this.tag.width = this.tag.offsetWidth;
+		this.tag.height = this.tag.offsetHeight;
+
+		canvas.addEventListener("mousedown", this.mouseHandle.bind(this));
+		canvas.addEventListener("mousemove", this.mouseHandle.bind(this));
+		canvas.addEventListener("mouseup", this.mouseHandle.bind(this));
+		this.canvas = this.tag.getContext("2d");
+		
+		this.brushType = true;
+		this.color = "#000000";
+		this.canvas.fillStyle = this.color;
+        this.canvas.strokeStyle = this.color;
+
+        this.px = 3;
+        this.canvas.lineWidth = this.px;
+        this.canvas.lineCap = "round";
+        this.canvas.lineJoin = "round";
+
+		this.prevX = this.prevY = 0;
+		this.x = this.y = 0;
+
+		this.initEvent();
+		this.prepareToDraw();
+	}
+
+	initEvent(){
+		this.colors = document.getElementsByClassName("color");
+		for( let i = 0 ; i < this.colors.length ; i++){
+			this.colors[i].addEventListener("click", this.colorChange.bind(this));
+			this.colors[i].style.background = this.colors[i].getAttribute("data-color");
+		}
+
+		
+		this.brush = document.getElementsByClassName("brush");
+		for( let i = 0 ; i < this.brush.length ; i++){
+			this.brush[i].addEventListener("click", this.brushChange.bind(this));
+			this.brush[i].children[0].style.width = this.brush[i].getAttribute("data-px") + "px";
+			this.brush[i].children[0].style.height = this.brush[i].getAttribute("data-px") + "px";
+			this.brush[i].children[0].style.borderRadius = this.brush[i].getAttribute("data-px")/2 + 2 + "px";
+		}
+		
+
+		this.pencil = document.getElementsByClassName("pencil")[0];
+		this.pencil.addEventListener("click", this.setPencil.bind(this));
+		
+
+		this.eraser = document.getElementsByClassName("eraser")[0];
+		this.eraser.addEventListener("click", this.setEraser.bind(this));
+
+		let clear = document.getElementsByClassName("clear")[0];
+		clear.addEventListener("click", this.clearCanvas.bind(this));
+	}
+
+	prepareToDraw(){
+		if( !isPainter ) return;
+		this.colors[1].style.backgroundBlendMode="darken";
+		this.colors[1].style.className = "color on";
+
+		this.brush[0].style.background = "#D2EAFF";
+
+		this.pencil.style.backgroundColor = "#ccc";
+	}
+
+	mouseHandle(event){
+		event.preventDefault();
+		if( !isPainter ) return;
+		if( this.flag ){
+			if( this.locked ) return;
+			this.locked = true;
+			setTimeout(() => this.locked = false, 20);
+		}
+		if( event.type == "mousedown"){
+			this.flag = true;
+			let position = this.getMousePos(event);
+			this.prevX = this.x = position.x;
+			this.prevY = this.y = position.y;
+			this.draw();
+		}
+		else if( this.flag && event.type == "mousemove"){
+			if( this.flag ){
+				let position = this.getMousePos(event);
+				this.prevX = this.x;
+				this.prevY = this.y;
+				this.x = position.x;
+				this.y = position.y;
+				this.draw();
+			}
+		}
+		else if( event.type == "mouseup"){
+			this.flag = false;
+			let position = this.getMousePos(event);
+			this.prevX = this.x;
+			this.prevY = this.y;
+			this.x = position.x;
+			this.y = position.y;
+			this.draw();
+		}
+		
+	}
+
+	getMousePos(evt) {
+		let rect = this.tag.getBoundingClientRect();
+		return {
+			x: evt.offsetX,
+			y: evt.offsetY
+		};
+  	}
+
+  	draw(){
+        this.canvas.beginPath();
+        this.canvas.moveTo(this.prevX,this.prevY);
+        this.canvas.lineTo(this.x, this.y);
+        this.canvas.stroke();
+
+        this.sendDrawingPoint();
+  	}
+
+  	drawWithJson(){
+  		if( isPainter ) return;
+
+  	}
+  	sendDrawingPoint(){
+  		if( !isPainter ) return;
+  		let msg = "00";
+  		let jsonObject = {
+  			prevX : this.prevX,
+  			prevY : this.prevY,
+  			x : this.x,
+  			y : this.y,
+  			color : this.color,
+  			px : this.px
+  		}
+
+  		msg += JSON.stringify(jsonObject);
+  		ws.send(msg);
+  	}
+
+  	colorChange(event){
+  		if( !isPainter ) return;
+  		let target = event.target;
+  		if( !target.hasAttribute("data-color") ) target = target.parentNode;
+
+  		let color = target.getAttribute("data-color");
+		this.canvas.fillStyle = this.canvas.strokeStyle = this.color = color;
+
+		for(let i = 0; i< this.colors.length; i++){
+			this.colors[i].style.backgroundBlendMode = "normal";
+			this.colors[i].className = "color";
+		}
+		target.style.backgroundBlendMode = "darken";
+		target.className = "color on";
+		this.setPencil();
+  	}
+
+  	brushChange(event){
+  		if( !isPainter ) return;
+  		event.preventDefault();
+  		let target = event.target;
+  		if( !target.hasAttribute("data-px") )target = target.parentNode;
+
+  		this.px = target.getAttribute("data-px");
+  		this.canvas.lineWidth = this.px;
+
+  		for( let i = 0 ; i < this.brush.length; i++){
+  			this.brush[i].style.background = "none";
+  		}
+
+  		target.style.background = "#D2EAFF";
+  	}
+  	setPencil(event){
+  		if( !isPainter ) return;
+  		this.brushType = true;
+  		this.canvas.fillStyle = this.color;
+  		this.canvas.strokeStyle = this.color;
+		this.eraser.style.backgroundColor = "#fff";
+		this.pencil.style.backgroundColor = "#ccc";
+  	}
+  	setEraser(event){
+  		if( !isPainter ) return;
+  		this.brushType = false;
+		this.canvas.fillStyle = "#ffffff";
+        this.canvas.strokeStyle = "#ffffff";
+        this.pencil.style.backgroundColor = "#fff";
+        this.eraser.style.backgroundColor = "#ccc";
+  	}
+  	clearCanvas(event){
+  		this.canvas.clearRect(0, 0, this.tag.clientWidth, this.tag.clientHeight);
+  	}
+}
+
+
+
+class Websocket{
+	constructor(){
+		this.ws = new WebSocket("ws://localhost:12345");
+		this.ws.onopen = function (event) {
+			console.log("ws connected");
+		};
+		this.ws.onmessage = function (event){
+
+			let packet = event.data;
+
+			// let tmp = event.data.replace(/(?:\r\n|\n|\r)/g, '<br/>'); // dummyData
+			// let packet = '01{"code":"00","msg":"'+tmp+'","uid":1,"nickname":"someone","timestamp":"'+new Date()+'"}';
+			let code = packet.substring(0,2);
+			let json = packet.substring(2,packet.length);
+			let jsonObject = JSON.parse(json);
+
+			if( code === "01" ){ // message
+				chat.addMsg(jsonObject);
+				return;
+			}
+			if( code == "00"){
+				draw.drawWithJson(jsonObject);
+			}
+			if( code === "23"){
+				notice.showAnswerLen(jsonObject);
+				return;
+			}
+		}
+		this.ws.onclose = function(event) {
+			console.log("ws close");
+		    setTimeout(() => {
+		    	ws = new Websocket();
+		    	if( status != 0 ){
+		    		console.log("reconnect ws");
+		    		if( status == 1 ) statusManager.exitRoom();
+		    		else if( status == 2 ) statusManager.exitGameRoom();
+		    	}
+			}, 500);
+		};
+		this.ws.onerror = function(event){
+			// this.ws.close();
+			console.log("ws catched error");
+		}
+	}
+
+	send(msg){
+		this.ws.send(msg);
+	}
+}
+			this.answer.innerHTML += "_ ";
+		}
+	}
+}
+
+class Chatting{
+	constructor(){
+		this.chatHistory = document.getElementsByClassName("chatHistory")[0];
+		this.initEvent();
+	}
+	addMsg(jsonObject){
+		this.chatHistory.innerHTML += "\
+			<div class = 'msg'>\
+				<span class = 'sender'>"
+					+ jsonObject.nickname  + " | " + 
+				"</span>\
+				<span class = 'contents'>"
+				 + jsonObject.msg + 
+				"</span>\
+			</div>";
+		this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
+	}
+
+	initEvent(){
+		let chatInput = document.getElementById("chatInput");
+		let sendBtn = document.getElementById("sendBtn");
+
+		sendBtn.addEventListener("click", this.sendMessage);
+		chatInput.addEventListener("keydown", this.keyPressHandle.bind(this));
+	}
+	sendMessage(event){
+		event.preventDefault();
+		let box = document.getElementById("chatInput");
+		if( box.value == "" ) return;		
+		let msg = "01";
+		˜=v ] request
+
+[ INFO: SEND ] pics/paint-brush.png
+
+[ INFO: SEND ] request pics/paint-brush.png 		200
+
+[ INFO: SEND ] request css/font/Pangolin-Regular.ttf 		200
+
+[ INFO: SEND ] request css/font/NotoSansKR-Light.otf 		200
+
+[ INFO: accept() ] connect
+
+[ INFO: 01{"code":"01","msg":"Í∞ÄÎÇòÎã§Îùº","uid":null,"nickname":"Lorem Ipsum","timestamp":"2018-06-07T18:18:50.920Z"} ] receive message
+
