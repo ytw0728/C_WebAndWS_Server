@@ -505,8 +505,7 @@ class Draw{
 		}
 		target.style.backgroundBlendMode = "darken";
 		target.className = "color on";
-		this.eraser.style.backgorundColor = "#fff";
-		this.pencil.style.backgroundColor = "#ccc";
+		this.setPencil();
   	}
 
   	brushChange(event){
@@ -516,7 +515,7 @@ class Draw{
   		if( !target.hasAttribute("data-px") )target = target.parentNode;
 
   		this.px = target.getAttribute("data-px");
-  		this.canvas.lineWidth = px;
+  		this.canvas.lineWidth = this.px;
 
   		for( let i = 0 ; i < this.brush.length; i++){
   			this.brush[i].style.background = "none";
