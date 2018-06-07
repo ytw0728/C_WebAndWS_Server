@@ -2,9 +2,9 @@ CC 		= gcc
 # CFLAGS 	= -Wall -Wextra -Werror -pedantic -ggdb -DRUPIFY -g -lssl -lcrypto
 CFLAGS = -Wall
 # INCL = -L /usr/include/openssl -I /usr/include/openssl
-LIBRARIES = -lssl -lcrypto 
-OBJECTS = Includes.o webServer.o webSocketServer.o
-DEVOBJECTS = DEVIncludes.o webServer.o webSocketServer.o
+LIBRARIES = -lssl -lcrypto -ljson-c 
+OBJECTS = Includes.o webServer.o webSocketServer.o message.o
+DEVOBJECTS = DEVIncludes.o webServer.o webSocketServer.o message.o
 EXEC 	= server
 
 .PHONY: server
@@ -41,4 +41,5 @@ webServer.o: webServer.c webServer.h Includes.h
 webSocketServer.o: webSocketServer.c webSocketServer.h Includes.h
 	$(CC) $(CFLAGS) -c webSocketServer.c 
 
-	
+message.o: message.c message.h Includes.h 
+	$(CC) $(CLFAGS) -c message.c

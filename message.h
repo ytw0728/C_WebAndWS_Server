@@ -10,6 +10,10 @@ example : 00{"major_code":0, "minor_code":0, "awefawef":"asdf", ... }
 #ifndef _MESSAGE_H_
 #define _MESSAGE_H_
 
+#include "Includes.h"
+#include "json/json.h"
+#include "json/json_tokener.h" 
+
 
 #define CHAT_SIZE 128
 #define NICKNAME_SIZE 30
@@ -137,4 +141,6 @@ struct game_finished_data{ //26 게임 종료 알림
 	char answer[CHAT_SIZE];
 	User painter;
 };
+
+
 #endif

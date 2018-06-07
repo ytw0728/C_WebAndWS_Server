@@ -1,8 +1,4 @@
-#include "Includes.h"
 #include "message.h"
-
-#include "json/json.h"
-#include "json/json_tokener.h"
 
 /*
  todo
@@ -140,7 +136,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 	return 0;
 }
 
-//----------------this is test-----------------
+/*/----------------this is test-----------------
 int main()
 {
 	const char *json_string;// = "{\"major_code\":0,\"minor_code\":0,\"key\":\"value\",\"id\":20162468}";
@@ -161,7 +157,7 @@ int main()
 
 	json_to_packet(json_string, &p);
 
-	/*
+	//
 	   enum json_type type = json_object_get_type(jobj);
 	   switch (type) {
 	   case json_type_null: 
@@ -185,5 +181,5 @@ int main()
 	   case json_type_string: 
 	   printf("json_type_string\n");
 	   break;
-	   }//debug */
-}
+	   }//debug
+}*/
