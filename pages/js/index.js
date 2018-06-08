@@ -486,7 +486,6 @@ class Draw{
   			color : this.color,
   			px : this.px
   		}
-
   		msg += JSON.stringify(jsonObject);
   		ws.send(msg);
   	}

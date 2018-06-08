@@ -20,7 +20,7 @@ const char * packet_to_json(struct packet p)
 	json_object_object_add(pobj, "minor_code", json_object_new_int(minor_code));
 
 	if(major_code == 0){ //echo
-		if(minor_code == 0){	
+		if(minor_code == 0){
 			printf("00그림 그리기\n");
 
 			json_object_object_add(obj, "prevX", json_object_new_int(((DRAW_DATA *)(p.ptr))->prevX));
