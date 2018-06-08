@@ -109,6 +109,24 @@ const char * packet_to_json(struct packet p)
 	else if(major_code == 2){ //server response	
 		if(minor_code == 0){
 			printf("20대기방 리스트 응답\n");
+
+			json_object * aobj, *robj;
+			aobj = json_object_new_array();
+
+			for(int i = 0; i < 20; i++){
+				robj = json_object_new_object();
+				json_object_object_add(robj, "id", json_object_new_int(((ROOM_LIST_DATA *)(p.ptr))->rlist[i].id));
+				json_object_object_add(robj, "num", json_object_new_int(((ROOM_LIST_DATA *)(p.ptr))->rlist[i].num));
+
+				json_object_array_add(aobj, robj);
+			}
+			json_object_object_add(obj, "rlist", aobj);
+			json_object_object_add(pobj, "ptr", obj);
+
+			ptr = json_object_to_json_string(pobj);
+			for(int i = 0; i < json_object_array_length(aobj); i++)
+				free(json_object_array_get_idx(aobj, i));
+			free(aobj);
 		}
 		else if(minor_code == 1){
 			printf("21대기방 접속\n");
@@ -266,7 +284,33 @@ int json_to_packet(const char * json_string, struct packet * p)
 	}
 	else if(major_code == 2){ //server response
 		if(minor_code == 0){
+			json_object * aobj, * robj;
+
 			printf("20대기방 리스트 응답\n");
+			
+			p->ptr = (void *)((ROOM_LIST_DATA *)malloc(sizeof(ROOM_LIST_DATA)));
+
+			json_object_object_get_ex(jobj, "rlist", &aobj);
+			for(int i = 0; i < json_object_array_length(aobj); i++){
+				robj = json_object_array_get_idx(aobj, i);
+
+				json_object_object_get_ex(robj, "id", &jbuf);
+				((ROOM_LIST_DATA *)(p->ptr))->rlist[i].id = json_object_get_int(jbuf);
+				free(jbuf);
+				json_object_object_get_ex(robj, "num", &jbuf);
+				((ROOM_LIST_DATA *)(p->ptr))->rlist[i].num = json_object_get_int(jbuf);
+				free(jbuf);
+				free(robj);
+			}
+			
+			for(int i = 0; i < json_object_array_length(aobj); i++)
+				free(json_object_array_get_idx(aobj, i));
+			free(aobj);
+
+			printf("j2p::<from server : roomdata>\n");
+			for(int i = 0; i < 20; i++){
+				printf("room#%d, users : %d\n", ((ROOM_LIST_DATA *)(p->ptr))->rlist[i].id, ((ROOM_LIST_DATA *)(p->ptr))->rlist[i].num);
+			}
 		}
 		else if(minor_code == 1){
 			printf("21대기방 접속\n");
@@ -303,9 +347,17 @@ int main()
 
 	p.major_code = 2;
 	p.minor_code = 0;
-	p.ptr = (void *)((WINNER_DATA *)malloc(sizeof(WINNER_DATA)));
-	((WINNER_DATA *)(p.ptr))->winner.id = 33;
-	strcpy(((WINNER_DATA *)(p.ptr))->winner.nickname, "ROLLCAKE");
+	p.ptr = (void *)((ROOM_LIST_DATA *)malloc(sizeof(ROOM_LIST_DATA)));
+	for(int i = 0; i < 20; i++){
+		if(i < 10){
+			((ROOM_LIST_DATA *)(p.ptr))->rlist[i].id = i+1;
+			((ROOM_LIST_DATA *)(p.ptr))->rlist[i].num = i+2;
+		}
+		else{
+			((ROOM_LIST_DATA *)(p.ptr))->rlist[i].id = 0;
+			((ROOM_LIST_DATA *)(p.ptr))->rlist[i].num = 0;
+		}
+	}
 
 	json_string = packet_to_json(p);
 	free(p.ptr);
