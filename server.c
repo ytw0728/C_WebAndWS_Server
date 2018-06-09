@@ -1,6 +1,5 @@
 #include "webServer.h"
 #include "webSocketServer.h"
-#include "message.h"
 #include <sys/stat.h> 			/* stat */
 
 pthread_attr_t pthread_attr;

@@ -2,6 +2,8 @@
 #define _WEBSOCKET_H
 
 #include "Includes.h"
+#include "message.h"
+
 // #include "utf8.h"
 
 #include <openssl/sha.h>
