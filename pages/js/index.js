@@ -1,7 +1,9 @@
 ﻿let status = 0; // 0 : not in gameroom , 1 : gameroom , 2 : game 
 let uid = null; // user uid
 let nickname = null; // user nickname
-let isPainter = true;
+let isPainter = true; // which now client is painter.
+let room_id = null; // room_id 
+
 
 let ws;
 let chat;
@@ -13,6 +15,7 @@ let app;
 let notice; 
 let draw;
 
+function setDevOption(){ uid = 9999; room_id =9999;}
 window.onload= function(){
 	chat = new Chatting();
 	nicknameInputBox = new NickNameInput();
@@ -24,6 +27,8 @@ window.onload= function(){
 
 	ws = new Websocket();
 	statusManager = new StatusManager();
+
+	setDevOption();
 	layout();	
 }
 
@@ -204,23 +209,23 @@ class Waiting{
 	roomListSet(jsonObject){
 		jsonObject = {
 			roomList : [
-				{roomID : 1,roomNum : 3},
-				{roomID : 2,roomNum : 3},
-				{roomID : 3,roomNum : 3},
-				{roomID : 4,roomNum : 3},
-				{roomID : 5,roomNum : 3},
-				{roomID : 6,roomNum : 3},
-				{roomID : 7,roomNum : 3},
-				{roomID : 8,roomNum : 3},
-				{roomID : 9,roomNum : 3},
-				{roomID : 10,roomNum : 3},
-				{roomID : 11,roomNum : 3},
-				{roomID : 12,roomNum : 3},
-				{roomID : 13,roomNum : 3},
-				{roomID : 14,roomNum : 3},
-				{roomID : 15,roomNum : 3},
-				{roomID : 16,roomNum : 3},
-				{roomID : 17,roomNum : 3}
+				{room_id : 1,roomNum : 3},
+				{room_id : 2,roomNum : 3},
+				{room_id : 3,roomNum : 3},
+				{room_id : 4,roomNum : 3},
+				{room_id : 5,roomNum : 3},
+				{room_id : 6,roomNum : 3},
+				{room_id : 7,roomNum : 3},
+				{room_id : 8,roomNum : 3},
+				{room_id : 9,roomNum : 3},
+				{room_id : 10,roomNum : 3},
+				{room_id : 11,roomNum : 3},
+				{room_id : 12,roomNum : 3},
+				{room_id : 13,roomNum : 3},
+				{room_id : 14,roomNum : 3},
+				{room_id : 15,roomNum : 3},
+				{room_id : 16,roomNum : 3},
+				{room_id : 17,roomNum : 3}
 			]
 		}
 
@@ -240,11 +245,11 @@ class Waiting{
 			let node = document.createElement("li");
 			node.className = "room";
 			node.addEventListener("click", statusManager.enterRoom,false);
-			node.setAttribute("data-roomid", this.room[i].roomID);
+			node.setAttribute("data-room_id", this.room[i].room_id);
 
 			let roomID = document.createElement("span");
-			roomID.innerHTML = "Room No." + this.room[i].roomID;
-			roomID.className = "roomID";	
+			roomID.innerHTML = "Room No." + this.room[i].room_id;
+			roomID.className = "roomID";
 
 			let roomNum = document.createElement("span");
 			roomNum.innerHTML = this.room[i].roomNum + "/6"; // 6 is max number of member;
@@ -333,16 +338,18 @@ class Chatting{
 		event.preventDefault();
 		let box = document.getElementById("chatInput");
 		if( box.value == "" ) return;		
-		let msg = "01";
 		let jsonObject = {
-			code : "01",
+			major_code : 0,
+			minor_code : 1,
 			msg : box.value,
-			uid : uid,
-			nickname : nickname,
-			timestamp : new Date()
+			from : {
+				uid : uid,
+				nickname : nickname
+			},
+			timestamp : new Date(),
+			room_id : room_id
 		}
-
-		msg += JSON.stringify(jsonObject);
+		let msg = JSON.stringify(jsonObject);
 		ws.send(msg);
 
 		box.value = null;
@@ -504,7 +511,6 @@ class Draw{
   	}
   	sendDrawingPoint(){
   		if( !isPainter ) return;
-  		let msg = "00";
   		let jsonObject = {
   			prevX : this.prevX,
   			prevY : this.prevY,
@@ -513,7 +519,7 @@ class Draw{
   			color : this.color,
   			px : this.px
   		}
-  		msg += JSON.stringify(jsonObject);
+  		let msg = JSON.stringify(jsonObject);
   		ws.send(msg);
   	}
 
@@ -580,24 +586,43 @@ class Websocket{
 		};
 		this.ws.onmessage = function (event){
 
-			let packet = event.data;
+			let json = event.data;
+			console.log(json);
 
 			// let tmp = event.data.replace(/(?:\r\n|\n|\r)/g, '<br/>'); // dummyData
 			// let packet = '01{"code":"00","msg":"'+tmp+'","uid":1,"nickname":"someone","timestamp":"'+new Date()+'"}';
-			let code = packet.substring(0,2);
-			let json = packet.substring(2,packet.length);
+			
 			let jsonObject = JSON.parse(json);
 
-			if( code === "01" ){ // message
-				chat.addMsg(jsonObject);
-				return;
+			if( jsonObject.major_code == 0 ){
+				switch( jsonObject.minor_code ){
+					case 0:
+						draw.drawWithJson(jsonObject);
+						return;
+					case 1:
+						chat.addMsg(jsonObject);
+						return;
+					case 2:
+						return;
+					case 3:
+						return;
+					default : console.log("undefined msg");return;
+				}
 			}
-			if( code == "00"){
-				draw.drawWithJson(jsonObject);
-			}
-			if( code === "23"){
-				notice.showAnswerLen(jsonObject);
-				return;
+			else if( jsonObject.minor_code == 2){
+				switch( jsonObject.minor_code ){
+					case 0 :
+						return;	
+					case 1 :
+						return;
+					case 2 :
+						return;
+					case 3 :
+						notice.showAnswerLen(jsonObject);
+						return;		
+
+					default : console.log("undefined msg");return;
+				}
 			}
 		}
 		this.ws.onclose = function(event) {

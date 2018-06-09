@@ -281,7 +281,9 @@ int send_frame_head(int fd,frame_head* head){
 }
 
 void *WSconnect(void* args){
-	int client_fd = (int)(*(int*)args);
+	client_data * client = (client_data*)args;
+	int client_fd = client->fd;
+
 	// need threading process
 	shakehands(client_fd);	
     int exitCondition = 0;
@@ -321,8 +323,6 @@ void *WSconnect(void* args){
 
 	   		strcat(payload_data, payload_data_buffer);
 
-	   		
-
 
 		    // printf("\n\n\n %d \n\n\n", strcmp(payload_data, "\x41\x42\x43") ); // utf-8 이랑 비교 가능
 
@@ -353,35 +353,42 @@ void *WSconnect(void* args){
     	}while(!exitCondition && size < (int)recvHead.payload_length);
 
 		frame_head sendHead = recvHead;
-		send_frame_head(client_fd, &sendHead);
-		if( write( client_fd, payload_data,size) <= 0){
-			exitCondition = 1;
+
+   		struct packet p;
+		json_to_packet(payload_data, &p);
+		const char * contents = packet_to_json(p);
+
+		
+		iso8859_1_to_utf8(contents, strlen(contents));
+		size = sendHead.payload_length = strlen(contents);
+		send_frame_head(client->fd, &sendHead);
+
+
+		if( write( client->fd, contents, size ) <= 0){
+			continue;
 		}
-   		// struct packet p;
-		// p.ptr = (void *)((DRAW_DATA *)malloc(sizeof(DRAW_DATA)));
-
-		// json_to_packet(payload_data, &p);
 
 
- 		//echo head
-		// send_frame_head(client_fd,&sendHead);
-		// if( p.major_code == 0 ){
-		// 	switch( p.minor_code){
-		// 		case 0 :
-		// 			if (write(client_fd,payload_data,rul)<=0){
-		// 		    	exitCondition = 1;
-		// 		    }
-		// 			break;
-		// 		case 1 :
-		// 			exitCondition = validateChatMsg(&p);
-		// 			break;
-		// 	}
-		// }
+
+		continue;
+
+
+		if( p.major_code == 0 ){
+			switch( p.minor_code){
+				case 0 :
+					exitCondition = drawingPoint(client, &sendHead, &p);
+					break;
+				case 1 :
+					exitCondition = validateChatMsg(client, &sendHead, &p);
+					break;
+			}
+		}
 	}
 
 
 	serverLog(WSSERVER,FILELOG,"ws closed","\n");
 	close(client_fd);
+	pthread_detach(client->thread_id);
 }
 
 void *webSocketServerHandle(){
@@ -431,13 +438,14 @@ void *webSocketServerHandle(){
 		serverLog(WSSERVER,LOG,"connect","accept()");
 		client_data* n;
 		n = (client_data*)malloc(sizeof(client_data));
+		n->fd = client_fd;
 
-
-		if( (pthread_create(&(n->thread_id), &pthread_attr, WSconnect, (void *) &client_fd)) < 0 ){
+		if( (pthread_create(&(n->thread_id), &pthread_attr, WSconnect, (void *) n)) < 0 ){
 			serverLog(WSSERVER, ERROR, "Thread Error", "clientSocketThread");
 		}
     }
     close(ser_fd);
+
 
     return NULL;
 }
@@ -457,11 +465,37 @@ void *webSocketServerHandle(){
 
 
 // below lines are for actual procedure of web app.
+int drawingPoint(client_data * client, frame_head * sendHead, struct packet * p){
+	// struct packet sendPacket = *p;
+	
+	const char * contents;
+	contents = packet_to_json(*p);
+	
+	printf("\n\n\n%s\n\n", contents);
 
-int validateChatMsg(struct packet * p){
+
+	// int size = sendHead->payload_length = strlen(contents);
+	// send_frame_head(client->fd, &sendHead);
+
+	// if( write( client->fd, contents, size) <= 0 ){
+	// 	return 1;
+	// }
+	return 0;
+}
+int validateChatMsg(client_data * client, frame_head * sendHead, struct packet * p){
+	// struct packet sendPacket = *p;
 
 	int isCorrect = 0;
+	
+	const char * contents = packet_to_json(*p);
+	
 
+	int size = sendHead->payload_length = strlen(contents);
+	send_frame_head(client->fd, &sendHead);
+
+	if( write( client->fd, contents, size) <= 0 ){
+		return 1;
+	}
 	// some statement for validate the msg which it equals answer.
 	if( isCorrect ){
 
@@ -472,3 +506,5 @@ int validateChatMsg(struct packet * p){
 
 	return 0;
 }
+
+

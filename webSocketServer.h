@@ -26,9 +26,7 @@ typedef struct _frame_head {
 } frame_head;
 
 typedef struct WSclient_data{
-	int fd;
-	int gameRoom;
-	int userIdx;
+	int fd;	
 	pthread_t thread_id;
 } client_data;
 
