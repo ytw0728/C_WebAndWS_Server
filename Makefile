@@ -38,7 +38,7 @@ DEVIncludes.o: Includes.c Includes.h
 webServer.o: webServer.c webServer.h Includes.h
 	$(CC) $(CFLAGS) -c webServer.c
 
-webSocketServer.o: webSocketServer.c webSocketServer.h Includes.h
+webSocketServer.o: webSocketServer.c webSocketServer.h Includes.h message.h
 	$(CC) $(CFLAGS) -c webSocketServer.c 
 
 message.o: message.c message.h Includes.h 
