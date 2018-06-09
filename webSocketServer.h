@@ -14,7 +14,7 @@
 #define BUFFER_SIZE 1024
 #define RESPONSE_HEADER_LEN_MAX 1024
 #define GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-#define WSPORT 12345
+#define WSPORT 8889
 
 typedef struct _frame_head {
 	unsigned char fin;

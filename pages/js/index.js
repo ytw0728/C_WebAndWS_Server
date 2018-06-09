@@ -574,7 +574,7 @@ class Draw{
 
 class Websocket{
 	constructor(){
-		this.ws = new WebSocket("ws://localhost:12345");
+		this.ws = new WebSocket("ws://localhost:8889");
 		this.ws.onopen = function (event) {
 			console.log("ws connected");
 		};
