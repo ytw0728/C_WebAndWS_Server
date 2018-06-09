@@ -2,10 +2,11 @@
 
 /*
    todo
-   헤더파일 수정하기
+   헤더파일 맞게 수정하기
    데이터 유형별로 파싱하는 거 다 만들기(괄호가 완성한 코드)
-   (00) (01) 02 03 04 (05) (10) (11) (12) 20 21 22 23 24 25 26
-   다 만든 json string utf8로 컨버트?
+   요청 패킷, uid 추가, 전체 공유 데이터 room_id추가
+   (00) (01) 02 03 04 (05) (10) (11) (12) (20) (21) (22) (23) (24) (25) (26)
+   다 만든 json string utf8로 컨버트 - utf8 string으로 바꿔주는 함수 있지 않나?
  */
 
 const char * packet_to_json(struct packet p)
@@ -130,24 +131,87 @@ const char * packet_to_json(struct packet p)
 		}
 		else if(minor_code == 1){
 			printf("21대기방 접속\n");
+			
+			json_object * aobj, *uobj;
+			aobj = json_object_new_array();
+			
+			json_object_object_add(obj, "room_id", json_object_new_int(((ROOM_DATA *)(p.ptr))->room_id));
+			for(int i = 0; i < 6; i++){
+				uobj = json_object_new_object();
+				json_object_object_add(uobj, "id", json_object_new_int(((ROOM_DATA *)(p.ptr))->members[i].id));
+				json_object_object_add(uobj, "nickname", json_object_new_string(((ROOM_DATA *)(p.ptr))->members[i].nickname));
+
+				json_object_array_add(aobj, uobj);
+			}
+			json_object_object_add(obj, "members", aobj);
+			json_object_object_add(pobj, "ptr", obj);
+
+			ptr = json_object_to_json_string(pobj);
+			for(int i = 0; i < json_object_array_length(aobj); i++)
+				free(json_object_array_get_idx(aobj, i));
+			free(aobj);
 		}
 		else if(minor_code == 2){
 			printf("22방 인원 추가\n");
+			
+			json_object * uobj, *robj;
+			uobj = json_object_new_object();
+			robj = json_object_new_object();
+
+			json_object_object_add(robj, "id", json_object_new_int(((ADDED_MEMBER_DATA *)(p.ptr))->room.id));
+			json_object_object_add(robj, "num", json_object_new_int(((ADDED_MEMBER_DATA *)(p.ptr))->room.num));
+			json_object_object_add(obj, "room", robj);
+			
+			json_object_object_add(uobj, "id", json_object_new_int(((ADDED_MEMBER_DATA *)(p.ptr))->user.id));
+			json_object_object_add(uobj, "nickname", json_object_new_string(((ADDED_MEMBER_DATA *)(p.ptr))->user.nickname));
+			json_object_object_add(obj, "user", uobj);
+
+			json_object_object_add(pobj, "ptr", obj);
+			ptr = json_object_to_json_string(pobj);
+			free(robj);
+			free(uobj);
+
 		}
 		else if(minor_code == 3){
 			printf("23게임 시작 알림\n");
+			
+			json_object * uobj;
+
+			json_object_object_add(obj, "answerLen", json_object_new_int(((NEW_ROUND_DATA *)(p.ptr))->answerLen));
+
+			uobj = json_object_new_object();
+			json_object_object_add(uobj, "id", json_object_new_int(((NEW_ROUND_DATA *)(p.ptr))->painter.id));
+			json_object_object_add(uobj, "nickname", json_object_new_string(((NEW_ROUND_DATA *)(p.ptr))->painter.nickname));
+			json_object_object_add(obj, "painter", uobj);
+			
+			json_object_object_add(pobj, "ptr", obj);
+			ptr = json_object_to_json_string(pobj);
+
+			free(uobj);
 		}
 		else if(minor_code == 4){
 			printf("24정답 알림\n");
+
+			json_object_object_add(obj, "answer", json_object_new_string(((ANSWER_DATA *)(p.ptr))->answer));
+			json_object_object_add(pobj, "ptr", obj);
+			ptr = json_object_to_json_string(pobj);
 		}
 		else if(minor_code == 5){
 			printf("25방이 사라짐\n");
+			
+			json_object_object_add(obj, "room_id", json_object_new_int(((INVALID_ROOM_DATA *)(p.ptr))->room_id));
+			json_object_object_add(pobj, "ptr", obj);
+			ptr = json_object_to_json_string(pobj);
 		}
 		else if(minor_code == 6){
 			printf("26그리기 종료 알림\n");
+		
+			json_object_object_add(obj, "answer", json_object_new_string(((END_ROUND_DATA *)(p.ptr))->answer));
+			json_object_object_add(pobj, "ptr", obj);
+			ptr = json_object_to_json_string(pobj);
 		}
 	}
-
+	
 	free(obj);
 	free(pobj);
 	return ptr;
@@ -313,22 +377,119 @@ int json_to_packet(const char * json_string, struct packet * p)
 			}
 		}
 		else if(minor_code == 1){
+			json_object * aobj, * robj;
+			
 			printf("21대기방 접속\n");
+			p->ptr = (void *)((ROOM_DATA *)malloc(sizeof(ROOM_DATA)));
+
+			json_object_object_get_ex(jobj, "room_id", &jbuf);
+			((ROOM_DATA *)(p->ptr))->room_id = json_object_get_int(jbuf);
+			free(jbuf);
+
+			json_object_object_get_ex(jobj, "members", &aobj);
+			for(int i = 0; i < json_object_array_length(aobj); i++){
+				robj = json_object_array_get_idx(aobj, i);
+
+				json_object_object_get_ex(robj, "id", &jbuf);
+				((ROOM_DATA *)(p->ptr))->members[i].id = json_object_get_int(jbuf);
+				free(jbuf);
+				json_object_object_get_ex(robj, "nickname", &jbuf);
+				strcpy(((ROOM_DATA *)(p->ptr))->members[i].nickname, json_object_get_string(jbuf));
+				free(jbuf);
+				free(robj);
+			}
+			
+			for(int i = 0; i < json_object_array_length(aobj); i++)
+				free(json_object_array_get_idx(aobj, i));
+			free(aobj);
+
+			printf("j2p::<from server>\n");
+			printf("<member of room#%d>\n", ((ROOM_DATA *)(p->ptr))->room_id);
+			for(int i = 0; i < MAX_USER; i++){
+				printf("user#%d : %s\n", ((ROOM_DATA *)(p->ptr))->members[i].id, ((ROOM_DATA *)(p->ptr))->members[i].nickname);
+			}
 		}
 		else if(minor_code == 2){
 			printf("22방 인원 추가\n");
+			
+			json_object * uobj;
+			p->ptr = (void *)((ADDED_MEMBER_DATA *)malloc(sizeof(ADDED_MEMBER_DATA)));
+
+			json_object_object_get_ex(jobj, "room", &uobj);
+			json_object_object_get_ex(uobj, "id", &jbuf);
+			((ADDED_MEMBER_DATA *)(p->ptr))->room.id = json_object_get_int(jbuf);
+			free(jbuf);
+			json_object_object_get_ex(uobj, "num", &jbuf);
+			((ADDED_MEMBER_DATA *)(p->ptr))->room.num = json_object_get_int(jbuf);
+			free(jbuf);
+			free(uobj);
+			
+			json_object_object_get_ex(jobj, "user", &uobj);
+			json_object_object_get_ex(uobj, "id", &jbuf);
+			((ADDED_MEMBER_DATA *)(p->ptr))->user.id = json_object_get_int(jbuf);
+			free(jbuf);
+			json_object_object_get_ex(uobj, "nickname", &jbuf);
+			strcpy(((ADDED_MEMBER_DATA *)(p->ptr))->user.nickname, json_object_get_string(jbuf));
+			free(jbuf);
+			free(uobj);
+
+			///*
+			printf("j2p::<add member>");   
+			printf("room#%d, members:%d\nuser#%d:%s\n", ((ADDED_MEMBER_DATA *)(p->ptr))->room.id, ((ADDED_MEMBER_DATA *)(p->ptr))->room.num, ((ADDED_MEMBER_DATA *)(p->ptr))->user.id, ((ADDED_MEMBER_DATA *)(p->ptr))->user.nickname);
 		}
 		else if(minor_code == 3){
 			printf("23게임 시작 알림\n");
+			json_object * uobj;
+
+			p->ptr = (void *)((NEW_ROUND_DATA *)malloc(sizeof(NEW_ROUND_DATA)));
+
+			json_object_object_get_ex(jobj, "answerLen", &jbuf);
+			((NEW_ROUND_DATA *)(p->ptr))->answerLen = json_object_get_int(jbuf);
+			free(jbuf);
+
+			json_object_object_get_ex(jobj, "painter", &uobj);
+			json_object_object_get_ex(uobj, "id", &jbuf);
+			((NEW_ROUND_DATA *)(p->ptr))->painter.id = json_object_get_int(jbuf);
+			free(jbuf);
+			json_object_object_get_ex(uobj, "nickname", &jbuf);
+			strcpy(((NEW_ROUND_DATA *)(p->ptr))->painter.nickname, json_object_get_string(jbuf));
+			free(jbuf);
+			free(uobj);
+			
+			printf("j2p::<new round data>\n");
+			for(int i = 0; i < ((NEW_ROUND_DATA *)(p->ptr))->answerLen; i++)
+				printf("_ ");
+			printf("\npainter: %s(#%d)\n", ((NEW_ROUND_DATA *)(p->ptr))->painter.nickname, ((NEW_ROUND_DATA *)(p->ptr))->painter.id);
 		}
 		else if(minor_code == 4){
 			printf("24정답 알림\n");
+			
+			p->ptr = (void *)((ANSWER_DATA *)malloc(sizeof(ANSWER_DATA)));
+			json_object_object_get_ex(jobj, "answer", &jbuf);
+			strcpy(((ANSWER_DATA *)(p->ptr))->answer, json_object_get_string(jbuf));
+			
+			printf("j2p::<answer data>\n");
+			printf("answer: %s\n", ((ANSWER_DATA *)(p->ptr))->answer);
 		}
 		else if(minor_code == 5){
 			printf("25방이 사라짐\n");
+			
+			p->ptr = (void *)((INVALID_ROOM_DATA *)malloc(sizeof(INVALID_ROOM_DATA)));
+			json_object_object_get_ex(jobj, "room_id", &jbuf);
+			((INVALID_ROOM_DATA *)(p->ptr))->room_id = json_object_get_int(jbuf);
+			
+			printf("j2p::<room diappeard>\n");
+			printf("room_id: %d\n", ((INVALID_ROOM_DATA *)(p->ptr))->room_id);
 		}
 		else if(minor_code == 6){
 			printf("26그리기 종료 알림\n");
+			
+			p->ptr = (void *)((END_ROUND_DATA *)malloc(sizeof(END_ROUND_DATA)));
+			json_object_object_get_ex(jobj, "answer", &jbuf);
+			strcpy(((END_ROUND_DATA *)(p->ptr))->answer, json_object_get_string(jbuf));
+			
+			printf("j2p::<end round>\n");
+			printf("answer: %s\n", ((END_ROUND_DATA *)(p->ptr))->answer);
 		}
 	}
 
@@ -345,19 +506,12 @@ int main()
 	const char *json_string;
 	struct packet p;
 
+
 	p.major_code = 2;
-	p.minor_code = 0;
-	p.ptr = (void *)((ROOM_LIST_DATA *)malloc(sizeof(ROOM_LIST_DATA)));
-	for(int i = 0; i < 20; i++){
-		if(i < 10){
-			((ROOM_LIST_DATA *)(p.ptr))->rlist[i].id = i+1;
-			((ROOM_LIST_DATA *)(p.ptr))->rlist[i].num = i+2;
-		}
-		else{
-			((ROOM_LIST_DATA *)(p.ptr))->rlist[i].id = 0;
-			((ROOM_LIST_DATA *)(p.ptr))->rlist[i].num = 0;
-		}
-	}
+	p.minor_code = 6;
+	p.ptr = (void *)((END_ROUND_DATA *)malloc(sizeof(END_ROUND_DATA)));
+	strcpy(((END_ROUND_DATA *)(p.ptr))->answer, "몽구스");
+
 
 	json_string = packet_to_json(p);
 	free(p.ptr);
