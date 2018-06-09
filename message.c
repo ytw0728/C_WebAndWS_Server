@@ -122,7 +122,7 @@ const char * packet_to_json(struct packet p)
 				json_object_array_add(aobj, robj);
 			}
 			json_object_object_add(obj, "rlist", aobj);
-			json_object_object_add(pobj, "ptr", obj);
+			JSOn_object_object_add(pobj, "ptr", obj);
 
 			ptr = json_object_to_json_string(pobj);
 			for(int i = 0; i < json_object_array_length(aobj); i++)
@@ -521,4 +521,4 @@ int main()
 
 	free((void *)json_string);
 	free(p.ptr);
-}// */
+}*/

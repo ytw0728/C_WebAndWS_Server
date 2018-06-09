@@ -15,10 +15,9 @@ let draw;
 
 window.onload= function(){
 	chat = new Chatting();
-
 	nicknameInputBox = new NickNameInput();
+	
 	waiting = new Waiting();
-
 	app = new App();
 	notice = new Notice();
 	draw = new Draw();
@@ -67,14 +66,14 @@ class StatusManager{
 		status = 1;
 	}
 	makeRoom(event){
-		event.preventDefault();
+		if( event != null ) event.preventDefault();
 		waiting.hideList();
 		waiting.showWaitingRoom()
 
 		status = 1;
 	}
 	exitRoom(event){
-		event.preventDefault();
+		if( event != null ) event.preventDefault();
 		waiting.hideWaitingRoom();
 		waiting.showList();
 
@@ -83,14 +82,14 @@ class StatusManager{
 
 // app
 	enterGameRoom(event){
-		event.preventDefault();
+		if( event != null ) event.preventDefault();
 		waiting.hideAll();
 		app.showAll();
 
 		status = 2;
 	}
 	exitGameRoom(event){
-		event.preventDefault();
+		if( event != null ) event.preventDefault();
 		app.hideAll();
 		waiting.showAll();
 		waiting.showList(null);
@@ -276,6 +275,9 @@ class App{
 	showAll(){
 		this.app.style.display = "inline-block";
 		this.app.style.zIndex = 1000;
+		draw.clear();
+		chat.clear();
+
 	}
 	hideAll(){
 		this.app.style.display = "none";
@@ -300,7 +302,12 @@ class Notice{
 class Chatting{
 	constructor(){
 		this.chatHistory = document.getElementsByClassName("chatHistory")[0];
+		this.chatInput = document.getElementById("chatInput");
 		this.initEvent();
+	}
+	clear(){
+		this.chatHistory.innerHTML = null;
+		this.chatInput.value = null;
 	}
 	addMsg(jsonObject){
 		this.chatHistory.innerHTML += "\
@@ -377,6 +384,26 @@ class Draw{
 
 		this.initEvent();
 		this.prepareToDraw();
+	}
+	clear(){
+		this.canvas.fillStyle = this.canvas.strokeStyle = this.color = this.colors[1].getAttribute("data-color");
+
+		for(let i = 0; i< this.colors.length; i++){
+			this.colors[i].style.backgroundBlendMode = "normal";
+			this.colors[i].className = "color";
+		}
+		this.colors[1].style.backgroundBlendMode = "darken";
+		this.colors[1].className = "color on";
+		this.setPencil();
+
+  		this.canvas.lineWidth = this.px = this.brush[0].getAttribute("data-px");
+
+  		for( let i = 0 ; i < this.brush.length; i++){
+  			this.brush[i].style.background = "none";
+  		}
+  		this.brush[0].style.background = "#D2EAFF";
+
+  		this.clearCanvas();
 	}
 
 	initEvent(){
@@ -577,8 +604,11 @@ class Websocket{
 			console.log("ws close");
 		    setTimeout(() => {
 		    	ws = new Websocket();
+		    	uid = null;
 		    	if( status != 0 ){
 		    		console.log("reconnect ws");
+		    		uid = null;
+		    		statusManager.userAdd();
 		    		if( status == 1 ) statusManager.exitRoom();
 		    		else if( status == 2 ) statusManager.exitGameRoom();
 		    	}

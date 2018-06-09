@@ -1,5 +1,6 @@
 #include "webSocketServer.h"
 
+
 /*-------------------------------------------------------------------
   0                   1                   2                   3
   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -282,46 +283,46 @@ int send_frame_head(int fd,frame_head* head){
 void *WSconnect(void* args){
 	int client_fd = (int)(*(int*)args);
 	// need threading process
-
 	shakehands(client_fd);	
     int exitCondition = 0;
 
-    frame_head recvHead;
-    int rul = recv_frame_head(client_fd,&recvHead);
-    if (rul < 0){
-    	serverLog(WSSERVER,ERROR, "recv_frame_head error","wsconnect()");
-    	exitCondition = 1;
-    }
-
     // printf("fin=%d\nopcode=0x%X\nmask=%d\npayload_len=%llu\n",head.fin,head.opcode,head.mask,head.payload_length);
 
-    char payload_data[1024] = {0};
-    int size = 0;
-    // db 탐색해서 유저데이터 끌어오자
+    while(!exitCondition){
 
-    //echo head
-    if( !exitCondition ){
-    	frame_head sendHead = recvHead;
-		send_frame_head(client_fd,&sendHead);
+		//read payload data
+	    char payload_data_buffer[1024] = {0};
+	    char payload_data[8192] = {0};
+	    
+	    // db 탐색해서 유저데이터 끌어오자
 
-		do {
+
+	    frame_head recvHead;
+	    int rul = recv_frame_head(client_fd,&recvHead);
+	    if (rul < 0){
+	    	serverLog(WSSERVER,ERROR, "recv_frame_head error","wsconnect()");
+	    	exitCondition = 1;
+	    	continue;
+	    }
+		int size = 0;
+		int length = (int)recvHead.payload_length;
+    	do {
 			int rul;
-			rul = read(client_fd,payload_data,1024);
-			if (rul<=0){
-				exitCondition = 1;
+			rul = read(client_fd,payload_data_buffer,length);
+			if (rul<=0)
 				break;
-			}
+
+			length -= rul;
 			size+=rul;
 
-		   	umask_setting(payload_data,size,recvHead.masking_key);
+	   		umask_setting(payload_data_buffer, size, recvHead.masking_key);
+	   		serverLog(WSSERVER,FILELOG,"receive message",payload_data_buffer);
 
-		   	char *sendData = payload_data;
 
-		    // echo data
-		    if (write(client_fd,sendData,rul)<=0){
-		    	exitCondition = 1;
-		    	break;
-		    }
+	   		strcat(payload_data, payload_data_buffer);
+
+	   		
+
 
 		    // printf("\n\n\n %d \n\n\n", strcmp(payload_data, "\x41\x42\x43") ); // utf-8 이랑 비교 가능
 
@@ -343,49 +344,40 @@ void *WSconnect(void* args){
 		    // 	exitCondition = 1;
 		    // 	break;
 		    // }
-		    
-		}while(size < (int)recvHead.payload_length);
-	}
 
-
-    while(!exitCondition){
-
-		//read payload data
-	    char payload_data[1024] = {0};
-	    int size = 0;
-	    // db 탐색해서 유저데이터 끌어오자
-
-	    frame_head head;
-	    int rul = recv_frame_head(client_fd,&head);
-	    if (rul < 0){
-	    	serverLog(WSSERVER,ERROR, "recv_frame_head error","wsconnect()");
-	    	exitCondition = 1;
-	    	continue;
-	    }
-
-
-	    //echo head
-	    send_frame_head(client_fd,&head);
-		
-
-    	do {
-			int rul;
-			rul = read(client_fd,payload_data,1024);
-			if (rul<=0)
-				break;
-			size+=rul;
-
-	   		umask_setting(payload_data,size,head.masking_key);
-
-	   		serverLog(WSSERVER,FILELOG,"receive message",payload_data);
 
 		    //echo data // 만약에 문자열을 직접 보내고 싶으면 utf8로 인코딩하면됩니다.
-		    if (write(client_fd,payload_data,rul)<=0){
-		    	exitCondition = 1;
-		    }
-    	}while(!exitCondition && size< (int)head.payload_length);
-	}
+		    // if (write(client_fd,payload_data,rul)<=0){
+		    // 	exitCondition = 1;
+		    // }
+    	}while(!exitCondition && size < (int)recvHead.payload_length);
 
+		frame_head sendHead = recvHead;
+		send_frame_head(client_fd, &sendHead);
+		if( write( client_fd, payload_data,size) <= 0){
+			exitCondition = 1;
+		}
+   		// struct packet p;
+		// p.ptr = (void *)((DRAW_DATA *)malloc(sizeof(DRAW_DATA)));
+
+		// json_to_packet(payload_data, &p);
+
+
+ 		//echo head
+		// send_frame_head(client_fd,&sendHead);
+		// if( p.major_code == 0 ){
+		// 	switch( p.minor_code){
+		// 		case 0 :
+		// 			if (write(client_fd,payload_data,rul)<=0){
+		// 		    	exitCondition = 1;
+		// 		    }
+		// 			break;
+		// 		case 1 :
+		// 			exitCondition = validateChatMsg(&p);
+		// 			break;
+		// 	}
+		// }
+	}
 
 
 	serverLog(WSSERVER,FILELOG,"ws closed","\n");
@@ -448,4 +440,35 @@ void *webSocketServerHandle(){
     close(ser_fd);
 
     return NULL;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// below lines are for actual procedure of web app.
+
+int validateChatMsg(struct packet * p){
+
+	int isCorrect = 0;
+
+	// some statement for validate the msg which it equals answer.
+	if( isCorrect ){
+
+	}
+	else{
+
+	}
+
+	return 0;
 }
