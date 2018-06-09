@@ -326,29 +326,9 @@ void *WSconnect(void* args){
 
 		    // printf("\n\n\n %d \n\n\n", strcmp(payload_data, "\x41\x42\x43") ); // utf-8 이랑 비교 가능
 
-		    // int t;
-		    // for(t = 0 ; t < rul; t++){
-		    // 	printf("%X  ", (uint16_t)payload_data[t]);
-		    // }
-		    // fflush(stdout);
-		    
-		 	// char *contents = "안녕~"; // utf8 변환하기 
-			// size_t length = iso8859_1_to_utf8(contents, strlen(contents));
-			// printf("length of %s~ : %d\n", contents, length);
-			// if(write(client_fd, contents, strlen(contents)) <= 0){
-			// 	exitCondition = 1;
-			// 	break;
-			// }
-
 		    // if (write(client_fd,"\x47\x45\x54",3)<=0){ // utf-8 로 보내기 GET // 숫자 파싱은 그냥 0x30 더하면 댐
 		    // 	exitCondition = 1;
 		    // 	break;
-		    // }
-
-
-		    //echo data // 만약에 문자열을 직접 보내고 싶으면 utf8로 인코딩하면됩니다.
-		    // if (write(client_fd,payload_data,rul)<=0){
-		    // 	exitCondition = 1;
 		    // }
     	}while(!exitCondition && size < (int)recvHead.payload_length);
 
@@ -356,22 +336,6 @@ void *WSconnect(void* args){
 
    		struct packet p;
 		json_to_packet(payload_data, &p);
-		const char * contents = packet_to_json(p);
-
-		
-		iso8859_1_to_utf8(contents, strlen(contents));
-		size = sendHead.payload_length = strlen(contents);
-		send_frame_head(client->fd, &sendHead);
-
-
-		if( write( client->fd, contents, size ) <= 0){
-			continue;
-		}
-
-
-
-		continue;
-
 
 		if( p.major_code == 0 ){
 			switch( p.minor_code){
@@ -467,35 +431,30 @@ void *webSocketServerHandle(){
 // below lines are for actual procedure of web app.
 int drawingPoint(client_data * client, frame_head * sendHead, struct packet * p){
 	// struct packet sendPacket = *p;
+	const char * contents = packet_to_json(*p);
 	
-	const char * contents;
-	contents = packet_to_json(*p);
-	
-	printf("\n\n\n%s\n\n", contents);
+	iso8859_1_to_utf8(contents, strlen(contents));
+	int size = sendHead->payload_length = strlen(contents);
+	send_frame_head(client->fd, sendHead);
 
-
-	// int size = sendHead->payload_length = strlen(contents);
-	// send_frame_head(client->fd, &sendHead);
-
-	// if( write( client->fd, contents, size) <= 0 ){
-	// 	return 1;
-	// }
+	if( write( client->fd, contents, size ) <= 0){
+		return 1;
+	}	
 	return 0;
 }
 int validateChatMsg(client_data * client, frame_head * sendHead, struct packet * p){
 	// struct packet sendPacket = *p;
-
 	int isCorrect = 0;
 	
 	const char * contents = packet_to_json(*p);
 	
-
+	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
-	send_frame_head(client->fd, &sendHead);
+	send_frame_head(client->fd, sendHead);
 
-	if( write( client->fd, contents, size) <= 0 ){
+	if( write( client->fd, contents, size ) <= 0){
 		return 1;
-	}
+	}	
 	// some statement for validate the msg which it equals answer.
 	if( isCorrect ){
 
@@ -506,5 +465,3 @@ int validateChatMsg(client_data * client, frame_head * sendHead, struct packet *
 
 	return 0;
 }
-
-
