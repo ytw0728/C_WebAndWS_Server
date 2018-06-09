@@ -157,8 +157,8 @@ const char * packet_to_json(struct packet p)
 
 			
 			aobj = json_object_new_array();
-
-			for(int i = 0; i < 20; i++){
+			int i;
+			for(i = 0; i < 20; i++){
 				robj = json_object_new_object();
 				json_object_object_add(robj, "id", json_object_new_int(((ROOM_LIST_DATA *)(p.ptr))->rlist[i].id));
 				json_object_object_add(robj, "num", json_object_new_int(((ROOM_LIST_DATA *)(p.ptr))->rlist[i].num));
@@ -176,7 +176,8 @@ const char * packet_to_json(struct packet p)
 			json_object_object_add(pobj, "room_id", json_object_new_int(((ROOM_DATA *)(p.ptr))->room_id));
 
 			aobj = json_object_new_array();			
-			for(int i = 0; i < 6; i++){
+			int i;
+			for(i = 0; i < 6; i++){
 				uobj = json_object_new_object();
 				json_object_object_add(uobj, "uid", json_object_new_int(((ROOM_DATA *)(p.ptr))->members[i].uid));
 				json_object_object_add(uobj, "nickname", json_object_new_string(((ROOM_DATA *)(p.ptr))->members[i].nickname));
@@ -270,13 +271,14 @@ const char * packet_to_json(struct packet p)
 	free(pobj);
 
 	if( aobj != NULL ){
-		for(int i = 0; i < json_object_array_length(aobj); i++)
+		int i;
+		for(i = 0; i < json_object_array_length(aobj); i++)
 				free(json_object_array_get_idx(aobj, i));
 		free(aobj);
 	}
 	if( uobj != NULL ) free(uobj);
 	if( robj != NULL ) free(robj);
-	
+
 	return ptr;
 }
 
@@ -532,7 +534,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 			p->ptr = (void *)((ROOM_LIST_DATA *)malloc(sizeof(ROOM_LIST_DATA)));
 
 			json_object_object_get_ex(obj, "rlist", &aobj);
-			for(int i = 0; i < json_object_array_length(aobj); i++){
+			for(i = 0; i < json_object_array_length(aobj); i++){
 				robj = json_object_array_get_idx(aobj, i);
 
 				json_object_object_get_ex(robj, "id", &jbuf);
@@ -544,12 +546,12 @@ int json_to_packet(const char * json_string, struct packet * p)
 				free(robj);
 			}
 			
-			for(int i = 0; i < json_object_array_length(aobj); i++)
+			for(i = 0; i < json_object_array_length(aobj); i++)
 				free(json_object_array_get_idx(aobj, i));
 			free(aobj);
 
 			printf("j2p::<from server : roomdata>\n");
-			for(int i = 0; i < 20; i++){
+			for(i = 0; i < 20; i++){
 				printf("room#%d, users : %d\n", ((ROOM_LIST_DATA *)(p->ptr))->rlist[i].uid, ((ROOM_LIST_DATA *)(p->ptr))->rlist[i].num);
 			}
 		}
@@ -564,7 +566,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 			free(jbuf);
 
 			json_object_object_get_ex(obj, "members", &aobj);
-			for(int i = 0; i < json_object_array_length(aobj); i++){
+			for(i = 0; i < json_object_array_length(aobj); i++){
 				robj = json_object_array_get_idx(aobj, i);
 
 				json_object_object_get_ex(robj, "id", &jbuf);
@@ -576,13 +578,13 @@ int json_to_packet(const char * json_string, struct packet * p)
 				free(robj);
 			}
 			
-			for(int i = 0; i < json_object_array_length(aobj); i++)
+			for(i = 0; i < json_object_array_length(aobj); i++)
 				free(json_object_array_get_idx(aobj, i));
 			free(aobj);
 
 			printf("j2p::<from server>\n");
 			printf("<member of room#%d>\n", ((ROOM_DATA *)(p->ptr))->room_id);
-			for(int i = 0; i < MAX_USER; i++){
+			for(i = 0; i < MAX_USER; i++){
 				printf("user#%d : %s\n", ((ROOM_DATA *)(p->ptr))->members[i].uid, ((ROOM_DATA *)(p->ptr))->members[i].nickname);
 			}
 		}
@@ -634,7 +636,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 			free(uobj);
 			
 			printf("j2p::<new round data>\n");
-			for(int i = 0; i < ((NEW_ROUND_DATA *)(p->ptr))->answerLen; i++)
+			for(i = 0; i < ((NEW_ROUND_DATA *)(p->ptr))->answerLen; i++)
 				printf("_ ");
 			printf("\npainter: %s(#%d)\n", ((NEW_ROUND_DATA *)(p->ptr))->painter.nickname, ((NEW_ROUND_DATA *)(p->ptr))->painter.uid);
 		}
