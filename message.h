@@ -13,7 +13,7 @@ example : 00{"major_code":0, "minor_code":0, "awefawef":"asdf", ... }
 #include "Includes.h"
 #include "json/json.h"
 #include "json/json_tokener.h" 
-
+#include <sys/time.h> //timeval
 
 #define CHAT_SIZE 128
 #define NICKNAME_SIZE 30
@@ -50,20 +50,22 @@ typedef struct drawing_data{ //00 그림 데이터
 typedef struct chat_data{ //01 채팅 데이터
 	char msg[CHAT_SIZE];
 	User from;
-	//timestamp //js에 어떻게 적용할까
+	//struct timeval timestamp;
+	char timestamp[CHAT_SIZE];
 }CHAT_DATA;
-struct request_roomlist_msg{ //10 대기방 리스트 요청
 
+typedef struct request_roomlist_msg{ //10 대기방 리스트 요청
 	int idx;
-};
-struct request_enter_msg{ //11 대기방 접속 요청
+}REQUEST_ROOM_LIST;
 
+typedef struct request_enter_msg{ //11 대기방 접속 요청
 	int room_id;
-};
-struct start_game_msg{ //12 게임 시작 요청
+}REQUEST_ENTER_ROOM;
 
+typedef struct start_game_msg{ //12 게임 시작 요청
 	int room_id;
-};
+}REQUEST_START;
+
 struct start_drawing_msg{ //02 그리기 시작 요청
 	int major_code;
 	int minor_code;
@@ -72,11 +74,10 @@ struct finish_drawing_msg{ //03 그리기 종료 요청
 	int major_code;
 	int minor_code;
 };
-struct finish_drawing_data{ //03 제한시간 정보
+struct finish_drawing_data{ //04 제한시간 정보
 	int major_code;
 	int minor_code;
-
-	//timestamp
+	struct timeval timestamp;
 };
 
 /*server to client*/
@@ -89,12 +90,10 @@ struct finish_drawing_data{ //03 제한시간 정보
 	User from;
 	//timestamp //js에 어떻게 적용할까
 };*/
-struct winner_data{ //02 정답자
-	int major_code;
-	int minor_code;
-
+typedef struct winner_data{ //05 정답자
 	User winner;
-};
+}WINNER_DATA;
+
 struct send_roomlist_data{ //20대기방 리스트
 	int major_code;
 	int minor_code;
