@@ -77,8 +77,9 @@ class StatusManager{
 			UID = jsonObject.user.uid;
 			NICKNAME = jsonObject.user.nickname;
 			nicknameInputBox.hide();
-			waiting.showList(null);
+			waiting.showList();
 			scrollTo(0,0);
+
 		}
 		else{
 			alert("닉네임 등록에 실패하셨습니다.");	
@@ -190,11 +191,21 @@ class Waiting{
 		this.waiting.style.display = "inline-block";
 		this.waiting.style.zIndex = 1000;
 	}
-	showList(jsonObject){
+	showList(){
 		this.roomLists.style.display = "inline-block";
 		document.getElementsByClassName("waitingHeader")[0].style.display = "inline-block";
-		this.roomListSet(jsonObject);
-		this.roomNodeAddToList(0);
+
+		let json = { // 10 
+			major_code : 1,
+			minor_code : 0,
+			from : {
+				uid : UID,
+				nickname : NICKNAME
+			}
+		}
+
+		let msg = JSON.stringify(json);
+		ws.send(msg);
 	}
 	hideList(){
 		this.roomLists.style.display = "none";
@@ -251,7 +262,7 @@ class Waiting{
 
 	roomListSet(jsonObject){
 		jsonObject = {
-			roomList : [
+			rlist : [
 				{room_id : 1,roomNum : 3},
 				{room_id : 2,roomNum : 3},
 				{room_id : 3,roomNum : 3},
@@ -272,15 +283,16 @@ class Waiting{
 			]
 		}
 
-		this.room = jsonObject.roomList;
+		this.room = jsonObject.rlist;
 		this.maxLength = parseInt(this.room.length / 8) + (this.room.length % 8 ? 1 : 0) - 1;
+		this.nowPage = 0;
 	}
 
-	roomNodeAddToList(page){
+	roomNodeAddToList(){
 		if( this.room == undefined || this.room == null ) return;
 		this.ul.innerHTML  = null;
 		let cnt = 0;
-		let since = page * 8;
+		let since = this.nowPage * 8;
 		let until = this.room.length < since + 8 ? this.room.length : since + 8;
 
 		
@@ -387,7 +399,7 @@ class Chatting{
 			msg : box.value,
 			from : {
 				uid : UID,
-				nickname : nickname
+				nickname : NICKNAME
 			},
 			timestamp : new Date(),
 			room_id : ROOM_ID
@@ -653,6 +665,8 @@ class Websocket{
 			else if( jsonObject.major_code == 2){
 				switch( jsonObject.minor_code ){
 					case 0 :
+						waiting.roomListSet(jsonObject);
+						waiting.roomNodeAddToList(waiting.idx);
 						return;	
 					case 1 :
 						return;

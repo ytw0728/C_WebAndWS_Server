@@ -53,7 +53,6 @@ typedef struct set_score{ // 17 스코어  등록
 // 대기방 리스트 
 typedef struct request_roomlist_msg{ //10 대기방 리스트 요청
 	User from;
-	int idx;
 }REQUEST_ROOM_LIST;
 
 typedef struct request_enter_msg{ //11 대기방 접속 요청
@@ -148,13 +147,17 @@ typedef struct response_set_score{ // 31 스코어 등록 응답
 
 // 대기방 리스트
 typedef struct send_roomlist_data{ //20대기방 리스트
+	int success;
+	int idx;
 	Room rlist[MAX_ROOM];
 }ROOM_LIST_DATA;
 
 
 // 대기방
 typedef struct enter_room_data{ //21대기방 접속
+	int success;
 	int room_id;
+	int idx;
 	User members[MAX_USER];
 }ROOM_DATA;
 
@@ -168,7 +171,6 @@ typedef struct response_exit_room{ // 28 대기방 나가기 응답
 //01 채팅데이터 재전송
 typedef struct winner_data{ //05 정답자
 	int room_id;
-
 	User winner;
 }WINNER_DATA;
 //-------------------2------------------------
