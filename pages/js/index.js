@@ -102,6 +102,12 @@ class StatusManager{
 		// reset with  ws.send
 	}
 // waiting room
+	userPopHandle(jsonObject){
+		waiting.popMember(jsonObject);
+		if( jsonObject.room.num == 1 && status > 1){
+			app.switchToWaiting();			
+		}
+	}
 	enterRoom(event){
 		event.preventDefault();
 		let target = event.target;
@@ -116,6 +122,7 @@ class StatusManager{
 	}
 	enterRoomResponse(jsonObject){
 		if( jsonObject.success){
+			ROOM_ID = jsonObject.room_id;
 			waiting.hideList();
 			waiting.showWaitingRoom(jsonObject);
 			status = 1;
@@ -127,13 +134,13 @@ class StatusManager{
 	makeRoom(event){
 		if( event != null ) event.preventDefault();
 
-		let json = {
+		let json = { // 15
 			major_code : 1,
 			minor_code : 5,
 			from : {
 				uid : UID,
 				nickname : NICKNAME
-			}			
+			}
 		}
 		let msg = JSON.stringify(json);
 
@@ -141,10 +148,41 @@ class StatusManager{
 	}
 	exitRoom(event){
 		if( event != null ) event.preventDefault();
-		waiting.hideWaitingRoom();
-		waiting.showList();
 
-		status = 0;
+		let json = {
+			major_code : 1,
+			minor_code : 6,
+			room_id : ROOM_ID,
+			from : {
+				uid : UID,
+				nickname : NICKNAME
+			}
+		}
+
+		let msg = JSON.stringify(json);
+		ws.send(msg);
+	}
+	exitRoomResponse(jsonObject){
+		if(jsonObject.success){
+			if( status == 1 ) {
+				waiting.hideWaitingRoom();
+				waiting.showList();
+				ROOM_ID = null;
+				status = 0;
+			}
+			else if( status > 1 ){
+				app.hideAll();
+				waiting.showAll();
+				waiting.showList(null);
+				waiting.hideWaitingRoom();
+				ROOM_ID = null;
+
+				status = 0;
+			}
+		}
+		else{
+			alert("나가기에 실패했습니다.");
+		}
 	}
 
 // app
@@ -157,14 +195,20 @@ class StatusManager{
 	}
 	exitGameRoom(event){
 		if( event != null ) event.preventDefault();
-		app.hideAll();
-		waiting.showAll();
-		waiting.showList(null);
-		waiting.hideWaitingRoom();
-
-
-		status = 0;
+		let json = {
+			major_code : 1,
+			minor_code : 6,
+			room_id : ROOM_ID,
+			from : {
+				uid : UID,
+				nickname : NICKNAME
+			}
+		}
+		let msg = JSON.stringify(json);
+		ws.send(msg);
 	}
+
+
 }
 
 
@@ -287,16 +331,16 @@ class Waiting{
 		
 		for( let i = since; i < until; i++){
 			let node = document.createElement("li");
-			node.className = "room";
+			node.className = "room " + (this.room[i].state == 0 ? "" : "ongame");
 			node.addEventListener("click", statusManager.enterRoom,false);
-			node.setAttribute("data-room_id", this.room[i].room_id);
+			node.setAttribute("data-room_id", this.room[i].id);
 
 			let roomID = document.createElement("span");
-			roomID.innerHTML = "Room No." + this.room[i].room_id;
+			roomID.innerHTML = "Room No." + this.room[i].id;
 			roomID.className = "roomID";
 
 			let roomNum = document.createElement("span");
-			roomNum.innerHTML = this.room[i].roomNum + "/6"; // 6 is max number of member;
+			roomNum.innerHTML = this.room[i].num + "/6"; // 6 is max number of member;
 			roomNum.className = "roomNum";
 
 			node.append(roomID);
@@ -310,6 +354,15 @@ class Waiting{
 			node.className = "empty";
 
 			this.ul.append(node);
+		}
+	}
+
+	popMember(jsonObject){
+		for( let i = 0 ; i < this.members.length;i ++){
+			if( this.members[i].uid == jsonObject.user.uid ){
+				this.members.splice(i,1);
+				break;
+			}
 		}
 	}
 }
@@ -333,6 +386,14 @@ class App{
 		this.app.style.zIndex = 0;
 	}
 
+	switchToWaiting(){
+		this.hideAll();
+		isPainter = false;
+		waiting.showAll();
+		waiting.hideList();
+		waiting.userNodeAddToList();
+		status = 1;
+	}
 }
 
 class Notice{
@@ -655,8 +716,7 @@ class Websocket{
 				switch( jsonObject.minor_code ){
 					case 0 :
 						waiting.roomListSet(jsonObject);
-						
-						return;	
+						return;
 					case 1 :
 						statusManager.enterRoomResponse(jsonObject);
 						return;
@@ -665,6 +725,10 @@ class Websocket{
 					case 3 :
 						notice.showAnswerLen(jsonObject);
 						return;		
+
+					case 8 :
+						statusManager.exitRoomResponse(jsonObject);
+						return;
 
 					default : console.log("undefined msg");return;
 				}
@@ -677,10 +741,12 @@ class Websocket{
 					case 1 : 
 						statusManager.setScoreResponse(jsonObject);
 						return;
+					case 2 :
+						statusManager.userPopHandle(jsonObject);
+						return;
 					default : console.log("undefined msg "); return;
 				}
 			}
-
 		}
 		this.ws.onclose = function(event) {
 			console.log("ws close");

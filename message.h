@@ -35,6 +35,7 @@ typedef struct user_data{
 typedef struct room_data{
 	int id;
 	int num;
+	int state;
 }Room;
 
 
@@ -156,9 +157,9 @@ typedef struct send_roomlist_data{ //20대기방 리스트
 // 대기방
 typedef struct enter_room_data{ //21대기방 접속
 	int success;
-	int room_id;
-	int idx;
+	Room room;
 	User members[MAX_USER];
+	int idx;
 }ROOM_DATA;
 
 typedef struct response_exit_room{ // 28 대기방 나가기 응답
@@ -200,6 +201,12 @@ typedef struct game_finished_data{ //26 그리기 종료 알림
 typedef struct response_exit_gameroom{ // 27 게임방 나가기 응답
 	int success;
 }RESPONSE_EXIT_GAMEROOM;
+
+
+typedef struct pop_player_data{ // 32 방 인원 감소
+	Room room;
+	User user;
+}POP_MEMBER_DATA;
 
 const char * packet_to_json(struct packet p);
 int json_to_packet(const char * json_string, struct packet * p);

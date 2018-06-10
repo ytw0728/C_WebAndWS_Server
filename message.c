@@ -104,7 +104,7 @@ const char * packet_to_json(struct packet p)
 		else if(minor_code == 5){ // 05
 			serverLog(WSSERVER, LOG, "05정답자 데이터(그림 그리는 사람)\n", "");
 
-			json_object * uobj;
+
 			uobj = json_object_new_object();
 				json_object_object_add(uobj, "uid", json_object_new_int(((WINNER_DATA *)(p.ptr))->winner.uid));
 				json_object_object_add(uobj, "nickname", json_object_new_string(((WINNER_DATA *)(p.ptr))->winner.nickname));
@@ -156,6 +156,7 @@ const char * packet_to_json(struct packet p)
 				robj = json_object_new_object();
 				json_object_object_add(robj, "id", json_object_new_int(((ROOM_LIST_DATA *)(p.ptr))->rlist[i].id));
 				json_object_object_add(robj, "num", json_object_new_int(((ROOM_LIST_DATA *)(p.ptr))->rlist[i].num));
+				json_object_object_add(robj, "state", json_object_new_int(((ROOM_LIST_DATA *)(p.ptr))->rlist[i].state));
 
 				json_object_array_add(aobj, robj);
 			}
@@ -169,8 +170,11 @@ const char * packet_to_json(struct packet p)
 		else if(minor_code == 1){ // 21
 			serverLog(WSSERVER, LOG, "21대기방 접속\n", "");
 
-			json_object_object_add(pobj, "room_id", json_object_new_int(((ROOM_DATA *)(p.ptr))->room_id));
-
+			robj = json_object_new_object();
+				json_object_object_add(robj, "id", json_object_new_int(((ROOM_DATA *)(p.ptr))->room.id));
+				json_object_object_add(robj, "num", json_object_new_int(((ROOM_DATA *)(p.ptr))->room.num));
+				json_object_object_add(robj, "state", json_object_new_int(((ROOM_DATA *)(p.ptr))->room.state));
+			json_object_object_add(pobj, "room", robj);
 			aobj = json_object_new_array();
 			int i;
 			for(i = 0; i < (int)((ROOM_DATA *)(p.ptr))->idx; i++){
@@ -264,19 +268,29 @@ const char * packet_to_json(struct packet p)
 		else if( minor_code == 1 ){ // 31
 			json_object_object_add(pobj, "success", json_object_new_int( ((RESPONSE_SET_SCORE*)(p.ptr))->success ));
 		}
+		else if( minor_code == 2 ){ // 32
+			robj = json_object_new_object();
+				json_object_object_add(robj,"id", json_object_new_int(((POP_MEMBER_DATA*)(p.ptr))->room.id)  );
+				json_object_object_add(robj,"num", json_object_new_int(((POP_MEMBER_DATA*)(p.ptr))->room.num)  );
+			json_object_object_add(pobj,"room", robj);
+			uobj = json_object_new_object();
+				json_object_object_add(uobj,"uid", json_object_new_int(((POP_MEMBER_DATA*)(p.ptr))->user.uid) );
+				json_object_object_add(uobj,"nickname", json_object_new_string(((POP_MEMBER_DATA*)(p.ptr))->user.nickname) );
+			json_object_object_add(pobj, "user", uobj);
+
+		}
 	}
 	
 
 	ptr = json_object_to_json_string(pobj);
 	// free(obj);
 	free(pobj);
-
 	if( aobj != NULL ){
 		int i;
 		for(i = 0; i < json_object_array_length(aobj); i++)
 				free(json_object_array_get_idx(aobj, i));
 		free(aobj);
-	}
+	}	
 	if( uobj != NULL ) free(uobj);
 	if( robj != NULL ) free(robj);
 
@@ -295,8 +309,12 @@ const char * packet_to_json(struct packet p)
 int json_to_packet(const char * json_string, struct packet * p)
 {
 	// json_object * jobj, * jbuf, *obj;
-	json_object * jbuf, *obj;
+	json_object * jbuf, *obj, *uobj;
+	uobj = jbuf = obj = NULL;
 
+
+	printf("%s %d\n", json_string, strlen(json_string));
+	
 	obj = json_tokener_parse(json_string); //read json
 
 	///*
@@ -333,7 +351,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 		}
 		else if(minor_code == 1){  // 01
 			serverLog(WSSERVER, LOG, "01채팅 보내기\n", "");
-			json_object * uobj;
+
 
 			p->ptr = (void *)((CHAT_DATA *)malloc(sizeof(CHAT_DATA)));
 
@@ -361,7 +379,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 			json_object_object_get_ex(obj, "room_id", &jbuf);
 			((REQUEST_DRAWING_START*)(p->ptr))->room_id = json_object_get_int(jbuf);
 
-			json_object * uobj;
+
 			json_object_object_get_ex(obj, "from", &uobj);
 				json_object_object_get_ex(uobj, "uid", &jbuf);
 				((REQUEST_DRAWING_START*)(p->ptr))->from.uid = json_object_get_int(jbuf);
@@ -376,7 +394,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 			json_object_object_get_ex(obj, "room_id", &jbuf);
 			((REQUEST_DRAWING_END*)(p->ptr))->room_id = json_object_get_int(jbuf);
 
-			json_object * uobj;
+
 			json_object_object_get_ex(obj, "from", &uobj);
 				json_object_object_get_ex(uobj, "uid", &jbuf);
 				((REQUEST_DRAWING_END*)(p->ptr))->from.uid = json_object_get_int(jbuf);
@@ -392,7 +410,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 			json_object_object_get_ex(obj, "room_id", &jbuf);
 			((REQUEST_TIME_SHARE*)(p->ptr))->room_id = json_object_get_int(jbuf);
 
-			json_object * uobj;
+
 			json_object_object_get_ex(obj, "from", &uobj);
 				json_object_object_get_ex(uobj, "uid", &jbuf);
 				((REQUEST_TIME_SHARE*)(p->ptr))->from.uid = json_object_get_int(jbuf);
@@ -404,7 +422,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 		}
 		else if(minor_code == 5){
 			serverLog(WSSERVER, LOG, "05정답자 데이터(그림 그리는 사람)\n", "");
-			json_object * uobj;
+
 
 			p->ptr = (void *)((CHAT_DATA *)malloc(sizeof(CHAT_DATA)));
 
@@ -428,7 +446,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 			p->ptr = (void *)((REQUEST_ROOM_LIST *)malloc(sizeof(REQUEST_ROOM_LIST)));
 
 			// from
-			json_object * uobj;
+
 			json_object_object_get_ex(obj, "from", &uobj);
 				json_object_object_get_ex(uobj, "uid", &jbuf);
 				((REQUEST_ROOM_LIST *)(p->ptr))->from.uid = json_object_get_int(jbuf);
@@ -441,7 +459,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 			
 			p->ptr = (void *)((REQUEST_ENTER_ROOM *)malloc(sizeof(REQUEST_ENTER_ROOM)));
 			// from 
-			json_object * uobj;
+
 			json_object_object_get_ex(obj,"from", &uobj);
 				json_object_object_get_ex(uobj, "uid", &jbuf);
 				((REQUEST_ENTER_ROOM *)(p->ptr))->from.uid = json_object_get_int(jbuf);
@@ -467,7 +485,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 			json_object_object_get_ex(obj, "room_id", &jbuf);
 			((REQUEST_EXIT_GAMEROOM *)(p->ptr))->room_id = json_object_get_int(jbuf);
 
-			json_object * uobj;
+
 			json_object_object_get_ex(obj, "from", &uobj);
 				json_object_object_get_ex(uobj, "uid", jbuf);
 				((REQUEST_EXIT_GAMEROOM *)(p->ptr))->from.uid = json_object_get_int(jbuf);
@@ -483,7 +501,6 @@ int json_to_packet(const char * json_string, struct packet * p)
 		}
 		else if( minor_code == 5){ // 15
 			p->ptr = (void *)((MAKE_ROOM *)malloc(sizeof(MAKE_ROOM)));
-			json_object * uobj;
 			json_object_object_get_ex(obj, "from", &uobj);
 				json_object_object_get_ex(uobj, "uid", &jbuf);
 				((MAKE_ROOM *)(p->ptr))->from.uid = json_object_get_int(jbuf);
@@ -496,7 +513,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 			json_object_object_get_ex(obj,"room_id", &jbuf);
 			((REQUEST_EXIT_ROOM *)(p->ptr))->room_id = json_object_get_int(jbuf);
 
-			json_object * uobj;
+
 			json_object_object_get_ex(obj,"from", &uobj);
 				json_object_object_get_ex(uobj, "uid", &jbuf);
 				((REQUEST_EXIT_ROOM *)(p->ptr))->from.uid = json_object_get_int(jbuf);				
@@ -581,7 +598,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 		else if(minor_code == 2){
 			serverLog(WSSERVER, LOG, "22방 인원 추가\n", "");
 			
-			json_object * uobj;
+
 			p->ptr = (void *)((ADDED_MEMBER_DATA *)malloc(sizeof(ADDED_MEMBER_DATA)));
 
 			json_object_object_get_ex(obj, "room", &uobj);
@@ -608,7 +625,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 		}
 		else if(minor_code == 3){
 			serverLog(WSSERVER, LOG, "23게임 시작 알림\n", "");
-			json_object * uobj;
+
 
 			p->ptr = (void *)((NEW_ROUND_DATA *)malloc(sizeof(NEW_ROUND_DATA)));
 
@@ -661,9 +678,11 @@ int json_to_packet(const char * json_string, struct packet * p)
 			serverLog(WSSERVER, LOG, "answer: %s\n", ((END_ROUND_DATA *)(p->ptr))->answer, "");
 		}
 	}*/
-	free(jbuf);
+
+	if( jbuf ) free(jbuf);
+	if( obj ) free(obj);
 	// free(jobj);
-	free(obj);
+	
 	return 0;
 }
 
