@@ -28,7 +28,7 @@ struct packet{
 
 typedef struct user_data{
 	int uid;
-	char nickname[NICKNAME_SIZE];
+	char nickname[NICKNAME_SIZE+1];
 	int score;
 }User;
 
@@ -86,15 +86,15 @@ typedef struct drawing_data{ //00 그림 데이터
 	int prevY;
 	int x;
 	int y;
-	char color[COLOR_SIZE];
+	char color[COLOR_SIZE+1];
 	int px;
 	int room_id;
 }DRAW_DATA;
 
 typedef struct chat_data{ //01 채팅 데이터
-	char msg[CHAT_SIZE];
+	char msg[CHAT_SIZE+1];
 	User from;
-	char timestamp[CHAT_SIZE];
+	char timestamp[CHAT_SIZE+1];
 	int room_id;
 }CHAT_DATA;
 
@@ -186,7 +186,7 @@ typedef struct game_starting_data{ //23 게임 시작 알림
 }NEW_ROUND_DATA;
 
 typedef struct answer_data{ //24 정답정보, painter에게 전송
-	char answer[CHAT_SIZE];
+	char answer[CHAT_SIZE+1];
 }ANSWER_DATA;
 
 typedef struct invalid_room_data{ //25 방이 사라짐(문제 발생)
@@ -194,7 +194,7 @@ typedef struct invalid_room_data{ //25 방이 사라짐(문제 발생)
 }INVALID_ROOM_DATA;
 
 typedef struct game_finished_data{ //26 그리기 종료 알림
-	char answer[CHAT_SIZE];
+	char answer[CHAT_SIZE+1];
 }END_ROUND_DATA;
 
 typedef struct response_exit_gameroom{ // 27 게임방 나가기 응답
