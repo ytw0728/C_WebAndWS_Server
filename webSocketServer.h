@@ -23,6 +23,7 @@
 #define DBPASSWD "root"
 #define DBNAME "networkproject"
 
+#define QUERY_SIZE 8192
 
 typedef struct _frame_head {
 	unsigned char fin;

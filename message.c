@@ -151,8 +151,8 @@ const char * packet_to_json(struct packet p)
 
 			
 			aobj = json_object_new_array();
-			int i;
-			for(i = 0; i < 20; i++){
+			int i = 0;
+			for( i = 0 ; i < (int)((ROOM_LIST_DATA *)(p.ptr))->idx; i++){
 				robj = json_object_new_object();
 				json_object_object_add(robj, "id", json_object_new_int(((ROOM_LIST_DATA *)(p.ptr))->rlist[i].id));
 				json_object_object_add(robj, "num", json_object_new_int(((ROOM_LIST_DATA *)(p.ptr))->rlist[i].num));
@@ -160,18 +160,20 @@ const char * packet_to_json(struct packet p)
 				json_object_array_add(aobj, robj);
 			}
 			json_object_object_add(pobj, "rlist", aobj);
+			json_object_object_add(pobj, "success", json_object_new_int(((ROOM_LIST_DATA *)(p.ptr))->success));
+
 			// json_object_object_add(pobj, "ptr", obj);
 
-			
+
 		}
 		else if(minor_code == 1){ // 21
 			serverLog(WSSERVER, LOG, "21대기방 접속\n", "");
-			
+
 			json_object_object_add(pobj, "room_id", json_object_new_int(((ROOM_DATA *)(p.ptr))->room_id));
 
-			aobj = json_object_new_array();			
+			aobj = json_object_new_array();
 			int i;
-			for(i = 0; i < 6; i++){
+			for(i = 0; i < (int)((ROOM_DATA *)(p.ptr))->idx; i++){
 				uobj = json_object_new_object();
 					json_object_object_add(uobj, "uid", json_object_new_int(((ROOM_DATA *)(p.ptr))->members[i].uid));
 					json_object_object_add(uobj, "nickname", json_object_new_string(((ROOM_DATA *)(p.ptr))->members[i].nickname));
@@ -179,6 +181,8 @@ const char * packet_to_json(struct packet p)
 				json_object_array_add(aobj, uobj);
 			}
 			json_object_object_add(pobj, "members", aobj);
+			json_object_object_add(pobj, "success", json_object_new_int(((ROOM_DATA *)(p.ptr))->success));
+
 			// json_object_object_add(pobj, "ptr", obj);
 
 		}
