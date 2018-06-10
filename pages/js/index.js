@@ -82,7 +82,7 @@ class StatusManager{
 
 		}
 		else{
-			alert("닉네임 등록에 실패하셨습니다.");	
+			alert("닉네임 등록에 실패했습니다.");	
 			if( UID != null ){
 				window.location.reload();
 			}
@@ -91,7 +91,7 @@ class StatusManager{
 
 	setScoreResponse(jsonObject){
 		if( !jsonObject.success){
-			alert("재연결 시 스코어 등록에 실패하셨습니다.");
+			alert("재연결 시 스코어 등록에 실패했습니다.");
 			SCORE = 0;
 		}
 	}
@@ -114,12 +114,30 @@ class StatusManager{
 
 		status = 1;
 	}
+	enterRoomResponse(jsonObject){
+		if( jsonObject.success){
+			waiting.hideList();
+			waiting.showWaitingRoom(jsonObject);
+			status = 1;
+		}
+		else{
+			alert("접속에 실패했습니다.");
+		}
+	}
 	makeRoom(event){
 		if( event != null ) event.preventDefault();
-		waiting.hideList();
-		waiting.showWaitingRoom()
 
-		status = 1;
+		let json = {
+			major_code : 1,
+			minor_code : 5,
+			from : {
+				uid : UID,
+				nickname : NICKNAME
+			}			
+		}
+		let msg = JSON.stringify(json);
+
+		ws.send(msg);
 	}
 	exitRoom(event){
 		if( event != null ) event.preventDefault();
@@ -220,17 +238,8 @@ class Waiting{
 		this.waitingRoom.style.display = "none";
 	}
 
+
 	memberListSet(jsonObject){
-		jsonObject = {
-			members: [
-				{nickname : "someone1",uid : 1},
-				{nickname : "someone2",uid : 2},
-				{nickname : "someone3",uid : 3},
-				{nickname : "someone4",uid : 4},
-				{nickname : "someone5",uid : 5},
-				{nickname : "someone6",uid : 6}
-			]
-		}
 		this.members = jsonObject.members;
 	}
 
@@ -261,31 +270,11 @@ class Waiting{
 	}
 
 	roomListSet(jsonObject){
-		jsonObject = {
-			rlist : [
-				{room_id : 1,roomNum : 3},
-				{room_id : 2,roomNum : 3},
-				{room_id : 3,roomNum : 3},
-				{room_id : 4,roomNum : 3},
-				{room_id : 5,roomNum : 3},
-				{room_id : 6,roomNum : 3},
-				{room_id : 7,roomNum : 3},
-				{room_id : 8,roomNum : 3},
-				{room_id : 9,roomNum : 3},
-				{room_id : 10,roomNum : 3},
-				{room_id : 11,roomNum : 3},
-				{room_id : 12,roomNum : 3},
-				{room_id : 13,roomNum : 3},
-				{room_id : 14,roomNum : 3},
-				{room_id : 15,roomNum : 3},
-				{room_id : 16,roomNum : 3},
-				{room_id : 17,roomNum : 3}
-			]
-		}
-
 		this.room = jsonObject.rlist;
 		this.maxLength = parseInt(this.room.length / 8) + (this.room.length % 8 ? 1 : 0) - 1;
 		this.nowPage = 0;
+
+		waiting.roomNodeAddToList();
 	}
 
 	roomNodeAddToList(){
@@ -666,9 +655,10 @@ class Websocket{
 				switch( jsonObject.minor_code ){
 					case 0 :
 						waiting.roomListSet(jsonObject);
-						waiting.roomNodeAddToList(waiting.idx);
+						
 						return;	
 					case 1 :
+						statusManager.enterRoomResponse(jsonObject);
 						return;
 					case 2 :
 						return;
