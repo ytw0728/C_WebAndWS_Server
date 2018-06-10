@@ -4,12 +4,8 @@
    todo
    헤더파일 맞게 수정하기
    데이터 유형별로 파싱하는 거 다 만들기(괄호가 완성한 코드)
-   요청 패킷, uid 추가, 전체 공유 데이터 room_id추가
-   (00) (01) 02 03 04 (05) (10) (11) (12) (20) (21) (22) (23) (24) (25) (26)
    다 만든 json string utf8로 컨버트 - utf8 string으로 바꿔주는 함수 있지 않나?
  */
-
-
 
 
 ///////////////////////////////////////////////////////////////
@@ -115,9 +111,6 @@ const char * packet_to_json(struct packet p)
 			json_object_object_add(pobj, "winner", uobj);
 
 			// json_object_object_add(pobj, "ptr", obj);
-
-
-			
 		}
 	}
 	/*
@@ -263,8 +256,6 @@ const char * packet_to_json(struct packet p)
 		}
 	}
 	
-	
-
 
 	ptr = json_object_to_json_string(pobj);
 	// free(obj);
@@ -392,8 +383,6 @@ int json_to_packet(const char * json_string, struct packet * p)
 				((REQUEST_DRAWING_END*)(p->ptr))->from.uid = json_object_get_int(jbuf);
 				json_object_object_get_ex(uobj, "nickname", &jbuf);
 				strcpy(((REQUEST_DRAWING_END*)(p->ptr))->from.nickname, json_object_get_string(jbuf));
-
-
 		}
 		/*
 		else if(minor_code == 4){
@@ -671,7 +660,6 @@ int json_to_packet(const char * json_string, struct packet * p)
 			printf("answer: %s\n", ((END_ROUND_DATA *)(p->ptr))->answer);
 		}
 	}*/
-
 	free(jbuf);
 	// free(jobj);
 	free(obj);

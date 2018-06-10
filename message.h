@@ -2,7 +2,7 @@
  
 Message Protocol
 "code" : 종류코드 ( 길이2 , 0X : 전체공유, 1X : 단순 요청, 2X : 서버 응답)
-example : 00{"major_code":0, "minor_code":0, "awefawef":"asdf", ... }
+example : { "major_code": 0, "minor_code": 1, "ptr": { "msg": "Hello, Server! I'm rollcake!", "from": { "id": 404, "nickname": "rollcake" }, "timestamp":     { "tv_sec": 1528443375, "tv_usec": 496229 } } }
  
  */
 
@@ -13,7 +13,6 @@ example : 00{"major_code":0, "minor_code":0, "awefawef":"asdf", ... }
 #include "Includes.h"
 #include "json/json.h"
 #include "json/json_tokener.h" 
-#include <sys/time.h> //timeval
 
 #define CHAT_SIZE 128
 #define NICKNAME_SIZE 30
@@ -29,7 +28,7 @@ struct packet{
 
 typedef struct user_data{
 	int uid;
-	char nickname[NICKNAME_SIZE];
+	char nickname[NICKNAME_SIZE+1];
 	// int score;
 }User;
 
@@ -42,7 +41,7 @@ typedef struct room_data{
 /*client to server*/
 // 닉네임
 typedef struct nickname_register{ // 14 닉네임 등록
-	char nickname[NICKNAME_SIZE];
+	char nickname[NICKNAME_SIZE+1];
 }REQUEST_NICKNAME_REGISTER;
 
 // 대기방 리스트 
@@ -174,7 +173,7 @@ typedef struct answer_data{ //24 정답정보, painter에게 전송
 	char answer[CHAT_SIZE];
 }ANSWER_DATA;
 
-typedef struct invalid_room_data{ //25 방이 사라짐
+typedef struct invalid_room_data{ //25 방이 사라짐(문제 발생)
 	int room_id;
 }INVALID_ROOM_DATA;
 
