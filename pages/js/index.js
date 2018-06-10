@@ -112,13 +112,21 @@ class StatusManager{
 		event.preventDefault();
 		let target = event.target;
 		window.target = target;
-		if( !target.hasAttribute("data-roomid") ) target = target.parentNode
-		let roomid = target.getAttribute("data-roomid");
+		if( !target.hasAttribute("data-room_id") ) target = target.parentNode
+		let roomid = target.getAttribute("data-room_id");
 
-		waiting.hideList();
-		waiting.showWaitingRoom(null);
+		let json = {
+			major_code : 1,
+			minor_code : 1,
+			from : {
+				uid: UID,
+				nickname : NICKNAME
+			},
+			room_id : roomid
+		}
 
-		status = 1;
+		let msg = JSON.stringify(json);
+		ws.send(msg);
 	}
 	enterRoomResponse(jsonObject){
 		if( jsonObject.success){

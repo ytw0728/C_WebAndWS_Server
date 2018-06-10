@@ -23,10 +23,10 @@ const char * packet_to_json(struct packet p)
 	int minor_code = p.minor_code;
 
 	// json_object * obj = json_object_new_object();
-	json_object * pobj = json_object_new_object();
-	json_object * uobj;
+	struct json_object * pobj = json_object_new_object();
+	struct json_object * uobj;
 
-	json_object * aobj, *robj;
+	struct json_object * aobj, *robj;
 
 	uobj = aobj = robj = NULL;
 
@@ -285,14 +285,16 @@ const char * packet_to_json(struct packet p)
 	ptr = json_object_to_json_string(pobj);
 	// free(obj);
 	free(pobj);
-	if( aobj != NULL ){
+	if( aobj ){
 		int i;
 		for(i = 0; i < json_object_array_length(aobj); i++)
 				free(json_object_array_get_idx(aobj, i));
 		free(aobj);
 	}	
-	if( uobj != NULL ) free(uobj);
-	if( robj != NULL ) free(robj);
+	if( uobj ) free(uobj);
+	if( robj ) free(robj);
+
+	aobj = pobj = uobj= robj = NULL;
 
 	return ptr;
 }
@@ -309,13 +311,11 @@ const char * packet_to_json(struct packet p)
 int json_to_packet(const char * json_string, struct packet * p)
 {
 	// json_object * jobj, * jbuf, *obj;
-	json_object * jbuf, *obj, *uobj;
+	struct json_object * jbuf, *obj, *uobj;
 	uobj = jbuf = obj = NULL;
 
-
-	printf("%s %d\n", json_string, strlen(json_string));
-	
 	obj = json_tokener_parse(json_string); //read json
+
 
 	///*
 	//serverLog(WSSERVER, LOG, "json string : %s\n", json_object_to_json_string(jobj));//deb, ""ug
@@ -679,8 +679,11 @@ int json_to_packet(const char * json_string, struct packet * p)
 		}
 	}*/
 
-	if( jbuf ) free(jbuf);
-	if( obj ) free(obj);
+	if( uobj ) free( uobj);
+	if( jbuf ) free(jbuf);	
+	if( obj ) free(obj);	
+	
+	uobj = jbuf = obj = NULL;
 	// free(jobj);
 	
 	return 0;

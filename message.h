@@ -14,6 +14,8 @@ example : { "major_code": 0, "minor_code": 1, "ptr": { "msg": "Hello, Server! I'
 #include "json/json.h"
 #include "json/json_tokener.h" 
 
+
+
 #define CHAT_SIZE 128
 #define NICKNAME_SIZE 30
 #define MAX_USER 6

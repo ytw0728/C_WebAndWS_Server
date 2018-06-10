@@ -336,9 +336,12 @@ void *WSconnect(void* args){
 			exitCondition = 1;
 			continue;
 		}
+
 		frame_head sendHead = recvHead;
+   		
    		struct packet p;
 		json_to_packet(payload_data, &p);
+
 		if( p.major_code == 0 ){
 			switch( p.minor_code){
 				case 0 : // 00
@@ -377,6 +380,11 @@ void *WSconnect(void* args){
 					break;
 			}
 		}
+
+
+
+		if( p.ptr ) free(p.ptr);
+		p.ptr = NULL;
 	}
 
 	deleteUser(client);
@@ -586,7 +594,9 @@ int userAdd(client_data * client, frame_head * sendHead, struct packet * p){
 	strcpy(((RESPONSE_REGISTER*)(sendPacket.ptr))->user.nickname, row[1]);
 	((RESPONSE_REGISTER*)(sendPacket.ptr))->user.score = atoi(row[2]);
 
-	if( result ) mysql_free_result(result);
+	if( result ){
+		mysql_free_result(result);	
+	} 
 
 	const char * contents = packet_to_json(sendPacket);
 	iso8859_1_to_utf8(contents, strlen(contents));
@@ -601,6 +611,8 @@ int userAdd(client_data * client, frame_head * sendHead, struct packet * p){
 
 	free(sendPacket.ptr);
 	free((char*)contents);	
+	sendPacket.ptr = NULL;
+	contents = NULL;
 	
 	return 0;
 
@@ -623,7 +635,11 @@ USERADDFAIL:
 
 	free(sendPacket.ptr);
 	free((char*)contents);
-	if( result ) mysql_free_result(result);
+	sendPacket.ptr = NULL;
+	contents = NULL;
+	if( result ){
+		mysql_free_result(result);	
+	} 
 	return 1;
 }
 
@@ -635,7 +651,9 @@ int setScore(client_data * client, frame_head * sendHead, struct packet * p){
 		serverLog(WSSERVER, ERROR, "score set failed","after db query(update)");
 		goto SETSCOREFAIL;
 	}
-	if( result ) mysql_free_result(result);
+	if( result ){
+		mysql_free_result(result);	
+	} 
 
 	struct packet sendPacket;
 	sendPacket.major_code = 3;
@@ -655,6 +673,8 @@ int setScore(client_data * client, frame_head * sendHead, struct packet * p){
 
 	free(sendPacket.ptr);
 	free((char*)contents);
+	sendPacket.ptr = NULL;
+	contents = NULL;
 	
 	return 0;
 
@@ -676,9 +696,12 @@ SETSCOREFAIL:
 
 	free(sendPacket.ptr);
 	free((char*)contents);
-	if( result ) mysql_free_result(result);
+	sendPacket.ptr = NULL;
+	contents = NULL;
+	if( result ){
+		mysql_free_result(result);	
+	} 
 	return 1;
-
 }
 
 
@@ -711,7 +734,9 @@ int waitingList(client_data * client, frame_head * sendHead, struct packet * p){
 		((ROOM_LIST_DATA*)(sendPacket.ptr))->rlist[idx].num = atoi(row[3]);
 		idx++;
 	}
-	if( result ) mysql_free_result(result);
+	if( result ){
+		mysql_free_result(result);
+	} 
 
 	((ROOM_LIST_DATA*)(sendPacket.ptr))->idx = idx;
 	const char * contents = packet_to_json(sendPacket);	
@@ -728,6 +753,8 @@ int waitingList(client_data * client, frame_head * sendHead, struct packet * p){
 
 	free(sendPacket.ptr);
 	free((char*)contents);
+	sendPacket.ptr = NULL;
+	contents = NULL;
 	return 0;
 
 
@@ -751,7 +778,11 @@ WAITINGLISTFAIL:
 
 	free(sendPacket.ptr);
 	free((char*)contents);
-	if( result ) mysql_free_result(result);
+	sendPacket.ptr = NULL;
+	contents = NULL;
+	if( result ){
+		mysql_free_result(result);	
+	} 
 	return 1;
 }
 
@@ -808,7 +839,11 @@ int requestEnterRoom(client_data * client, frame_head * sendHead, struct packet 
 
 	free(sendPacket.ptr);
 	free((char*)contents);
-	mysql_free_result(result);
+	sendPacket.ptr = NULL;
+	contents = NULL;
+{
+	}	mysql_free_result(result);	
+
 	return 0;
 
 
@@ -833,7 +868,11 @@ ENTERROOMFAIL:
 
 	free(sendPacket.ptr);
 	free((char*)contents);
-	mysql_free_result(result);
+	sendPacket.ptr = NULL;
+	contents = NULL;
+{
+	}	mysql_free_result(result);	
+
 	return 1; */
 }
 
@@ -885,7 +924,9 @@ int makeRoom(client_data * client, frame_head * sendHead, struct packet * p){
 		((ROOM_DATA*)(sendPacket.ptr))->members[idx].score, atoi(row[5]);
 		idx ++;
 	}
-	if( result ) mysql_free_result(result);
+	if( result ){
+		mysql_free_result(result);	
+	} 
 
 	((ROOM_DATA*)(sendPacket.ptr))->idx = idx;
 	((ROOM_DATA*)(sendPacket.ptr))->success = 1;
@@ -920,7 +961,11 @@ MAKEROOMFAIL:
 
 	free(sendPacket.ptr);
 	free((char*)contents);
-	if( result ) mysql_free_result(result);
+	sendPacket.ptr = NULL;
+	contents = NULL;
+	if( result ){
+		mysql_free_result(result);	
+	} 
 	return 1;
 }
 
@@ -972,6 +1017,7 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 		}
 
 		free(tmp.ptr);
+		tmp.ptr = NULL;
 	}
 
 	if( number < 1 ){
@@ -988,7 +1034,9 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 			goto EXITROOMFAIL;
 		}
 	}
-	if( result ) mysql_free_result(result);
+	if( result ){
+		mysql_free_result(result);	
+	} 
 
 
 	struct packet sendPacket;
@@ -1012,6 +1060,8 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 
 	free(sendPacket.ptr);
 	free((char*)contents);
+	sendPacket.ptr = NULL;
+	contents = NULL;
 	
 	return 0;
 EXITROOMFAIL:
@@ -1032,7 +1082,11 @@ EXITROOMFAIL:
 	
 	free(sendPacket.ptr);
 	free((char*)contents);
-	if( result ) mysql_free_result(result);
+	sendPacket.ptr = NULL;
+	contents = NULL;
+	if( result ){
+		mysql_free_result(result);	
+	} 
 	return 1;
 }
 
