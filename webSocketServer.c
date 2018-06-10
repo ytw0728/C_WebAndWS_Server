@@ -1,5 +1,7 @@
 #include "webSocketServer.h"
 
+MYSQL mysql_handle;
+
 
 /*-------------------------------------------------------------------
   0                   1                   2                   3
@@ -170,10 +172,6 @@ int recv_frame_head(int fd, frame_head* head){
 
 	head->opcode = one_char & 0x0F;
 
-	if( head->opcode == 0x8){
-
-	}
-
 	if (read(fd,&one_char,1)<=0){
 		perror("read mask");
 		return -1;
@@ -288,6 +286,7 @@ void *WSconnect(void* args){
 	shakehands(client_fd);	
     int exitCondition = 0;
 
+    mysql_thread_init();
     // printf("fin=%d\nopcode=0x%X\nmask=%d\npayload_len=%llu\n",head.fin,head.opcode,head.mask,head.payload_length);
 
     while(!exitCondition){
@@ -330,12 +329,20 @@ void *WSconnect(void* args){
 		    // 	exitCondition = 1;
 		    // 	break;
 		    // }
-    	}while(!exitCondition && size < (int)recvHead.payload_length);
+    	}while(!exitCondition && size < (int)recvHead.payload_length);    	
+    	if( recvHead.opcode == 0x8){
+			serverLog(WSSERVER, LOG, "client requests to close", "");
+			exitCondition = 1;
+			continue;
+		}
+
 
 		frame_head sendHead = recvHead;
 
    		struct packet p;
 		json_to_packet(payload_data, &p);
+
+		printf("\n\n%s\n\n", payload_data);
 
 		if( p.major_code == 0 ){
 			switch( p.minor_code){
@@ -347,10 +354,22 @@ void *WSconnect(void* args){
 					break;
 			}
 		}
+		else if( p.major_code == 1){
+			switch( p.minor_code){
+				case 4 :
+					exitCondition = userAdd(client, &sendHead, &p);
+					break;
+				case 7 :
+					exitCondition = setScore(client, &sendHead, &p);
+					break;
+			}
+		}
 	}
 
+	deleteUser(client);
 
 	serverLog(WSSERVER,FILELOG,"ws closed","\n");
+	mysql_thread_end();
 	close(client_fd);
 	pthread_detach(client->thread_id);
 }
@@ -381,6 +400,45 @@ void *webSocketServerHandle(){
 	}
 
 	serverLog(WSSERVER, LOG, "WebSocketServer Start", "MESSAGE");
+	
+	
+
+	if( mysql_library_init(0, NULL, NULL) ){
+		serverLog(WSSERVER, ERROR, "Can't load mysql library", "mysql_library_init()");
+		goto EXIT;
+	}
+	
+	if( mysql_init(&mysql_handle) == 0 ){
+		char logbuffer[1024];
+		sprintf(logbuffer, "%u (%s): %s", mysql_errno(&mysql_handle), mysql_sqlstate(&mysql_handle), mysql_error(&mysql_handle));
+		serverLog(WSSERVER, ERROR, logbuffer, "mysql_init()");
+		goto EXIT;
+	}
+
+	if( !mysql_thread_safe() ) { 
+		serverLog(WSSERVER, ERROR, "mssql lib isn't safe for thread", "mysql_thread_safe()");
+	} 
+
+
+	if (!mysql_real_connect(&mysql_handle,       /* MYSQL structure to use */
+							DBHOST,         /* server hostname or IP address */ 
+							DBUSER,         /* mysql user */
+							DBPASSWD,          /* password */
+							NULL,           /* default database to use, NULL for none */
+							8890,           /* port number, 0 for default */
+							NULL,        /* socket file or named pipe name */
+							0 /* connection flags */ 
+	)){
+		serverLog(WSSERVER, ERROR, "mysql error", "mysql_real_connect()");
+		goto EXIT;
+	}
+
+	#ifndef DEV
+	if( truncateDB() == -1){
+		serverLog(WSSERVER, ERROR, "mysql error", "truncateDB()");
+		goto EXIT;
+	}
+	#endif
 
 	int ser_fd = sock;
 
@@ -403,15 +461,63 @@ void *webSocketServerHandle(){
 		client_data* n;
 		n = (client_data*)malloc(sizeof(client_data));
 		n->fd = client_fd;
+		n->db = mysql_handle;
 
 		if( (pthread_create(&(n->thread_id), &pthread_attr, WSconnect, (void *) n)) < 0 ){
 			serverLog(WSSERVER, ERROR, "Thread Error", "clientSocketThread");
 		}
     }
+
+    mysql_close(&mysql_handle);
+    mysql_library_end();
+EXIT:
+	
     close(ser_fd);
-
-
+    serverLog(WSSERVER, LOG, "SERVER END","");
     return NULL;
+}
+
+
+
+
+// db connection
+
+MYSQL_RES * db_query(char *query){
+
+	if( mysql_query(&mysql_handle, "USE networkproject")){
+		serverLog(WSSERVER, ERROR, "use networkproject", "mysql_query()");
+		return -1;
+	}
+	if( mysql_query(&mysql_handle, query) ){
+		serverLog(WSSERVER, ERROR, query, "mysql_query()");
+		return -1;
+	}
+	MYSQL_RES * res = mysql_store_result(&mysql_handle);
+
+	return res;
+}
+
+
+// db truncateDB
+int truncateDB(){
+	if( db_query((char*)"delete from `users` where true") == -1 ){
+		serverLog(WSSERVER,ERROR, "truncateDB error", "DELETE USERS" );
+		return -1;
+	}
+	if( db_query((char*)"delete from `playerlist` where true") == -1 ){
+		serverLog(WSSERVER,ERROR, "truncateDB error", "DELETE PLAYERLIST" );
+		return -1;
+	}
+	if( db_query((char*)"delete from `questions` where true") == -1 ){
+		serverLog(WSSERVER,ERROR, "truncateDB error", "DELETE QUESTIONS" );
+		return -1;
+	}
+	if( db_query((char*)"delete from `gameroom` where true") == -1 ){
+		serverLog(WSSERVER,ERROR, "truncateDB error", "DELETE GAMEROOM" );
+		return -1;
+	}
+
+	return 0;
 }
 
 
@@ -424,11 +530,140 @@ void *webSocketServerHandle(){
 
 
 
-
-
-
-
 // below lines are for actual procedure of web app.
+void deleteUser(client_data * client){
+	char queryBuffer[8192];
+	sprintf(queryBuffer, "delete from `users` where fd = %d", client->fd );
+	MYSQL_RES * result = db_query(queryBuffer);
+	if( result == -1 ){
+		serverLog(WSSERVER, ERROR, "delete user failed","after db query(delete)");
+		return;
+	}
+}
+// nickname
+int userAdd(client_data * client, frame_head * sendHead, struct packet * p){ 
+	char queryBuffer[8192];
+	sprintf(queryBuffer, "insert into `users` values(NULL, \'%s\',0,%d)", ((REQUEST_NICKNAME_REGISTER *)(p->ptr))->nickname, client->fd );
+	MYSQL_RES * result = db_query(queryBuffer);
+	if( result == -1 ){
+		serverLog(WSSERVER, ERROR, "user Add failed","after db query(insert)");
+		goto USERADDFAIL;
+	}
+
+	sprintf(queryBuffer, "select * from `users` where fd = %d", client->fd);
+	result = db_query(queryBuffer);
+	if( result == -1 ){
+		serverLog(WSSERVER, ERROR, "user Add failed","after db query(select)");
+		goto USERADDFAIL;
+	}
+
+	MYSQL_ROW row;
+	row = mysql_fetch_row( result );
+
+	struct packet sendPacket;
+	sendPacket.major_code = 3;
+	sendPacket.minor_code = 0;
+	sendPacket.ptr = (RESPONSE_REGISTER*)malloc(sizeof(RESPONSE_REGISTER));
+
+	((RESPONSE_REGISTER*)(sendPacket.ptr))->success = 1;
+	((RESPONSE_REGISTER*)(sendPacket.ptr))->user.uid = atoi(row[0]);
+	strcpy(((RESPONSE_REGISTER*)(sendPacket.ptr))->user.nickname, row[1]);
+	((RESPONSE_REGISTER*)(sendPacket.ptr))->user.score = atoi(row[2]);
+
+	const char * contents = packet_to_json(sendPacket);
+	iso8859_1_to_utf8(contents, strlen(contents));
+	int size = sendHead->payload_length = strlen(contents);
+	send_frame_head(client->fd, sendHead);
+
+	if( write( client->fd, contents, size) <= 0 ){
+		serverLog(WSSERVER, ERROR, "user Add failed","packet sending error");
+		goto USERADDFAIL;
+	}
+
+	free((char*)contents);
+	mysql_free_result(result);
+	return 0;
+
+USERADDFAIL:
+	sendPacket;
+	sendPacket.major_code = 3;
+	sendPacket.minor_code = 0;
+	sendPacket.ptr = (RESPONSE_REGISTER*)malloc(sizeof(RESPONSE_REGISTER));
+
+	((RESPONSE_REGISTER*)(sendPacket.ptr))->success = 0;
+
+	contents = packet_to_json(sendPacket);
+	iso8859_1_to_utf8(contents, strlen(contents));
+	size = sendHead->payload_length = strlen(contents);
+	send_frame_head(client->fd, sendHead);
+
+	if( write( client->fd, contents, size) <= 0 ){
+		serverLog(WSSERVER, ERROR, "user Add failed","packet with failure sending error");
+	}
+
+	free((char*)contents);
+	mysql_free_result(result);
+	return 1;
+}
+
+int setScore(client_data * client, frame_head * sendHead, struct packet * p){ 
+	char queryBuffer[8192];
+	sprintf(queryBuffer, "update `users` set `score`= %d where fd = %d", ((REQUEST_SET_SCORE *)(p->ptr))->score, client->fd );
+	MYSQL_RES * result = db_query(queryBuffer);
+	if( result == -1 ){
+		serverLog(WSSERVER, ERROR, "score set failed","after db query(update)");
+		goto SETSCOREFAIL;
+	}
+
+	struct packet sendPacket;
+	sendPacket.major_code = 3;
+	sendPacket.minor_code = 1;
+	sendPacket.ptr = (RESPONSE_SET_SCORE*)malloc(sizeof(RESPONSE_SET_SCORE));
+	((RESPONSE_SET_SCORE*)(sendPacket.ptr))->success = 1;
+
+	const char * contents = packet_to_json(sendPacket);
+	iso8859_1_to_utf8(contents, strlen(contents));
+	int size = sendHead->payload_length = strlen(contents);
+	send_frame_head(client->fd, sendHead);
+
+	if( write( client->fd, contents, size) <= 0 ){
+		serverLog(WSSERVER, ERROR, "score set failed","packet sending error");
+		goto SETSCOREFAIL;
+	}
+
+	free((char*)contents);
+	mysql_free_result(result);
+	return 0;
+
+SETSCOREFAIL:
+	sendPacket;
+	sendPacket.major_code = 3;
+	sendPacket.minor_code = 1;
+	sendPacket.ptr = (RESPONSE_SET_SCORE*)malloc(sizeof(RESPONSE_SET_SCORE));
+	((RESPONSE_SET_SCORE*)(sendPacket.ptr))->success = 0;
+
+	contents = packet_to_json(sendPacket);
+	iso8859_1_to_utf8(contents, strlen(contents));
+	size = sendHead->payload_length = strlen(contents);
+	send_frame_head(client->fd, sendHead);
+
+	if( write( client->fd, contents, size) <= 0 ){
+		serverLog(WSSERVER, ERROR, "score set failed","packet with failure sending error");
+	}
+
+	free((char*)contents);
+	mysql_free_result(result);
+	return 1;
+
+}
+
+
+// waiting list
+
+
+// waiting room
+
+// gameroom
 int drawingPoint(client_data * client, frame_head * sendHead, struct packet * p){
 	// struct packet sendPacket = *p;
 	const char * contents = packet_to_json(*p);
@@ -438,8 +673,10 @@ int drawingPoint(client_data * client, frame_head * sendHead, struct packet * p)
 	send_frame_head(client->fd, sendHead);
 
 	if( write( client->fd, contents, size ) <= 0){
+		free((char*)contents);
 		return 1;
 	}	
+	free((char*)contents);
 	return 0;
 }
 int validateChatMsg(client_data * client, frame_head * sendHead, struct packet * p){
@@ -453,8 +690,9 @@ int validateChatMsg(client_data * client, frame_head * sendHead, struct packet *
 	send_frame_head(client->fd, sendHead);
 
 	if( write( client->fd, contents, size ) <= 0){
+		free((char*)contents);
 		return 1;
-	}	
+	}
 	// some statement for validate the msg which it equals answer.
 	if( isCorrect ){
 
@@ -462,6 +700,6 @@ int validateChatMsg(client_data * client, frame_head * sendHead, struct packet *
 	else{
 
 	}
-
+	free((char*)contents);
 	return 0;
 }

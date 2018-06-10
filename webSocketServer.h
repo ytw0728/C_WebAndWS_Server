@@ -4,17 +4,25 @@
 #include "Includes.h"
 #include "message.h"
 
+
 // #include "utf8.h"
 
 #include <openssl/sha.h>
 #include <openssl/pem.h>
 #include <openssl/bio.h>
 #include <openssl/evp.h>
+#include <mysql/mysql.h>
 
 #define BUFFER_SIZE 1024
 #define RESPONSE_HEADER_LEN_MAX 1024
 #define GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 #define WSPORT 8889
+#define DBPORT 8890
+#define DBHOST "sccc.kr"
+#define DBUSER "root"
+#define DBPASSWD "root"
+#define DBNAME "networkproject"
+
 
 typedef struct _frame_head {
 	unsigned char fin;
@@ -28,6 +36,7 @@ typedef struct _frame_head {
 typedef struct WSclient_data{
 	int fd;	
 	pthread_t thread_id;
+	MYSQL db;
 } client_data;
 
 

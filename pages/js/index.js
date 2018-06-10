@@ -1,8 +1,9 @@
 ﻿let status = 0; // 0 : not in gameroom , 1 : gameroom , 2 : game 
-let uid = null; // user uid
-let nickname = null; // user nickname
+let UID = null; // user uid
+let NICKNAME = null; // user nickname
+let ROOM_ID = null; // room_id 
+let SCORE = 0; // SCORE
 let isPainter = true; // which now client is painter.
-let room_id = null; // room_id 
 
 
 let ws;
@@ -46,10 +47,52 @@ class StatusManager{
 	}
 
 	userAdd(event){		
-		if( (nickname = document.getElementById("nickname").value) == "" ) nickname = "Lorem Ipsum";
-		nicknameInputBox.hide();
-		waiting.showList(null);
-		scrollTo(0,0);
+		if( (NICKNAME = document.getElementById("nickname").value) == "" ) NICKNAME = "Lorem Ipsum";
+
+		let jsonObject = { // 14
+			major_code : 1,
+			minor_code : 4,
+			nickname : NICKNAME
+		}
+
+		let json = JSON.stringify(jsonObject);
+		ws.send(json);
+	}
+	userAddResponse(jsonObject){
+		if( jsonObject.success ){
+			if( UID == null ){
+				SCORE = jsonObject.user.score;
+			}
+			else{ // score set
+				let scoreJson = { // 17
+					major_code : 1,
+					minor_code : 7,
+					score: SCORE
+				}
+
+				let msg = JSON.stringify(scoreJson);
+				ws.send(msg);
+			}
+
+			UID = jsonObject.user.uid;
+			NICKNAME = jsonObject.user.nickname;
+			nicknameInputBox.hide();
+			waiting.showList(null);
+			scrollTo(0,0);
+		}
+		else{
+			alert("닉네임 등록에 실패하셨습니다.");	
+			if( UID != null ){
+				window.location.reload();
+			}
+		} 
+	}
+
+	setScoreResponse(jsonObject){
+		if( !jsonObject.success){
+			alert("재연결 시 스코어 등록에 실패하셨습니다.");
+			SCORE = 0;
+		}
 	}
 
 	refreshRoomLish(event){
@@ -318,7 +361,7 @@ class Chatting{
 		this.chatHistory.innerHTML += "\
 			<div class = 'msg'>\
 				<span class = 'sender'>"
-					+ jsonObject.nickname  + " | " + 
+					+ jsonObject.from.nickname  + " | " + 
 				"</span>\
 				<span class = 'contents'>"
 				 + jsonObject.msg + 
@@ -343,11 +386,11 @@ class Chatting{
 			minor_code : 1,
 			msg : box.value,
 			from : {
-				uid : uid,
+				uid : UID,
 				nickname : nickname
 			},
 			timestamp : new Date(),
-			room_id : room_id
+			room_id : ROOM_ID
 		}
 		let msg = JSON.stringify(jsonObject);
 		ws.send(msg);
@@ -583,15 +626,13 @@ class Websocket{
 		this.ws = new WebSocket("ws://"+window.location.hostname+":8889");
 		this.ws.onopen = function (event) {
 			console.log("ws connected");
+			if( UID != null ) statusManager.userAdd();
 		};
 		this.ws.onmessage = function (event){
 
 			let json = event.data;
 			console.log(json);
 
-			// let tmp = event.data.replace(/(?:\r\n|\n|\r)/g, '<br/>'); // dummyData
-			// let packet = '01{"code":"00","msg":"'+tmp+'","uid":1,"nickname":"someone","timestamp":"'+new Date()+'"}';
-			
 			let jsonObject = JSON.parse(json);
 
 			if( jsonObject.major_code == 0 ){
@@ -609,7 +650,7 @@ class Websocket{
 					default : console.log("undefined msg");return;
 				}
 			}
-			else if( jsonObject.minor_code == 2){
+			else if( jsonObject.major_code == 2){
 				switch( jsonObject.minor_code ){
 					case 0 :
 						return;	
@@ -624,16 +665,25 @@ class Websocket{
 					default : console.log("undefined msg");return;
 				}
 			}
+			else if( jsonObject.major_code == 3){
+				switch(jsonObject.minor_code ){
+					case 0 :
+						statusManager.userAddResponse(jsonObject);
+						return;
+					case 1 : 
+						statusManager.setScoreResponse(jsonObject);
+						return;
+					default : console.log("undefined msg "); return;
+				}
+			}
+
 		}
 		this.ws.onclose = function(event) {
 			console.log("ws close");
 		    setTimeout(() => {
 		    	ws = new Websocket();
-		    	uid = null;
 		    	if( status != 0 ){
 		    		console.log("reconnect ws");
-		    		uid = null;
-		    		statusManager.userAdd();
 		    		if( status == 1 ) statusManager.exitRoom();
 		    		else if( status == 2 ) statusManager.exitGameRoom();
 		    	}

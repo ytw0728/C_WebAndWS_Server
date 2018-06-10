@@ -30,7 +30,7 @@ struct packet{
 typedef struct user_data{
 	int uid;
 	char nickname[NICKNAME_SIZE];
-	// int score;
+	int score;
 }User;
 
 typedef struct room_data{
@@ -44,6 +44,12 @@ typedef struct room_data{
 typedef struct nickname_register{ // 14 닉네임 등록
 	char nickname[NICKNAME_SIZE];
 }REQUEST_NICKNAME_REGISTER;
+
+typedef struct set_score{ // 17 스코어  등록
+	int score
+}REQUEST_SET_SCORE;
+
+
 
 // 대기방 리스트 
 typedef struct request_roomlist_msg{ //10 대기방 리스트 요청
@@ -133,6 +139,14 @@ typedef struct response_register_nickname{ // 30 닉네임 등록 응답
 	int success;
 	User user;
 }RESPONSE_REGISTER;
+
+typedef struct response_set_score{ // 31 스코어 등록 응답 
+	int success;
+}RESPONSE_SET_SCORE;
+
+
+
+
 // 대기방 리스트
 typedef struct send_roomlist_data{ //20대기방 리스트
 	Room rlist[MAX_ROOM];
