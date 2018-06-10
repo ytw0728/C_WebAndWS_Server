@@ -352,6 +352,12 @@ void *WSconnect(void* args){
 				case 1 :
 					exitCondition = validateChatMsg(client, &sendHead, &p);
 					break;
+				/*case 2 :
+					break;
+				case 3 : 
+					break;
+				case 4 :
+					break;*/
 			}
 		}
 		else if( p.major_code == 1){
@@ -359,6 +365,9 @@ void *WSconnect(void* args){
 				case 0 :
 					exitCondition = waitingList(client, &sendHead, &p);
 					break;
+				/*case 1 :
+					exitCondition = requestEnterRoom(client, &sendHead, &p);
+					break;*/
 				case 4 :
 					exitCondition = userAdd(client, &sendHead, &p);
 					break;
@@ -739,6 +748,84 @@ WAITINGLISTFAIL:
 	free((char*)contents);
 	mysql_free_result(result);
 	return 1;
+}
+
+int requestEnterRoom(client_data * client, frame_head * sendHead, struct packet * p){
+	/*미완성
+	  todo
+	  sql 다시 (members 가져와야됨)
+	  room data 갱신 해야함
+	  user data 갱신 해야함
+	*//*
+	char queryBuffer[QUERY_SIZE];
+	sprintf(queryBuffer, "select gameroom.id, gameroom.status, gameroom.leader_id, count(playerlist.user_id) "
+			     "from gameroom left join playerlist on gameroom.id = playerlist.room_id "
+			     "where gameroom.id = %d && (gameroom.status/10) = 0;", ((REQUEST_ENTER_ROOM *)(p->ptr))->room_id);
+
+	MYSQL_RES * result =  db_query(queryBuffer);
+	if( result == -1 ){
+		serverLog(WSSERVER, ERROR, "entering waiting room failed","after db query(select)");
+		goto ENTERROOMFAIL;
+	}
+
+	struct packet sendPacket;
+	sendPacket.major_code = 2;
+	sendPacket.minor_code = 1;
+	sendPacket.ptr = (ROOM_DATA*)malloc(sizeof(ROOM_DATA));
+	((ROOM_DATA*)(sendPacket.ptr))->success = 1;
+	((ROOM_DATA*)(sendPacket.ptr))->room_id = ((REQUEST_ENTER_ROOM *)(p->ptr))->room_id;
+
+	MYSQL_ROW row;
+	int idx = 0;
+	
+	while( (row = mysql_fetch_row(result)) ){
+		if( row[0] == NULL ){
+			break;
+		}
+		((ROOM_DATA*)(sendPacket.ptr))->members[idx].id = atoi(row[0]);
+		strcpy(((ROOM_DATA*)(sendPacket.ptr))->members[idx].nickname, row[1]);
+		idx++;
+	}
+	((ROOM_DATA*)(sendPacket.ptr))->idx = idx;
+	
+	const char * contents = packet_to_json(sendPacket);	
+	iso8859_1_to_utf8(contents, strlen(contents));
+	int size = sendHead->payload_length = strlen(contents);
+	send_frame_head(client->fd, sendHead);
+
+	if( write( client->fd, contents, size) <= 0 ){
+		serverLog(WSSERVER, ERROR, "entering waiting room failed","packet sending error");
+		goto ENTERROOMFAIL;
+	}
+
+	free(sendPacket.ptr);
+	free((char*)contents);
+	mysql_free_result(result);
+	return 0;
+
+
+ENTERROOMFAIL:
+	sendPacket;
+	sendPacket.major_code = 2;
+	sendPacket.minor_code = 1;
+	sendPacket.ptr = (ROOM_DATA*)malloc(sizeof(ROOM_DATA));
+	((ROOM_DATA*)(sendPacket.ptr))->success = 0;
+	((ROOM_DATA*)(sendPacket.ptr))->room_id = 0;
+	((ROOM_DATA*)(sendPacket.ptr))->idx = 0;
+
+	contents = packet_to_json(sendPacket);
+	iso8859_1_to_utf8(contents, strlen(contents));
+	size = sendHead->payload_length = strlen(contents);
+	send_frame_head(client->fd, sendHead);
+
+	if( write( client->fd, contents, size) <= 0 ){
+		serverLog(WSSERVER, ERROR, "entering waiting room failed","packet sending error");
+	}
+
+	free(sendPacket.ptr);
+	free((char*)contents);
+	mysql_free_result(result);
+	return 1; */
 }
 
 // waiting room
