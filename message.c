@@ -240,13 +240,12 @@ const char * packet_to_json(struct packet p)
 		}
 		else if( minor_code == 7 ){ // 27 // 임시 폐쇄
 			serverLog(WSSERVER, LOG, "27 게임방 나가기 응답\n","");
-			json_object_object_add(pobj, "success", json_object_new_string(((RESPONSE_EXIT_GAMEROOM *)(p.ptr))->success));
+			json_object_object_add(pobj, "success", json_object_new_int(((RESPONSE_EXIT_GAMEROOM *)(p.ptr))->success));
 			// json_object_object_add(pobj,"ptr",obj);
 		}
 		else if( minor_code == 8 ){ // 28
 			serverLog(WSSERVER, LOG, "28 대기방, 게임방 나가기 응답\n","");
-			json_object_object_add(pobj, "success", json_object_new_string(((RESPONSE_EXIT *)(p.ptr))->success));
-
+			json_object_object_add(pobj, "success", json_object_new_int(((RESPONSE_EXIT *)(p.ptr))->success));
 			// json_object_object_add(pobj, "ptr", obj);
 		}
 
@@ -328,7 +327,6 @@ int json_to_packet(const char * json_string, struct packet * p)
 	uobj = jbuf = obj = NULL;
 
 	obj = json_tokener_parse(json_string); //read json
-
 
 	///*
 	//serverLog(WSSERVER, LOG, "json string : %s\n", json_object_to_json_string(jobj));//deb, ""ug

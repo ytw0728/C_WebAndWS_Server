@@ -133,7 +133,7 @@ class StatusManager{
 	}
 	enterRoomResponse(jsonObject){
 		if( jsonObject.success){
-			ROOM_ID = jsonObject.room_id;
+			ROOM_ID = jsonObject.room.id;
 			waiting.hideList();
 			waiting.showWaitingRoom(jsonObject);
 			status = 1;
@@ -700,13 +700,13 @@ class Websocket{
 		this.ws = new WebSocket("ws://"+window.location.hostname+":8889");
 		this.ws.onopen = function (event) {
 			console.log("ws connected");
-			this.send(JSON.stringify({major_code : 1, minor_code : 4, nickname : "Lorem Ipsum"}));
-			this.send(JSON.stringify({major_code : 1, minor_code : 7, score: 12345}));
-			this.send(JSON.stringify({major_code : 1, minor_code : 0, from : {uid: 1, nickname:"Lorem Ipsum"}}));
-			this.send(JSON.stringify({major_code : 1, minor_code : 5, from : {uid:1, nickname:"Lorem Ipsum"}}));
-			this.send(JSON.stringify({major_code : 1, minor_code : 6, from : {uid:1, nickname:"Lorem Ipsum"}, room_id : 1}));
+			// this.send(JSON.stringify({major_code : 1, minor_code : 4, nickname : "Lorem Ipsum"}));
+			// this.send(JSON.stringify({major_code : 1, minor_code : 7, score: 12345}));
+			// this.send(JSON.stringify({major_code : 1, minor_code : 0, from : {uid: 1, nickname:"Lorem Ipsum"}}));
+			// this.send(JSON.stringify({major_code : 1, minor_code : 5, from : {uid:1, nickname:"Lorem Ipsum"}}));
+			// this.send(JSON.stringify({major_code : 1, minor_code : 6, from : {uid:1, nickname:"Lorem Ipsum"}, room_id : 1}));
 
-			//if( UID != null ) statusManager.userAdd();
+			if( UID != null ) statusManager.userAdd();
 		};
 		this.ws.onmessage = function (event){
 

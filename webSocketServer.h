@@ -23,6 +23,11 @@
 #define DBPASSWD "root"
 #define DBNAME "networkproject"
 
+#define SELECT 10000
+#define NONSELECT 10001
+
+
+
 #define QUERY_SIZE 8192
 
 typedef struct _frame_head {
@@ -51,7 +56,6 @@ int send_frame_head(int fd,frame_head* head);
 // int passive_server( int port, int iDontKnowButIGuessItIsProtocol);
 void *Wsconnect(void *args);
 void *webSocketServerHandle();
-
 
 
 #endif
