@@ -557,6 +557,36 @@ int truncateDB(){
 		return -1;
 	}
 	if( res ) mysql_free_result(res);
+
+	if( (res = db_query((char*)"alter table `users` auto_increment = 1", NULL, NONSELECT)) == -1 ){
+		serverLog(WSSERVER,ERROR, "truncateDB error", "alter users" );
+		return -1;
+	}
+	if( res ) mysql_free_result(res);
+	if( (res = db_query((char*)"alter table `questions` auto_increment = 1", NULL, NONSELECT)) == -1 ){
+		serverLog(WSSERVER,ERROR, "truncateDB error", "alter questions" );
+		return -1;
+	}
+	if( res ) mysql_free_result(res);
+	if( (res = db_query((char*)"alter table `gameroom` auto_increment = 1", NULL, NONSELECT)) == -1 ){
+		serverLog(WSSERVER,ERROR, "truncateDB error", "alter gameroom" );
+		return -1;
+	}
+	if( res ) mysql_free_result(res);
+	if( (res = db_query((char*)"alter table `playerlist` auto_increment = 1", NULL, NONSELECT)) == -1 ){
+		serverLog(WSSERVER,ERROR, "truncateDB error", "alter playerlist" );
+		return -1;
+	}
+	if( res ) mysql_free_result(res);
+
+	int i = 0;
+	for( ; i < 20 ; i++){
+		if( (res = db_query((char*)"insert into `gameroom` values(0,0,NULL,NULL)", NULL, NONSELECT)) == -1 ){
+			serverLog(WSSERVER,ERROR, "truncateDB error", "insert gameroom data" );
+			return -1;
+		}
+	}
+
 	return 0;
 }
 
@@ -590,6 +620,9 @@ void deleteUser(client_data * client){
 
 	MYSQL_ROW row;
 	row = mysql_fetch_row(result);
+	
+	if( row[0] == NULL ) return;
+
 	int uid = atoi(row[0]);
 	char nickname[NICKNAME_SIZE + 1];
 	strcpy(nickname, row[1]);
@@ -800,9 +833,10 @@ SETSCOREFAIL:
 
 // waiting list
 int waitingList(client_data * client, frame_head * sendHead, struct packet * p){
-	char queryBuffer[QUERY_SIZE] = "select gameroom.id, gameroom.status, gameroom.leader_id, count(playerlist.user_id) from gameroom "
-	"left join playerlist on gameroom.id = playerlist.room_id "
-	"where (gameroom.status/10) = 0";
+	char queryBuffer[QUERY_SIZE] = 	"select gameroom.id, gameroom.status, gameroom.leader_id, count(playerlist.user_id) from gameroom "
+									"left join playerlist on gameroom.id = playerlist.room_id "
+									"where gameroom.status <> 0 and (gameroom.status/10) < 1";
+
 
 	MYSQL_RES * result =  db_query(queryBuffer, client, SELECT);
 	if( result == -1 ){
@@ -814,13 +848,12 @@ int waitingList(client_data * client, frame_head * sendHead, struct packet * p){
 	sendPacket.major_code = 2;
 	sendPacket.minor_code = 0;
 	sendPacket.ptr = (ROOM_LIST_DATA*)malloc(sizeof(ROOM_LIST_DATA));
-	((ROOM_LIST_DATA*)(sendPacket.ptr))->success = 1;
+
 	MYSQL_ROW row;
 	int idx = 0;
-
 	
 	while( (row = mysql_fetch_row(result)) && idx < MAX_ROOM){
-		if( row[0] == NULL || row[1] == NULL || row[2] == NULL ){
+		if( row[0] == NULL ){
 			break;
 		}
 		((ROOM_LIST_DATA*)(sendPacket.ptr))->rlist[idx].id = atoi(row[0]);
@@ -830,13 +863,12 @@ int waitingList(client_data * client, frame_head * sendHead, struct packet * p){
 	}
 	if( result ){
 		mysql_free_result(result);
-	} 
-
+	}
 
 	((ROOM_LIST_DATA*)(sendPacket.ptr))->idx = idx;
+	((ROOM_LIST_DATA*)(sendPacket.ptr))->success = 1;
 	const char * contents = packet_to_json(sendPacket);	
 	iso8859_1_to_utf8(contents, strlen(contents));
-
 	int size = sendHead->payload_length = strlen(contents);
 	send_frame_head(client->fd, sendHead);
 
@@ -974,25 +1006,16 @@ ENTERROOMFAIL:
 
 int makeRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	char queryBuffer[QUERY_SIZE];
-	sprintf(queryBuffer, "insert into gameroom values(0,0,%d,NULL)", ((MAKE_ROOM*)(p->ptr))->from.uid);
-	MYSQL_RES * result = db_query(queryBuffer, client, NONSELECT);
-	if( result == -1){
-		serverLog(WSSERVER,ERROR, "makeRoom error","after db query(insert, select)");
-		goto MAKEROOMFAIL;
-	}
-	if( result ){
-		mysql_free_result(result);
-		result = NULL;
-	}
-
-	sprintf(queryBuffer, "select * from gameroom where leader_id = %d", ((MAKE_ROOM*)(p->ptr))->from.uid);
+	sprintf(queryBuffer, "select * from `gameroom` where status = 0");
+	MYSQL_RES * result;
 	result = db_query(queryBuffer, client, SELECT);
 	if( result == -1){
-		serverLog(WSSERVER,ERROR, "makeRoom error","after db query(insert, select)");
+		serverLog(WSSERVER,ERROR, "makeRoom error","after db query(select)");
 		goto MAKEROOMFAIL;
 	}
 	MYSQL_ROW row;
 	row = mysql_fetch_row(result);
+	if( row[0] == NULL ) goto MAKEROOMFAIL; // all rooms are occupied;
 
 	struct packet sendPacket;
 	sendPacket.major_code = 2;
@@ -1001,9 +1024,23 @@ int makeRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	sendPacket.ptr = (ROOM_DATA*)malloc(sizeof(ROOM_DATA));
 
 	((ROOM_DATA*)(sendPacket.ptr))->room.id = atoi(row[0]);
-	((ROOM_DATA*)(sendPacket.ptr))->room.status = atoi(row[1]);
+	((ROOM_DATA*)(sendPacket.ptr))->room.status = 1;
 	if( result ){
 		mysql_free_result(result);	
+		result = NULL;
+	}
+
+
+
+
+	sprintf(queryBuffer, "update `gameroom` set status = 1, leader_id = %d where id = %d ",((MAKE_ROOM*)(p->ptr))->from.uid, ((ROOM_DATA*)(sendPacket.ptr))->room.id);
+	result = db_query(queryBuffer, client, NONSELECT);
+	if( result == -1){
+		serverLog(WSSERVER,ERROR, "makeRoom error","after db query(update)");
+		goto MAKEROOMFAIL;
+	}
+	if( result ){
+		mysql_free_result(result);
 		result = NULL;
 	}
 
@@ -1017,20 +1054,19 @@ int makeRoom(client_data * client, frame_head * sendHead, struct packet * p){
 		mysql_free_result(result);
 		result = NULL;
 	}
+
+	
 	
 	sprintf(queryBuffer, "select * from playerlist left join users on playerlist.user_id = users.id where room_id = %d", ((ROOM_DATA*)(sendPacket.ptr))->room.id );
 	result = db_query(queryBuffer, client, SELECT);
 	if( result == -1){
-		serverLog(WSSERVER,ERROR, "makeRoom error","after db query(insert)");
+		serverLog(WSSERVER,ERROR, "makeRoom error","after db query(select)");
 		goto MAKEROOMFAIL;
 	}
-	
-
+	printf("11111111111111\n\n\n\n\n\n\n\n");
 	int idx = 0;
-	/*
 	while( (row = mysql_fetch_row(result)) && idx < MAX_USER){
 		if( row[0] == NULL ) break;
-
 		((ROOM_DATA*)(sendPacket.ptr))->members[idx].uid = atoi(row[3]);
 		strcpy(((ROOM_DATA*)(sendPacket.ptr))->members[idx].nickname, row[4]);
 		((ROOM_DATA*)(sendPacket.ptr))->members[idx].score, atoi(row[5]);
@@ -1039,9 +1075,10 @@ int makeRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	if( result ){
 		mysql_free_result(result);
 	}
-	*/
 
+	printf("22222222222222222\n\n\n\n\n\n\n\n");
 	((ROOM_DATA*)(sendPacket.ptr))->idx = idx;
+	((ROOM_DATA*)(sendPacket.ptr))->room.num = idx;
 	((ROOM_DATA*)(sendPacket.ptr))->success = 1;
 
 	const char * contents = packet_to_json(sendPacket);

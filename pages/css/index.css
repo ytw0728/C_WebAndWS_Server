@@ -195,7 +195,8 @@ div#waiting > container#waitingBoard{
 				margin: .5vw;
 				padding: 1vw;
 			}
-	div#waiting > container#waitingBoard > div.roomLists > span.makeRoomBtn{
+	div#waiting > container#waitingBoard > div.roomLists > span.makeRoomBtn,
+	div#waiting > container#waitingBoard > div.roomLists > span.reFreshRoomBtn{
 		display: inline-block;
 		position: absolute;
 		width: 9rem;
@@ -205,13 +206,17 @@ div#waiting > container#waitingBoard{
 		color: white;
 		border-radius : .5rem;
 		border: .1rem solid #333;
-		right : 1rem;
+		
 		top : -3.7rem;
 		text-align: center;
 		font-size: 1.3rem;
 		transition: background .3s ease;
 	}
-	div#waiting > container#waitingBoard > div.roomLists > span.makeRoomBtn:hover{
+	div#waiting > container#waitingBoard > div.roomLists > span.makeRoomBtn{right : 1rem;}
+	div#waiting > container#waitingBoard > div.roomLists > span.reFreshRoomBtn{right : 12rem;}
+
+	div#waiting > container#waitingBoard > div.roomLists > span.makeRoomBtn:hover,
+	div#waiting > container#waitingBoard > div.roomLists > span.reFreshRoomBtn:hover{
 		background: white;
 		color: #333;
 	}
