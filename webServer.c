@@ -57,7 +57,7 @@ void *web(void *args) {
 		goto IGNORE;
 	}
 	
-	serverLog(WEBSERVER,FILELOG,"request",buffer);
+	// serverLog(WEBSERVER,FILELOG,"request",buffer);
 
 	if(ret > 0 && ret < BUFSIZE) buffer[ret]=0;
 	else buffer[0]=0;
@@ -132,7 +132,6 @@ void *web(void *args) {
 	}
 
 	// 200 OK send
-	serverLog(WEBSERVER,FILELOG,&buffer[5],"SEND");
 	(void)sprintf(buffer,"HTTP/1.0 200 OK\r\nContent-Type: %s\r\n\r\n", fstr);
 	(void)write(fd,buffer,strlen(buffer));
 
@@ -201,7 +200,6 @@ int webServerHandle(int argc, char** argv){
 		serverLog(WEBSERVER, ERROR, "webServer setting Socket option Error\n","");
 		error_handler(strerror(errno));
 	}
-
 
 	port = atoi(argv[1]);
 	

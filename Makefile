@@ -1,6 +1,8 @@
 CC 		= gcc
 # CFLAGS 	= -Wall -Wextra -Werror -pedantic -ggdb -DRUPIFY -g -lssl -lcrypto
-CFLAGS = -Wall
+# CFLAGS = -Wall
+CFLAGS = -w
+
 # INCL = -L /usr/include/openssl -I /usr/include/openssl
 LIBRARIES = -lssl -lcrypto -ljson-c `mysql_config --libs_r`
 OBJECTS = Includes.o webServer.o webSocketServer.o message.o

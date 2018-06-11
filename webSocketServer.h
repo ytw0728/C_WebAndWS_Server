@@ -37,7 +37,7 @@ typedef struct _frame_head {
 typedef struct WSclient_data{
 	int fd;	
 	pthread_t thread_id;
-	MYSQL db;
+	pthread_mutex_t mutex;
 } client_data;
 
 

@@ -1,6 +1,6 @@
 #include "webSocketServer.h"
 
-MYSQL mysql_handle;
+MYSQL * mysql_handle;
 pthread_mutex_t  mutex = PTHREAD_MUTEX_INITIALIZER; // 쓰레드 초기화
 
 /*-------------------------------------------------------------------
@@ -420,16 +420,16 @@ void *webSocketServerHandle(){
 	}
 	serverLog(WSSERVER, LOG, "WebSocketServer Start", "MESSAGE");
 	
-	
 
 	if( mysql_library_init(0, NULL, NULL) ){
 		serverLog(WSSERVER, ERROR, "Can't load mysql library", "mysql_library_init()");
 		goto EXIT;
 	}
-	
-	if( mysql_init(&mysql_handle) == 0 ){
+
+
+	if( (mysql_handle = mysql_init(NULL)) == 0 ){
 		char logbuffer[1024];
-		sprintf(logbuffer, "%u (%s): %s", mysql_errno(&mysql_handle), mysql_sqlstate(&mysql_handle), mysql_error(&mysql_handle));
+		sprintf(logbuffer, "%u (%s): %s", mysql_errno(mysql_handle), mysql_sqlstate(mysql_handle), mysql_error(mysql_handle));
 		serverLog(WSSERVER, ERROR, logbuffer, "mysql_init()");
 		goto EXIT;
 	}
@@ -439,7 +439,7 @@ void *webSocketServerHandle(){
 	} 
 
 
-	if (!mysql_real_connect(&mysql_handle,       /* MYSQL structure to use */
+	if (!mysql_real_connect(mysql_handle,       /* MYSQL structure to use */
 							DBHOST,         /* server hostname or IP address */ 
 							DBUSER,         /* mysql user */
 							DBPASSWD,          /* password */
@@ -451,13 +451,21 @@ void *webSocketServerHandle(){
 		serverLog(WSSERVER, ERROR, "mysql error", "mysql_real_connect()");
 		goto EXIT;
 	}
+	if( mysql_query(mysql_handle, "USE networkproject")){
+		serverLog(WSSERVER, ERROR, "use networkproject", "mysql_query()");
+		return -1;
+	}
 
 	#ifndef DEV
 		if( truncateDB() == -1){
 			serverLog(WSSERVER, ERROR, "mysql error", "truncateDB()");
 			goto EXIT;
 		}
+		printf("truncateDB success\n");
 	#endif
+
+
+	pthread_mutex_init(&mutex, NULL);
 
 	int ser_fd = sock;
 
@@ -480,17 +488,16 @@ void *webSocketServerHandle(){
 		client_data* n;
 		n = (client_data*)malloc(sizeof(client_data));
 		n->fd = client_fd;
-		n->db = mysql_handle;
-
+		n->mutex = mutex;
 		if( (pthread_create(&(n->thread_id), &pthread_attr, WSconnect, (void *) n)) < 0 ){
 			serverLog(WSSERVER, ERROR, "Thread Error", "clientSocketThread");
 		}
     }
 
-    mysql_close(&mysql_handle);
+    mysql_close(mysql_handle);
     mysql_library_end();
 EXIT:
-	
+	pthread_mutex_destroy(&mutex);
     close(ser_fd);
     serverLog(WSSERVER, LOG, "SERVER END","");
     return NULL;
@@ -500,49 +507,57 @@ EXIT:
 
 
 // db connection
-
-MYSQL_RES * db_query(char *query){
-	pthread_mutex_lock(&mutex);
+MYSQL_RES * db_query(char *query, client_data * client){
+	if( client == NULL ) pthread_mutex_lock(&mutex);
+	else pthread_mutex_lock(&(client->mutex));
 	serverLog(WSSERVER, LOG, query, "trying");
-	if( mysql_query(&mysql_handle, "USE networkproject")){
-		serverLog(WSSERVER, ERROR, "use networkproject", "mysql_query()");
-		return -1;
-	}
-	if( mysql_query(&mysql_handle, query) ){
+	if( mysql_query(mysql_handle, query) ){
 		serverLog(WSSERVER, ERROR, query, "mysql_query()");
 		return -1;
 	}
-	MYSQL_RES * res = mysql_store_result(&mysql_handle);
-	pthread_mutex_unlock(&mutex);
-
+	MYSQL_RES * res = mysql_store_result(mysql_handle);
+	if( client == NULL ) pthread_mutex_unlock(&mutex);
+	else pthread_mutex_unlock(&(client->mutex));
 	return res;
 }
 
 
 // db truncateDB
 int truncateDB(){
-	
-
-	if( db_query((char*)"delete from `playerlist` where true") == -1 ){
+	MYSQL_RES * res;
+	if( ( res = db_query((char*)"delete from `playerlist` where true", NULL ) ) == -1 ){
 		serverLog(WSSERVER,ERROR, "truncateDB error", "DELETE PLAYERLIST" );
 		return -1;
 	}
-	if( db_query((char*)"delete from `gameroom` where true") == -1 ){
+	if( res ) mysql_free_result(res);
+
+	if( ( res = db_query((char*)"delete from `gameroom` where true", NULL ) ) == -1 ){
 		serverLog(WSSERVER,ERROR, "truncateDB error", "DELETE GAMEROOM" );
 		return -1;
 	}
+	if( res ) mysql_free_result(res);
 
-	if( db_query((char*)"delete from `users` where true") == -1 ){
+	if( ( res = db_query((char*)"delete from `users` where true", NULL ) ) == -1 ){
 		serverLog(WSSERVER,ERROR, "truncateDB error", "DELETE USERS" );
 		return -1;
 	}
-	if( db_query((char*)"delete from `questions` where true") == -1 ){
+	if( res ) mysql_free_result(res);
+
+	if( ( res = db_query((char*)"delete from `questions` where true", NULL ) ) == -1 ){
 		serverLog(WSSERVER,ERROR, "truncateDB error", "DELETE QUESTIONS" );
 		return -1;
 	}
-
+	if( res ) mysql_free_result(res);
 	return 0;
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -557,25 +572,86 @@ int truncateDB(){
 // below lines are for actual procedure of web app.
 void deleteUser(client_data * client){
 	char queryBuffer[QUERY_SIZE];
-	sprintf(queryBuffer, "delete from `users` where fd = %d", client->fd );
-	MYSQL_RES * result = db_query(queryBuffer);
+	sprintf(queryBuffer, "select * from `users` where fd = %d", client->fd);
+	MYSQL_RES * result = db_query(queryBuffer, client);
+	if( result == -1 ){
+		serverLog(WSSERVER, ERROR, "delete user failed","after db query(select)");
+		return;
+	}
+
+	MYSQL_ROW row;
+	row = mysql_fetch_row(result);
+	int uid = atoi(row[0]);
+	char nickname[NICKNAME_SIZE + 1];
+	strcpy(nickname, row[1]);
+	if( result ){
+		mysql_free_result(result);
+		result = NULL;
+	}
+
+	sprintf(queryBuffer, "select *, count(*) from `playerlist` where user_id = %d", uid );
+	result = db_query(queryBuffer, client);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "delete user failed","after db query(delete)");
 		return;
 	}
+	row = mysql_fetch_row(result);
+	if( row[0] != NULL ){
+		int room_id;
+		room_id = atoi(row[1]);
+
+		frame_head sendHead;
+		memset(&sendHead, 0 , sizeof(frame_head));
+		sendHead.fin = 1;
+		sendHead.opcode = 0x1;
+
+		struct packet p;
+		p.major_code = 1;
+		p.minor_code = 6;
+		p.ptr = (REQUEST_EXIT_ROOM*)malloc(sizeof(REQUEST_EXIT_ROOM));
+
+		((REQUEST_EXIT_ROOM*)(p.ptr))->room_id = room_id;
+		((REQUEST_EXIT_ROOM*)(p.ptr))->from.uid = uid;
+		strcpy(((REQUEST_EXIT_ROOM*)(p.ptr))->from.nickname, nickname);	
+
+		exitRoom( NULL, &sendHead, &p);
+	}
+	if( result ){
+		mysql_free_result(result);
+		result = NULL;
+	}
+
+
+
+	sprintf(queryBuffer, "delete from `users` where fd = %d", client->fd );
+	result = db_query(queryBuffer, client);
+	if( result == -1 ){
+		serverLog(WSSERVER, ERROR, "delete user failed","after db query(delete)");
+		return;
+	}
+	if( result ){
+		mysql_free_result(result);
+		result = NULL;
+	}
+
+
 }
 // nickname
 int userAdd(client_data * client, frame_head * sendHead, struct packet * p){ 
 	char queryBuffer[QUERY_SIZE];
 	sprintf(queryBuffer, "insert into `users` values(NULL, \'%s\',0,%d)", ((REQUEST_NICKNAME_REGISTER *)(p->ptr))->nickname, client->fd );
-	MYSQL_RES * result = db_query(queryBuffer);
+	MYSQL_RES * result = db_query(queryBuffer, client);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "user Add failed","after db query(insert)");
 		goto USERADDFAIL;
 	}
+	if( result ){
+		mysql_free_result(result);
+		result = NULL;
+	}
 
 	sprintf(queryBuffer, "select * from `users` where fd = %d", client->fd);
-	result = db_query(queryBuffer);
+	result = db_query(queryBuffer, client);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "user Add failed","after db query(select)");
 		goto USERADDFAIL;
@@ -607,6 +683,15 @@ int userAdd(client_data * client, frame_head * sendHead, struct packet * p){
 		serverLog(WSSERVER, ERROR, "user Add failed","packet sending error");
 		goto USERADDFAIL;
 	}
+
+
+
+	return 0;
+
+
+
+
+
 
 
 	free(sendPacket.ptr);
@@ -646,7 +731,7 @@ USERADDFAIL:
 int setScore(client_data * client, frame_head * sendHead, struct packet * p){ 
 	char queryBuffer[QUERY_SIZE];
 	sprintf(queryBuffer, "update `users` set `score`= %d where fd = %d", ((REQUEST_SET_SCORE *)(p->ptr))->score, client->fd );
-	MYSQL_RES * result = db_query(queryBuffer);
+	MYSQL_RES * result = db_query(queryBuffer, client);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "score set failed","after db query(update)");
 		goto SETSCOREFAIL;
@@ -654,6 +739,13 @@ int setScore(client_data * client, frame_head * sendHead, struct packet * p){
 	if( result ){
 		mysql_free_result(result);	
 	} 
+
+
+	return 0;
+
+
+
+
 
 	struct packet sendPacket;
 	sendPacket.major_code = 3;
@@ -677,6 +769,7 @@ int setScore(client_data * client, frame_head * sendHead, struct packet * p){
 	contents = NULL;
 	
 	return 0;
+
 
 SETSCOREFAIL:
 	sendPacket;
@@ -709,9 +802,9 @@ SETSCOREFAIL:
 int waitingList(client_data * client, frame_head * sendHead, struct packet * p){
 	char queryBuffer[QUERY_SIZE] = "select gameroom.id, gameroom.status, gameroom.leader_id, count(playerlist.user_id) from gameroom "
 	"left join playerlist on gameroom.id = playerlist.room_id "
-	"where (gameroom.status/10) = 0;";
+	"where (gameroom.status/10) = 0";
 
-	MYSQL_RES * result =  db_query(queryBuffer);
+	MYSQL_RES * result =  db_query(queryBuffer, client);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "get waiting list failed","after db query(select)");
 		goto WAITINGLISTFAIL;
@@ -725,18 +818,28 @@ int waitingList(client_data * client, frame_head * sendHead, struct packet * p){
 	MYSQL_ROW row;
 	int idx = 0;
 
+	/*
 	while( (row = mysql_fetch_row(result)) && idx < MAX_ROOM){
 		if( row[0] == NULL ){
 			break;
 		}
 		((ROOM_LIST_DATA*)(sendPacket.ptr))->rlist[idx].id = atoi(row[0]);
-		((ROOM_LIST_DATA*)(sendPacket.ptr))->rlist[idx].state = atoi(row[1]);
+		((ROOM_LIST_DATA*)(sendPacket.ptr))->rlist[idx].status = atoi(row[1]);
 		((ROOM_LIST_DATA*)(sendPacket.ptr))->rlist[idx].num = atoi(row[3]);
 		idx++;
 	}
+	*/
 	if( result ){
 		mysql_free_result(result);
 	} 
+
+
+
+	return 0;
+
+
+
+
 
 	((ROOM_LIST_DATA*)(sendPacket.ptr))->idx = idx;
 	const char * contents = packet_to_json(sendPacket);	
@@ -798,7 +901,7 @@ int requestEnterRoom(client_data * client, frame_head * sendHead, struct packet 
 			     "from gameroom left join playerlist on gameroom.id = playerlist.room_id "
 			     "where gameroom.id = %d && (gameroom.status/10) = 0;", ((REQUEST_ENTER_ROOM *)(p->ptr))->room_id);
 
-	MYSQL_RES * result =  db_query(queryBuffer);
+	MYSQL_RES * result =  db_query(queryBuffer, client);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "entering waiting room failed","after db query(select)");
 		goto ENTERROOMFAIL;
@@ -878,14 +981,19 @@ ENTERROOMFAIL:
 
 int makeRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	char queryBuffer[QUERY_SIZE];
-	sprintf(queryBuffer, "insert into gameroom values(0,0,%d,NULL); ", ((MAKE_ROOM*)(p->ptr))->from.uid);
-	MYSQL_RES * result = db_query(queryBuffer);
+	sprintf(queryBuffer, "insert into gameroom values(0,0,%d,NULL)", ((MAKE_ROOM*)(p->ptr))->from.uid);
+	MYSQL_RES * result = db_query(queryBuffer, client);
 	if( result == -1){
 		serverLog(WSSERVER,ERROR, "makeRoom error","after db query(insert, select)");
 		goto MAKEROOMFAIL;
 	}
+	if( result ){
+		mysql_free_result(result);
+		result = NULL;
+	}
+
 	sprintf(queryBuffer, "select * from gameroom where leader_id = %d", ((MAKE_ROOM*)(p->ptr))->from.uid);
-	result = db_query(queryBuffer);
+	result = db_query(queryBuffer, client);
 	if( result == -1){
 		serverLog(WSSERVER,ERROR, "makeRoom error","after db query(insert, select)");
 		goto MAKEROOMFAIL;
@@ -900,17 +1008,25 @@ int makeRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	sendPacket.ptr = (ROOM_DATA*)malloc(sizeof(ROOM_DATA));
 
 	((ROOM_DATA*)(sendPacket.ptr))->room.id = atoi(row[0]);
-	((ROOM_DATA*)(sendPacket.ptr))->room.state = atoi(row[1]);
+	((ROOM_DATA*)(sendPacket.ptr))->room.status = atoi(row[1]);
+	if( result ){
+		mysql_free_result(result);
+		result = NULL;
+	}
 
 	sprintf(queryBuffer, "insert into playerlist values(0,%d,%d)",((ROOM_DATA*)(sendPacket.ptr))->room.id ,((MAKE_ROOM*)(p->ptr))->from.uid);
-	result = db_query(queryBuffer);
+	result = db_query(queryBuffer, client);
 	if( result == -1){
 		serverLog(WSSERVER,ERROR, "makeRoom error","after db query(insert)");
 		goto MAKEROOMFAIL;
 	}
+	if( result ){
+		mysql_free_result(result);
+		result = NULL;
+	}
 	
 	sprintf(queryBuffer, "select * from playerlist left join users on playerlist.user_id = users.id where room_id = %d", ((ROOM_DATA*)(sendPacket.ptr))->room.id );
-	result = db_query(queryBuffer);
+	result = db_query(queryBuffer, client);
 	if( result == -1){
 		serverLog(WSSERVER,ERROR, "makeRoom error","after db query(insert)");
 		goto MAKEROOMFAIL;
@@ -918,15 +1034,27 @@ int makeRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	
 
 	int idx = 0;
-	while( (row = mysql_fetch_row(result)) && idx < MAX_USER){	
+	/*
+	while( (row = mysql_fetch_row(result)) && idx < MAX_USER){
+		if( row[0] == NULL ) break;
+
 		((ROOM_DATA*)(sendPacket.ptr))->members[idx].uid = atoi(row[3]);
 		strcpy(((ROOM_DATA*)(sendPacket.ptr))->members[idx].nickname, row[4]);
 		((ROOM_DATA*)(sendPacket.ptr))->members[idx].score, atoi(row[5]);
 		idx ++;
 	}
 	if( result ){
-		mysql_free_result(result);	
-	} 
+		mysql_free_result(result);
+	}
+	*/
+
+
+	return 0;
+
+
+
+
+
 
 	((ROOM_DATA*)(sendPacket.ptr))->idx = idx;
 	((ROOM_DATA*)(sendPacket.ptr))->success = 1;
@@ -976,17 +1104,25 @@ MAKEROOMFAIL:
 int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	char queryBuffer[QUERY_SIZE];
 	sprintf(queryBuffer, "delete from playerlist where room_id = %d and user_id = %d", ((REQUEST_EXIT_ROOM*)(p->ptr))->room_id, ((REQUEST_EXIT_ROOM*)(p->ptr))->from.uid);
-	MYSQL_RES * result = db_query(queryBuffer);
+	MYSQL_RES * result = db_query(queryBuffer, client);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "exit room fail", "after db query(delete)");
 		goto EXITROOMFAIL;
 	}
+	if( result ){
+		mysql_free_result(result);
+		result = NULL;
+	}
 
 	sprintf(queryBuffer, "select *, count(*) from playerlist where room_id = %d", ((REQUEST_EXIT_ROOM*)(p->ptr))->room_id);
-	result = db_query(queryBuffer);
+	result = db_query(queryBuffer, client);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "exit room fail", "after db query(select)");
 		goto EXITROOMFAIL;
+	}
+	if( result ){
+		mysql_free_result(result);
+		result = NULL;
 	}
 
 	int number = 0;
@@ -994,6 +1130,7 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	const char * contents;
 	int size;
 
+	/*
 	while( ( row = mysql_fetch_row(result) ) ){
 		if( row[0] == NULL ) break;
 
@@ -1019,24 +1156,137 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 		free(tmp.ptr);
 		tmp.ptr = NULL;
 	}
+	*/
+	if( result ){
+		mysql_free_result(result);
+		result = NULL;
+	}
 
 	if( number < 1 ){
 		sprintf(queryBuffer, "delete from playerlist where room_id = %d", ((REQUEST_EXIT_ROOM*)(p->ptr))->room_id);
-		result = db_query(queryBuffer);
+		result = db_query(queryBuffer, client);
 		if( result == -1 ){
 			serverLog(WSSERVER, ERROR, "exit room fail", "after db query(delete)");
 			goto EXITROOMFAIL;
 		}
+		if( result ){
+			mysql_free_result(result);
+			result = NULL;
+		}
+
 		sprintf(queryBuffer, "delete from gameroom where id = %d", ((REQUEST_EXIT_ROOM*)(p->ptr))->room_id);
-		result = db_query(queryBuffer);
+		result = db_query(queryBuffer, client);
 		if( result == -1 ){
 			serverLog(WSSERVER, ERROR, "exit room fail", "after db query(delete)");
 			goto EXITROOMFAIL;
+		}
+		if( result ){
+			mysql_free_result(result);
+			result = NULL;
 		}
 	}
+	else{
+		int room_id = ((REQUEST_EXIT_ROOM*)(p->ptr))->room_id;
+		sprintf(queryBuffer, "select user_id from playerlist where room_id = %d", room_id);
+		result = db_query(queryBuffer, client);
+		if( result == -1 ){
+			serverLog(WSSERVER, ERROR, "exit room fail", "after db query(select)");
+			goto EXITROOMFAIL;
+		}
+		row = mysql_fetch_row(result);
+		int uid = atoi(row[0]);
+		if( result ){
+			mysql_free_result(result);
+			result = NULL;
+		}
+
+		sprintf(queryBuffer, "update from gameroom set leader_id = %d", uid);
+		result = db_query(queryBuffer, client);
+		if( result == -1 ){
+			serverLog(WSSERVER, ERROR, "exit room fail", "after db query(update)");
+			goto EXITROOMFAIL;
+		}
+		if( result ){
+			mysql_free_result(result);
+			result = NULL;
+		}
+
+		sprintf(queryBuffer, "select * from gameroom left join users on gameroom.leader_id = users.id where gameroom.id = %d", room_id);
+		result = db_query(queryBuffer, client);
+		if( result == -1 ){
+			serverLog(WSSERVER, ERROR, "exit room fail", "after db query(update)");
+			goto EXITROOMFAIL;
+		}
+		row = mysql_fetch_row(result);
+		if( row[0] == NULL ) goto EXITROOMFAIL;
+
+		int status = atoi(row[1]);
+		int leader_id = atoi(row[2]);
+		int answer_id = atoi(row[3]);
+		char leader_nickname[NICKNAME_SIZE + 1];
+		strcpy(leader_nickname, row[5]);
+
+		if( result ){
+			mysql_free_result(result);
+			result = NULL;
+		}
+
+
+		sprintf(queryBuffer, "select * from playerlist left join users on playerlist.user_id = users.id where playerlist.room_id = %d", room_id);
+		result = db_query(queryBuffer, client);
+		if( result == -1 ){
+			serverLog(WSSERVER, ERROR, "exit room fail", "after db query(update)");
+			goto EXITROOMFAIL;
+		}
+
+
+		/*
+		while( ( row = mysql_fetch_row(result)) ){
+			if( row[0] == NULL ) break;
+			int fd = atoi(row[6]);
+			struct packet tmp;
+			tmp.major_code = 3;
+			tmp.minor_code = 3;
+			tmp.ptr = (STATUS_CHANGED*)malloc(sizeof(STATUS_CHANGED));
+			((STATUS_CHANGED*)(tmp.ptr))->room.id = atoi(row[1]);
+			((STATUS_CHANGED*)(tmp.ptr))->room.num = atoi(number);
+			((STATUS_CHANGED*)(tmp.ptr))->room.status = atoi(status);
+			((STATUS_CHANGED*)(tmp.ptr))->leader.uid = leader_id;
+			strcpy(((STATUS_CHANGED*)(tmp.ptr))->leader.nickname, leader_nickname);
+
+
+			contents = packet_to_json(tmp);
+			iso8859_1_to_utf8(contents, strlen(contents));
+			size = sendHead->payload_length = strlen(contents);
+			send_frame_head(fd, sendHead);
+			if( write( fd, contents, size) <= 0 ){
+				serverLog(WSSERVER, ERROR, "failed to make room","packet sending error");
+				goto EXITROOMFAIL;
+			}
+
+			free(tmp.ptr);
+			tmp.ptr = NULL;
+		}
+		*/
+		if( result ){
+			mysql_free_result(result);
+			result = NULL;
+		}
+
+	}
 	if( result ){
-		mysql_free_result(result);	
+		mysql_free_result(result);
 	} 
+
+
+
+	if( client == NULL ) goto EXITROOMNORECEIVER;	 // when triggered by deleteUser
+
+
+	return 0;
+
+
+
 
 
 	struct packet sendPacket;
@@ -1044,7 +1294,6 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	sendPacket.minor_code = 8;
 	sendPacket.ptr = (RESPONSE_EXIT*)malloc(sizeof(RESPONSE_EXIT));
 	((RESPONSE_EXIT*)(sendPacket.ptr))->success = 1;
-
 
 	contents = packet_to_json(sendPacket);
 	iso8859_1_to_utf8(contents, strlen(contents));
@@ -1084,6 +1333,8 @@ EXITROOMFAIL:
 	free((char*)contents);
 	sendPacket.ptr = NULL;
 	contents = NULL;
+
+EXITROOMNORECEIVER:
 	if( result ){
 		mysql_free_result(result);	
 	} 

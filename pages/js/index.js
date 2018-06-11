@@ -31,6 +31,9 @@ window.onload= function(){
 
 	setDevOption();
 	layout();	
+
+
+	
 }
 
 function layout(){
@@ -157,7 +160,7 @@ class StatusManager{
 	exitRoom(event){
 		if( event != null ) event.preventDefault();
 
-		let json = {
+		let json = { // 16
 			major_code : 1,
 			minor_code : 6,
 			room_id : ROOM_ID,
@@ -173,15 +176,16 @@ class StatusManager{
 	exitRoomResponse(jsonObject){
 		if(jsonObject.success){
 			if( status == 1 ) {
-				waiting.hideWaitingRoom();
 				waiting.showList();
+				waiting.hideWaitingRoom();
+				console.log("awef");
 				ROOM_ID = null;
 				status = 0;
 			}
 			else if( status > 1 ){
 				app.hideAll();
 				waiting.showAll();
-				waiting.showList(null);
+				waiting.showList();
 				waiting.hideWaitingRoom();
 				ROOM_ID = null;
 
@@ -203,7 +207,7 @@ class StatusManager{
 	}
 	exitGameRoom(event){
 		if( event != null ) event.preventDefault();
-		let json = {
+		let json = { // 16
 			major_code : 1,
 			minor_code : 6,
 			room_id : ROOM_ID,
@@ -696,12 +700,18 @@ class Websocket{
 		this.ws = new WebSocket("ws://"+window.location.hostname+":8889");
 		this.ws.onopen = function (event) {
 			console.log("ws connected");
-			if( UID != null ) statusManager.userAdd();
+			this.send(JSON.stringify({major_code : 1, minor_code : 4, nickname : "Lorem Ipsum"}));
+			this.send(JSON.stringify({major_code : 1, minor_code : 7, score: 12345}));
+			this.send(JSON.stringify({major_code : 1, minor_code : 0, from : {uid: 1, nickname:"Lorem Ipsum"}}));
+			this.send(JSON.stringify({major_code : 1, minor_code : 5, from : {uid:1, nickname:"Lorem Ipsum"}}));
+			this.send(JSON.stringify({major_code : 1, minor_code : 6, from : {uid:1, nickname:"Lorem Ipsum"}, room_id : 1}));
+
+			//if( UID != null ) statusManager.userAdd();
 		};
 		this.ws.onmessage = function (event){
 
 			let json = event.data;
-			console.log(json);
+			console.log("receive : " + json);
 
 			let jsonObject = JSON.parse(json);
 
@@ -774,6 +784,7 @@ class Websocket{
 	}
 
 	send(msg){
+		console.log("send : " + msg);
 		this.ws.send(msg);
 	}
 }

@@ -56,7 +56,7 @@ void serverLog(int from, int type, char* msg, char* subMsg ){
 			#endif
 
 		case FILELOG:
-			(void)sprintf(logbuffer,"[ INFO: %s ] %s\n",subMsg, msg);
+			(void)sprintf(logbuffer,"[ INFO: %s ] %s",subMsg, msg);
 			break;
 	}
 	

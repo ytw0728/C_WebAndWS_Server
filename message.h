@@ -37,7 +37,7 @@ typedef struct user_data{
 typedef struct room_data{
 	int id;
 	int num;
-	int state;
+	int status;
 }Room;
 
 
@@ -209,6 +209,12 @@ typedef struct pop_player_data{ // 32 방 인원 감소
 	Room room;
 	User user;
 }POP_MEMBER_DATA;
+
+
+typedef struct leader_changed{ // 33 방 상태 변경 ( 리더는 항시, 상태값은 필요에 따라 )
+	Room room;
+	User leader;
+}STATUS_CHANGED;
 
 const char * packet_to_json(struct packet p);
 int json_to_packet(const char * json_string, struct packet * p);
