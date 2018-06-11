@@ -499,9 +499,9 @@ int json_to_packet(const char * json_string, struct packet * p)
 
 
 			json_object_object_get_ex(obj, "from", &uobj);
-				json_object_object_get_ex(uobj, "uid", jbuf);
+				json_object_object_get_ex(uobj, "uid", &jbuf);
 				((REQUEST_EXIT_GAMEROOM *)(p->ptr))->from.uid = json_object_get_int(jbuf);
-				json_object_object_get_ex(uobj, "nickname", jbuf);
+				json_object_object_get_ex(uobj, "nickname", &jbuf);
 				strcpy(((REQUEST_EXIT_GAMEROOM *)(p->ptr))->from.nickname, json_object_get_string(jbuf));
 
 		}

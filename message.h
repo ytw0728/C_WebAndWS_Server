@@ -48,7 +48,7 @@ typedef struct nickname_register{ // 14 닉네임 등록
 }REQUEST_NICKNAME_REGISTER;
 
 typedef struct set_score{ // 17 스코어  등록
-	int score
+	int score;
 }REQUEST_SET_SCORE;
 
 
