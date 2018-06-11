@@ -4,7 +4,8 @@ CC 		= gcc
 CFLAGS = -w
 
 # INCL = -L /usr/include/openssl -I /usr/include/openssl
-LIBRARIES = -lssl -lcrypto -ljson-c `mysql_config --libs_r`
+INCL = -I/usr/local/include/json-c
+LIBRARIES = -lssl -lcrypto -L/susr/local/lib -ljson-c `mysql_config --libs_r` 
 OBJECTS = Includes.o webServer.o webSocketServer.o message.o
 DEVOBJECTS = DEVIncludes.o webServer.o DEVwebSocketServer.o message.o
 EXEC 	= server
@@ -38,13 +39,13 @@ DEVIncludes.o: Includes.c Includes.h
 # 	$(CC) $(CFLAGS) -c utf8.c	
 
 webServer.o: webServer.c webServer.h Includes.h
-	$(CC) $(CFLAGS) -c webServer.c
+	$(CC) $(INCL) $(CFLAGS) -c webServer.c
 
 webSocketServer.o: webSocketServer.c webSocketServer.h Includes.h message.h
-	$(CC) $(CFLAGS) -c webSocketServer.c 
+	$(CC) $(INCL) $(CFLAGS) -c webSocketServer.c 
 
 DEVwebSocketServer.o: webSocketServer.c webSocketServer.h Includes.h message.h
-	$(CC) $(CFLAGS) -D DEV -c webSocketServer.c 
+	$(CC) $(INCL) $(CFLAGS) -D DEV -c webSocketServer.c 
 
 message.o: message.c message.h Includes.h 
-	$(CC) $(CLFAGS) -c message.c
+	$(CC) $(INCL) $(CLFAGS) -c message.c

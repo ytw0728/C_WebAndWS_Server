@@ -21,12 +21,9 @@ const char * packet_to_json(struct packet p)
 	const char *ptr;
 	int major_code = p.major_code;
 	int minor_code = p.minor_code;
-
-	// json_object * obj = json_object_new_object();
+	
 	struct json_object * pobj = json_object_new_object();
-	struct json_object * uobj;
-
-	struct json_object * aobj, *robj;
+	struct json_object * uobj , * aobj, * robj;
 
 	uobj = aobj = robj = NULL;
 
@@ -87,7 +84,6 @@ const char * packet_to_json(struct packet p)
 
 
 			// json_object_object_add( pobj, "ptr", obj);
-			free( uobj );
 		}
 		else if(minor_code == 4){ // 04
 			serverLog(WSSERVER, LOG, "04제한 시간 정보(그림 그리는 사람)\n", "");
@@ -295,16 +291,21 @@ const char * packet_to_json(struct packet p)
 	
 
 	ptr = json_object_to_json_string(pobj);
-	// free(obj);
-	free(pobj);
+	
 	if( aobj ){
 		int i;
 		for(i = 0; i < json_object_array_length(aobj); i++)
-				free(json_object_array_get_idx(aobj, i));
-		free(aobj);
+				json_object_put(json_object_array_get_idx(aobj, i));
+		json_object_put(aobj);
 	}	
-	if( uobj ) free(uobj);
-	if( robj ) free(robj);
+	if( uobj ) json_object_put(uobj);
+	if( robj ) json_object_put(robj);
+
+	if( pobj ){
+		// printf(" \n\n\n\n\n pobj is not null \n\n\n\n");
+		// json_object_put(pobj);
+	}
+	
 
 	aobj = pobj = uobj= robj = NULL;
 
@@ -327,6 +328,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 	uobj = jbuf = obj = NULL;
 
 	obj = json_tokener_parse(json_string); //read json
+
 
 	///*
 	//serverLog(WSSERVER, LOG, "json string : %s\n", json_object_to_json_string(jobj));//deb, ""ug
@@ -381,8 +383,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 
 			json_object_object_get_ex(obj, "room_id", &jbuf);
 			((CHAT_DATA *)(p->ptr))->room_id = json_object_get_int(jbuf);
-			
-			free(uobj);			
+		
 		}
 		else if(minor_code == 2){ // 02
 			serverLog(WSSERVER, LOG, "02게임 시작 요청(호스트)\n", "");		
@@ -694,9 +695,21 @@ int json_to_packet(const char * json_string, struct packet * p)
 		}
 	}*/
 
-	if( uobj ) free( uobj);
-	if( jbuf ) free(jbuf);	
-	if( obj ) free(obj);	
+	
+	
+	
+	if( uobj ){
+		json_object_put(uobj);
+		// free(uobj);
+	} 
+	if( jbuf ){
+		json_object_put(jbuf);
+		// free(jbuf);	
+	} 
+	if( obj ){
+		json_object_put(obj);
+		// free(obj);	
+	}
 	
 	uobj = jbuf = obj = NULL;
 	// free(jobj);

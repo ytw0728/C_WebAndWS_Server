@@ -99,10 +99,9 @@ class StatusManager{
 		}
 	}
 
-	refreshRoomLish(event){
+	refreshRoomList(event){
 		event.preventDefault();
-		
-		// reset with  ws.send
+		waiting.showList();
 	}
 // waiting room
 	userPopHandle(jsonObject){
@@ -200,6 +199,18 @@ class StatusManager{
 // app
 	enterGameRoom(event){
 		if( event != null ) event.preventDefault();
+		let json = { // 12
+			major_code : 1,
+			minor_code : 2,
+			room_id : ROOM_ID
+		}
+
+		let msg = JSON.stringify(json);
+
+		ws.send(msg);
+	}
+	enterGameRoomResponse(jsonObject){
+		console.log("enter Game : " + jsonObject);
 		waiting.hideAll();
 		app.showAll();
 
