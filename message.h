@@ -91,6 +91,7 @@ typedef struct drawing_data{ //00 그림 데이터
 	char color[COLOR_SIZE+1];
 	int px;
 	int room_id;
+	int success;
 }DRAW_DATA;
 
 typedef struct chat_data{ //01 채팅 데이터
@@ -98,6 +99,7 @@ typedef struct chat_data{ //01 채팅 데이터
 	User from;
 	char timestamp[CHAT_SIZE+1];
 	int room_id;
+	int success;
 }CHAT_DATA;
 
 typedef struct start_drawing_msg{ //02 그리기 시작 요청
