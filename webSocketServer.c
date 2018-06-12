@@ -236,7 +236,7 @@ void umask_setting(char *data,int len,char *mask){
 }
 
 int send_frame_head(int fd,frame_head* head){
-	unsigned char *response_head;
+	unsigned char *response_head = NULL;
 	int head_length = 0;
 	if(head->payload_length<126){
 		response_head = (char*)malloc(2);
@@ -274,7 +274,10 @@ int send_frame_head(int fd,frame_head* head){
 		return -1;
 	}
 
-	free(response_head);
+	if(response_head){
+		free(response_head);
+		response_head = NULL;
+	}
 	return 0;
 }
 
@@ -343,6 +346,7 @@ void *WSconnect(void* args){
 		frame_head sendHead = recvHead;
 
 		struct packet p;
+		memset(&p, 0x00, sizeof(struct packet));
 		json_to_packet(payload_data, &p);
 
 		if( p.major_code == 0 ){
@@ -387,8 +391,10 @@ void *WSconnect(void* args){
 			}
 		}
 
-		if( p.ptr ) free(p.ptr);
-		p.ptr = NULL;
+		if( p.ptr ){
+			free(p.ptr);
+			p.ptr = NULL;
+		}
 	}
 
 	deleteUser(client);
@@ -539,7 +545,7 @@ MYSQL_RES * db_query(char *query, client_data * client , int type ){
 
 // db truncateDB
 int truncateDB(){
-	MYSQL_RES * res;
+	MYSQL_RES * res = NULL;
 	if( ( res = db_query((char*)"delete from `playerlist` where true", NULL, NONSELECT) ) == -1 ){
 		serverLog(WSSERVER,ERROR, "truncateDB error", "DELETE PLAYERLIST" );
 		return -1;
@@ -583,7 +589,10 @@ int truncateDB(){
 		serverLog(WSSERVER,ERROR, "truncateDB error", "alter playerlist" );
 		return -1;
 	}
-	if( res ) mysql_free_result(res);
+	if( res ){
+		mysql_free_result(res);
+		res = NULL;
+	}
 
 	int i = 0;
 	for( ; i < 20 ; i++){
@@ -618,16 +627,17 @@ int truncateDB(){
 void deleteUser(client_data * client){
 	char queryBuffer[QUERY_SIZE];
 	sprintf(queryBuffer, "select * from `users` where fd = %d", client->fd);
-	MYSQL_RES * result = db_query(queryBuffer, client, SELECT);
+	MYSQL_RES * result = NULL;
+	result = db_query(queryBuffer, client, SELECT);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "delete user failed","after db query(select)");
 		return;
 	}
 
-	MYSQL_ROW row;
+	MYSQL_ROW row = NULL;
 	row = mysql_fetch_row(result);
 	
-	if( row[0] == NULL ) return;
+	if( row == NULL ) return;
 
 	int uid = atoi(row[0]);
 	char nickname[NICKNAME_SIZE + 1];
@@ -654,6 +664,7 @@ void deleteUser(client_data * client){
 		sendHead.opcode = 0x1;
 
 		struct packet p;
+		memset(&p, 0x00, sizeof(struct packet));
 		p.major_code = 1;
 		p.minor_code = 6;
 		p.ptr = (REQUEST_EXIT_ROOM*)malloc(sizeof(REQUEST_EXIT_ROOM));
@@ -679,6 +690,7 @@ void deleteUser(client_data * client){
 
 
 	sprintf(queryBuffer, "delete from `users` where fd = %d", client->fd );
+	result = NULL;
 	result = db_query(queryBuffer, client, NONSELECT);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "delete user failed","after db query(delete)");
@@ -693,7 +705,9 @@ void deleteUser(client_data * client){
 int userAdd(client_data * client, frame_head * sendHead, struct packet * p){
 	char queryBuffer[QUERY_SIZE];
 	sprintf(queryBuffer, "insert into `users` values(0, \'%s\',0,%d)", ((REQUEST_NICKNAME_REGISTER *)(p->ptr))->nickname, client->fd );
-	MYSQL_RES * result = db_query(queryBuffer, client, NONSELECT);
+	MYSQL_RES * result = NULL;
+	result = db_query(queryBuffer, client, NONSELECT);
+	
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "user Add failed","after db query(insert)");
 		goto USERADDFAIL;
@@ -704,6 +718,7 @@ int userAdd(client_data * client, frame_head * sendHead, struct packet * p){
 	}
 
 	sprintf(queryBuffer, "select * from `users` where fd = %d", client->fd);
+	result = NULL;
 	result = db_query(queryBuffer, client, SELECT);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "user Add failed","after db query(select)");
@@ -711,9 +726,11 @@ int userAdd(client_data * client, frame_head * sendHead, struct packet * p){
 	}
 
 	MYSQL_ROW row;
+	memset(&row, 0x00, sizeof(MYSQL_ROW));
 	row = mysql_fetch_row( result );
 
 	struct packet sendPacket;
+	memset(&sendPacket, 0x00, sizeof(sendPacket));
 	sendPacket.major_code = 3;
 	sendPacket.minor_code = 0;
 	sendPacket.ptr = (RESPONSE_REGISTER*)malloc(sizeof(RESPONSE_REGISTER));
@@ -725,9 +742,11 @@ int userAdd(client_data * client, frame_head * sendHead, struct packet * p){
 
 	if( result ){
 		mysql_free_result(result);	
+		result = NULL;
 	} 
 
-	const char * contents = packet_to_json(sendPacket);
+	const char * contents = NULL;
+	contents = packet_to_json(sendPacket);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
 	send_frame_head(client->fd, sendHead);
@@ -738,22 +757,29 @@ int userAdd(client_data * client, frame_head * sendHead, struct packet * p){
 	}
 
 
-	free(sendPacket.ptr);
-	free((char*)contents);	
-	sendPacket.ptr = NULL;
-	contents = NULL;
-
+	if(sendPacket.ptr){
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
+	if(contents){
+		free((char*)contents);	
+		contents = NULL;
+	}
 	return 0;
 
 USERADDFAIL:
-	sendPacket;
+	memset(&sendPacket, 0x00, sizeof(sendPacket));
 	sendPacket.major_code = 3;
 	sendPacket.minor_code = 0;
-	if( sendPacket.ptr ) free(sendPacket.ptr);
+	if( sendPacket.ptr ) {
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
 	sendPacket.ptr = (RESPONSE_REGISTER*)malloc(sizeof(RESPONSE_REGISTER));
 
 	((RESPONSE_REGISTER*)(sendPacket.ptr))->success = 0;
 
+	contents = NULL;
 	contents = packet_to_json(sendPacket);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	size = sendHead->payload_length = strlen(contents);
@@ -762,13 +788,18 @@ USERADDFAIL:
 	if( write( client->fd, contents, size) <= 0 ){
 		serverLog(WSSERVER, ERROR, "user Add failed","packet with failure sending error");
 	}
-
-	free(sendPacket.ptr);
-	free((char*)contents);
-	sendPacket.ptr = NULL;
-	contents = NULL;
+	
+	if(sendPacket.ptr){
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
+	if(contents){
+		free((char*)contents);	
+		contents = NULL;
+	}
 	if( result ){
 		mysql_free_result(result);	
+		result = NULL;
 	} 
 	return 1;
 }
@@ -776,22 +807,26 @@ USERADDFAIL:
 int setScore(client_data * client, frame_head * sendHead, struct packet * p){ 
 	char queryBuffer[QUERY_SIZE];
 	sprintf(queryBuffer, "update `users` set `score`= %d where fd = %d", ((REQUEST_SET_SCORE *)(p->ptr))->score, client->fd );
-	MYSQL_RES * result = db_query(queryBuffer, client, NONSELECT);
+	MYSQL_RES * result = NULL;
+	result = db_query(queryBuffer, client, NONSELECT);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "score set failed","after db query(update)");
 		goto SETSCOREFAIL;
 	}
 	if( result ){
 		mysql_free_result(result);	
+		result = NULL;
 	} 
 
 	struct packet sendPacket;
+	memset(&sendPacket, 0x00, sizeof(struct packet));
 	sendPacket.major_code = 3;
 	sendPacket.minor_code = 1;
 	sendPacket.ptr = (RESPONSE_SET_SCORE*)malloc(sizeof(RESPONSE_SET_SCORE));
 	((RESPONSE_SET_SCORE*)(sendPacket.ptr))->success = 1;
 
-	const char * contents = packet_to_json(sendPacket);
+	const char * contents = NULL; 
+	contents = packet_to_json(sendPacket);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
 	send_frame_head(client->fd, sendHead);
@@ -801,22 +836,29 @@ int setScore(client_data * client, frame_head * sendHead, struct packet * p){
 		goto SETSCOREFAIL;
 	}
 
-	free(sendPacket.ptr);
-	free((char*)contents);
-	sendPacket.ptr = NULL;
-	contents = NULL;
-
+	if(sendPacket.ptr){
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
+	if(contents){
+		free((char*)contents);	
+		contents = NULL;
+	}
 	return 0;
 
 
 SETSCOREFAIL:
-	sendPacket;
+	memset(&sendPacket, 0x00, sizeof(struct packet));
 	sendPacket.major_code = 3;
 	sendPacket.minor_code = 1;
-	if( sendPacket.ptr ) free(sendPacket.ptr);
+	if( sendPacket.ptr ) {
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
 	sendPacket.ptr = (RESPONSE_SET_SCORE*)malloc(sizeof(RESPONSE_SET_SCORE));
 	((RESPONSE_SET_SCORE*)(sendPacket.ptr))->success = 0;
 
+	contents = NULL;
 	contents = packet_to_json(sendPacket);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	size = sendHead->payload_length = strlen(contents);
@@ -826,12 +868,17 @@ SETSCOREFAIL:
 		serverLog(WSSERVER, ERROR, "score set failed","packet with failure sending error");
 	}
 
-	free(sendPacket.ptr);
-	free((char*)contents);
-	sendPacket.ptr = NULL;
-	contents = NULL;
+	if(sendPacket.ptr){
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
+	if(contents){
+		free((char*)contents);	
+		contents = NULL;
+	}
 	if( result ){
-		mysql_free_result(result);	
+		mysql_free_result(result);
+		result = NULL;
 	} 
 	return 1;
 }
