@@ -1976,7 +1976,7 @@ int startDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 	return 0;
 
 
-	STARTDRAWINGFAIL:
+STARTDRAWINGFAIL:
 	sendPacket.major_code = 0;
 	sendPacket.minor_code = 2;
 	if( sendPacket.ptr ) free(sendPacket.ptr);
@@ -2076,7 +2076,7 @@ int endDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 	}
 	return 0;
 
-	ENDDRAWINGFAIL:
+ENDDRAWINGFAIL:
 	sendPacket.major_code = 0;
 	sendPacket.minor_code = 3;
 	if( sendPacket.ptr ) free(sendPacket.ptr);
@@ -2100,9 +2100,8 @@ int endDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 	if( result ){
 		mysql_free_result(result);
 	}
+
 	return 1;
-
-
 }
 
 int shareTime(client_data *client, frame_head * sendHead, struct packet * p){
@@ -2119,7 +2118,7 @@ int shareTime(client_data *client, frame_head * sendHead, struct packet * p){
 	result = db_query(queryBuffer, client, SELECT);
 	if( result == -1){
 		serverLog(WSSERVER,ERROR, "shareTime error","after db query(select)");
-		goto ENDDRAWINGFAIL;
+		goto TIMESHAREFAIL;
 	}
 
 	int idx =0;
@@ -2177,9 +2176,10 @@ int shareTime(client_data *client, frame_head * sendHead, struct packet * p){
 		free((char*)contents);
 		contents = NULL;
 	}
+
 	return 0;
 
-	TIMESHAREFAIL:
+TIMESHAREFAIL:
 	sendPacket.major_code = 0;
 	sendPacket.minor_code = 4;
 	if( sendPacket.ptr ) free(sendPacket.ptr);
@@ -2203,7 +2203,6 @@ int shareTime(client_data *client, frame_head * sendHead, struct packet * p){
 	if( result ){
 		mysql_free_result(result);
 	}
+	
 	return 1;
-
-
 }
