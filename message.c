@@ -63,12 +63,17 @@ const char * packet_to_json(struct packet p)
 		}
 		else if(minor_code == 2){ // 02
 			serverLog(WSSERVER, LOG, "02게임 시작 요청(호스트)\n", "");
-			json_object_object_add(pobj, "room_id", json_object_new_int( ((REQUEST_DRAWING_START*)(p.ptr))->room_id ) );
-			
-			uobj = json_object_new_object();
-				json_object_object_add( uobj, "uid", json_object_new_int( ((REQUEST_DRAWING_START*)(p.ptr))->from.uid ));
-				json_object_object_add( uobj, "nickname", json_object_new_string( ((REQUEST_DRAWING_START*)(p.ptr))->from.nickname ));
-			json_object_object_add(pobj, "from", uobj);
+			json_object_object_add(pobj, "success", json_object_new_int( ((REQUEST_DRAWING_START*)(p.ptr))->success ) );
+			if(((REQUEST_DRAWING_START*)(p.ptr))->success) {
+				json_object_object_add(pobj, "room_id",
+									   json_object_new_int(((REQUEST_DRAWING_START *) (p.ptr))->room_id));
+
+				uobj = json_object_new_object();
+				json_object_object_add(uobj, "uid", json_object_new_int(((REQUEST_DRAWING_START *) (p.ptr))->from.uid));
+				json_object_object_add(uobj, "nickname",
+									   json_object_new_string(((REQUEST_DRAWING_START *) (p.ptr))->from.nickname));
+				json_object_object_add(pobj, "from", uobj);
+			}
 
 
 			// json_object_object_add( pobj, "ptr", obj);
@@ -76,12 +81,17 @@ const char * packet_to_json(struct packet p)
 		}
 		else if(minor_code == 3){ // 03
 			serverLog(WSSERVER, LOG, "03게임 종료 요청(그림 그리는 사람)\n", "");
-			json_object_object_add(pobj, "room_id", json_object_new_int( ((REQUEST_DRAWING_END*)(p.ptr))->room_id ) );
-			
-			uobj = json_object_new_object();
-				json_object_object_add( uobj, "uid", json_object_new_int( ((REQUEST_DRAWING_END*)(p.ptr))->from.uid ));
-				json_object_object_add( uobj, "nickname", json_object_new_string( ((REQUEST_DRAWING_END*)(p.ptr))->from.nickname ));
-			json_object_object_add(pobj, "from", uobj);
+			json_object_object_add(pobj, "success", json_object_new_int( ((REQUEST_DRAWING_END*)(p.ptr))->success ) );
+			if(((REQUEST_DRAWING_END*)(p.ptr))->success) {
+				json_object_object_add(pobj, "room_id",
+									   json_object_new_int(((REQUEST_DRAWING_END *) (p.ptr))->room_id));
+
+				uobj = json_object_new_object();
+				json_object_object_add(uobj, "uid", json_object_new_int(((REQUEST_DRAWING_END *) (p.ptr))->from.uid));
+				json_object_object_add(uobj, "nickname",
+									   json_object_new_string(((REQUEST_DRAWING_END *) (p.ptr))->from.nickname));
+				json_object_object_add(pobj, "from", uobj);
+			}
 
 
 			// json_object_object_add( pobj, "ptr", obj);
