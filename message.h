@@ -91,6 +91,7 @@ typedef struct drawing_data{ //00 그림 데이터
 	char color[COLOR_SIZE+1];
 	int px;
 	int room_id;
+	int success;
 }DRAW_DATA;
 
 typedef struct chat_data{ //01 채팅 데이터

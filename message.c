@@ -35,28 +35,34 @@ const char * packet_to_json(struct packet p)
 		if(minor_code == 0){ // 00
 			serverLog(WSSERVER, LOG, "00그림 그리기\n", "");
 
-			json_object_object_add(pobj, "prevX", json_object_new_int(((DRAW_DATA *)(p.ptr))->prevX));
-			json_object_object_add(pobj, "prevY", json_object_new_int(((DRAW_DATA *)(p.ptr))->prevY));
-			json_object_object_add(pobj, "x", json_object_new_int(((DRAW_DATA *)(p.ptr))->x));
-			json_object_object_add(pobj, "y", json_object_new_int(((DRAW_DATA *)(p.ptr))->y));
-			json_object_object_add(pobj, "color", json_object_new_string(((DRAW_DATA *)(p.ptr))->color));
-			json_object_object_add(pobj, "px", json_object_new_int(((DRAW_DATA *)(p.ptr))->px));
-			json_object_object_add(pobj,"room_id", json_object_new_int(((DRAW_DATA *)(p.ptr))->room_id));
-			
+			json_object_object_add(pobj, "success", json_object_new_int(((DRAW_DATA *)(p.ptr))->success));
+			if( ((DRAW_DATA *)(p.ptr))->success ){
+				json_object_object_add(pobj, "prevX", json_object_new_int(((DRAW_DATA *)(p.ptr))->prevX));
+				json_object_object_add(pobj, "prevY", json_object_new_int(((DRAW_DATA *)(p.ptr))->prevY));
+				json_object_object_add(pobj, "x", json_object_new_int(((DRAW_DATA *)(p.ptr))->x));
+				json_object_object_add(pobj, "y", json_object_new_int(((DRAW_DATA *)(p.ptr))->y));
+				json_object_object_add(pobj, "color", json_object_new_string(((DRAW_DATA *)(p.ptr))->color));
+				json_object_object_add(pobj, "px", json_object_new_int(((DRAW_DATA *)(p.ptr))->px));
+				json_object_object_add(pobj,"room_id", json_object_new_int(((DRAW_DATA *)(p.ptr))->room_id));
+			}
 
 			// json_object_object_add(pobj, "ptr", obj);
 		}
 		else if(minor_code == 1){ // 01
 			serverLog(WSSERVER, LOG, "01채팅 보내기\n", "");
-
-			json_object_object_add(pobj, "msg", json_object_new_string(((CHAT_DATA *)(p.ptr))->msg));
+			json_object_object_add(pobj,"success", json_object_new_int(((CHAT_DATA *)(p.ptr))->success));
 			
-			uobj = json_object_new_object();
-				json_object_object_add(uobj, "uid", json_object_new_int(((CHAT_DATA *)(p.ptr))->from.uid));
-				json_object_object_add(uobj, "nickname", json_object_new_string(((CHAT_DATA *)(p.ptr))->from.nickname));
-			json_object_object_add(pobj, "from", uobj);
-			json_object_object_add(pobj,"room_id", json_object_new_int(((CHAT_DATA *)(p.ptr))->room_id));
-			json_object_object_add(pobj, "timestamp", json_object_new_string(((CHAT_DATA *)(p.ptr))->timestamp));
+
+			if( ((CHAT_DATA *)(p.ptr))->success ){
+				json_object_object_add(pobj, "msg", json_object_new_string(((CHAT_DATA *)(p.ptr))->msg));
+				uobj = json_object_new_object();
+					json_object_object_add(uobj, "uid", json_object_new_int(((CHAT_DATA *)(p.ptr))->from.uid));
+					json_object_object_add(uobj, "nickname", json_object_new_string(((CHAT_DATA *)(p.ptr))->from.nickname));
+				json_object_object_add(pobj, "from", uobj);
+				json_object_object_add(pobj,"room_id", json_object_new_int(((CHAT_DATA *)(p.ptr))->room_id));
+				json_object_object_add(pobj, "timestamp", json_object_new_string(((CHAT_DATA *)(p.ptr))->timestamp));
+			}
+
 			// json_object_object_add(pobj, "ptr", obj);
 
 		}
@@ -365,6 +371,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 	if(major_code == 0){ //echo
 		if(minor_code == 0){	// 00
 			serverLog(WSSERVER, LOG, "00그림 그리기\n", "");
+			serverLog(WSSERVER, LOG, (char *)json_string , "sended");//debug
 			p->ptr = (void *)((DRAW_DATA *)malloc(sizeof(DRAW_DATA)));
 
 			json_object_object_get_ex(obj, "prevX", &jbuf);
@@ -379,6 +386,9 @@ int json_to_packet(const char * json_string, struct packet * p)
 			strcpy( ((DRAW_DATA *)(p->ptr))->color, json_object_get_string(jbuf));
 			json_object_object_get_ex(obj, "px", &jbuf);
 			((DRAW_DATA *)(p->ptr))->px = json_object_get_int(jbuf);
+			json_object_object_get_ex(obj, "room_id", &jbuf);
+			((DRAW_DATA *)(p->ptr))->room_id = json_object_get_int(jbuf);
+			((DRAW_DATA *)(p->ptr))->success = 0;
 
 		}
 		else if(minor_code == 1){  // 01
@@ -400,6 +410,7 @@ int json_to_packet(const char * json_string, struct packet * p)
 
 			json_object_object_get_ex(obj, "room_id", &jbuf);
 			((CHAT_DATA *)(p->ptr))->room_id = json_object_get_int(jbuf);
+			((CHAT_DATA *)(p->ptr))->success = 0;
 		
 		}
 		else if(minor_code == 2){ // 02

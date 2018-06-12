@@ -551,7 +551,7 @@ class Chatting{
 		event.preventDefault();
 		let box = document.getElementById("chatInput");
 		if( box.value == "" ) return;		
-		let jsonObject = {
+		let jsonObject = { // 01
 			major_code : 0,
 			minor_code : 1,
 			msg : box.value,
@@ -724,13 +724,16 @@ class Draw{
   	}
   	sendDrawingPoint(){
   		if( !isPainter ) return;
-  		let jsonObject = {
+  		let jsonObject = { // 00
+  			major_code : 0,
+  			minor_code : 0,
   			prevX : this.prevX,
   			prevY : this.prevY,
   			x : this.x,
   			y : this.y,
   			color : this.color,
-  			px : this.px
+  			px : this.px,
+  			room_id : ROOM_ID
   		}
   		let msg = JSON.stringify(jsonObject);
   		ws.send(msg);
