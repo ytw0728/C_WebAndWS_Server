@@ -1777,7 +1777,7 @@ ENTERGAMEROOMFAIL:
 int drawingPoint(client_data * client, frame_head * sendHead, struct packet * p){
 	// struct packet sendPacket = *p;
 	/*todo
-	  프론트가 room id를 보내줘야함
+	  클라이언트에게 그림데이터 재전송까지 함
 	 */
 	
 	char logbuf[QUERY_SIZE]; //debug
@@ -1787,9 +1787,9 @@ int drawingPoint(client_data * client, frame_head * sendHead, struct packet * p)
 			     "from users "
 			     "left join playerlist "
 			     "on playerlist.room_id = %d "
-			     "where playerlist.user_id = users.id;", room_id);
+			     "where playerlist.user_id = users.id", room_id);
 	MYSQL_RES * result = NULL;
-	result = db_query(queryBuffer, client, NONSELECT);
+	result = db_query(queryBuffer, client, SELECT);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "sending drawing data fail", "after db query(draw)");
 		goto DRAWDATAFAIL;
@@ -1797,23 +1797,23 @@ int drawingPoint(client_data * client, frame_head * sendHead, struct packet * p)
 	
 	MYSQL_ROW row;
 	memset(&row, 0x00, sizeof(MYSQL_ROW));
+
 	int idx = 0;
 	int fdList[MAX_USER+1];
-	serverLog(WSSERVER, LOG, "fetch error?", "");//debug
-	while( (row = mysql_fetch_row(result)) ){
-		serverLog(WSSERVER, LOG, "=> NO", "");//debug
-		serverLog(WSSERVER, LOG, "row error?", "");//debug
+	
+//	serverLog(WSSERVER, LOG, "fetch error?", "");//debug
+	while( (row = mysql_fetch_row(result)) && (idx < MAX_USER)){
 		if( row[0] == NULL ) break;
-		serverLog(WSSERVER, LOG, "=> NO", "");//debug
 		fdList[idx] = atoi(row[0]);
 		idx++;
 	}
+	//serverLog(WSSERVER, LOG, "=> NO", "");//debug
 	
 	((DRAW_DATA*)(p->ptr))->success = 1;
 	const char * contents = NULL;
-	serverLog(WSSERVER, LOG, "packetjson trolling?", "");//debug
+	//serverLog(WSSERVER, LOG, "packetjson trolling?", "");//debug
 	contents = packet_to_json(*p);
-	serverLog(WSSERVER, LOG, "=>NO", "");//debug
+	//serverLog(WSSERVER, LOG, "=>NO", "");//debug
 
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
@@ -1915,7 +1915,6 @@ int startDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 	if( result == -1){
 		serverLog(WSSERVER,ERROR, "startDrawing error","after db query(select)");
 		goto STARTDRAWINGFAIL;
-
 	}
 
 	int idx =0;
