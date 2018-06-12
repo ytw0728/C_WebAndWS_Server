@@ -730,7 +730,8 @@ class Draw{
   			x : this.x,
   			y : this.y,
   			color : this.color,
-  			px : this.px
+  			px : this.px,
+  			room_id : ROOM_ID
   		}
   		let msg = JSON.stringify(jsonObject);
   		ws.send(msg);
