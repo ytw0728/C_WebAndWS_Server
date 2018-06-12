@@ -4,7 +4,7 @@ let NICKNAME = null; // user nickname
 let ROOM_ID = null; // room_id 
 let SCORE = 0; // SCORE
 let isPainter = true; // which now client is painter.
-
+let painterUID = null;
 
 let ws;
 let chat;
@@ -107,7 +107,7 @@ class StatusManager{
 	userPopHandle(jsonObject){
 		waiting.popMember(jsonObject);
 		if( jsonObject.room.num == 1 && status > 1){
-			app.switchToWaiting();			
+			app.switchToWaiting();
 		}
 	}
 	enterRoom(event){
@@ -117,12 +117,13 @@ class StatusManager{
 		if( !target.hasAttribute("data-room_id") ) target = target.parentNode
 		let roomid = target.getAttribute("data-room_id");
 
-		let json = {
+		let json = { // 11
 			major_code : 1,
 			minor_code : 1,
 			from : {
 				uid: UID,
-				nickname : NICKNAME
+				nickname : NICKNAME,
+				score : SCORE
 			},
 			room_id : roomid
 		}
@@ -202,7 +203,11 @@ class StatusManager{
 		let json = { // 12
 			major_code : 1,
 			minor_code : 2,
-			room_id : ROOM_ID
+			room_id : ROOM_ID,
+			from : {
+				uid : UID,
+				nickname : NICKNAME
+			}
 		}
 
 		let msg = JSON.stringify(json);
@@ -210,11 +215,28 @@ class StatusManager{
 		ws.send(msg);
 	}
 	enterGameRoomResponse(jsonObject){
-		console.log("enter Game : " + jsonObject);
+		painterUID = jsonObject.painter.uid;
+
+		if( jsonObject.painter.uid == UID ) isPainter = true;
+		else isPainter = false;
+
+
+
+		notice.showAnswerLen(jsonObject);
 		waiting.hideAll();
 		app.showAll();
 
 		status = 2;
+	}
+
+	setAnswer(jsonObject){
+		if( jsonObject.success ){
+			notice.showAnswer();
+			app.startGame(jsonObject);
+		}
+		else{
+			alert("게임 시작에 실패했습니다.");
+		}
 	}
 	exitGameRoom(event){
 		if( event != null ) event.preventDefault();
@@ -257,6 +279,7 @@ class NickNameInput{
 
 class Waiting{
 	constructor(){
+		this.members = new Array();
 		this.waiting = document.getElementById("waiting");
 
 		this.roomLists = document.getElementsByClassName("roomLists")[0];
@@ -265,6 +288,9 @@ class Waiting{
 
 		this.waitingRoom = document.getElementsByClassName("waitingRoom")[0];
 		this.waitingMembers = document.getElementsByClassName("waitingMembers")[0];
+
+
+		this.gameMembers = document.getElementsByClassName("users")[0];
 
 		this.nowPage = 0;
 	}
@@ -311,8 +337,12 @@ class Waiting{
 	}
 
 	userNodeAddToList(){
+		this.hideList();
 		if( this.members == undefined || this.members == null ) return;
 		this.waitingMembers.innerHTML = null;
+		this.gameMembers.innerHTML = null;
+
+
 		for( let i = 0 ; i < this.members.length;i++){
 			let node = document.createElement("li");
 			node.className = "members";
@@ -324,6 +354,12 @@ class Waiting{
 
 			node.append(nickname);
 			this.waitingMembers.append(node);
+
+			let node2 = document.createElement("li");
+			node2.className = "user " + this.members[i].uid == painterUID ? "painter" : "";
+			this.gameMembers.append(node2);
+
+			console.log(this.members);
 		}
 	}
 
@@ -345,6 +381,7 @@ class Waiting{
 	}
 
 	roomNodeAddToList(){
+		this.hideWaitingRoom();
 		if( this.room == undefined || this.room == null ) return;
 		this.ul.innerHTML  = null;
 		let cnt = 0;
@@ -355,7 +392,7 @@ class Waiting{
 		for( let i = since; i < until; i++){
 			let node = document.createElement("li");
 			node.className = "room " + (this.room[i].state == 0 ? "" : "ongame");
-			node.addEventListener("click", statusManager.enterRoom,false);
+			node.addEventListener("click", statusManager.enterRoom, false);
 			node.setAttribute("data-room_id", this.room[i].id);
 
 			let roomID = document.createElement("span");
@@ -379,7 +416,10 @@ class Waiting{
 			this.ul.append(node);
 		}
 	}
-
+	insertMember(jsonObject){
+		this.members.push( { uid : jsonObject.user.uid, nickname : jsonObject.user.nickname, score : jsonObject.user.score } );
+		this.userNodeAddToList();
+	}
 	popMember(jsonObject){
 		for( let i = 0 ; i < this.members.length;i ++){
 			if( this.members[i].uid == jsonObject.user.uid ){
@@ -387,6 +427,7 @@ class Waiting{
 				break;
 			}
 		}
+		this.userNodeAddToList();
 	}
 }
 
@@ -417,6 +458,10 @@ class App{
 		waiting.userNodeAddToList();
 		status = 1;
 	}
+
+	startGame(jsonObject){
+
+	}
 }
 
 class Notice{
@@ -429,6 +474,9 @@ class Notice{
 		for( let i = 0 ; i < jsonObject.answerLen; i++){
 			this.answer.innerHTML += "_ ";
 		}
+	}
+	showAnswer(jsonObject){
+		this.answer.innerHTML = jsonObject.answer;
 	}
 }
 
@@ -728,34 +776,37 @@ class Websocket{
 
 			if( jsonObject.major_code == 0 ){
 				switch( jsonObject.minor_code ){
-					case 0:
+					case 0: // 00
 						draw.drawWithJson(jsonObject);
 						return;
-					case 1:
+					case 1: // 01
 						chat.addMsg(jsonObject);
 						return;
-					case 2:
+					case 2: // 02
 						return;
-					case 3:
+					case 3: // 03
 						return;
 					default : console.log("undefined msg");return;
 				}
 			}
 			else if( jsonObject.major_code == 2){
 				switch( jsonObject.minor_code ){
-					case 0 :
+					case 0 : // 20
 						waiting.roomListSet(jsonObject);
 						return;
-					case 1 :
+					case 1 : // 21
 						statusManager.enterRoomResponse(jsonObject);
 						return;
-					case 2 :
+					case 2 : // 22
+						waiting.insertMember(jsonObject);
 						return;
-					case 3 :
-						notice.showAnswerLen(jsonObject);
-						return;		
-
-					case 8 :
+					case 3 : // 23
+						statusManager.enterGameRoomResponse(jsonObject);
+						return;
+					case 4 : // 24
+						statusManager.setAnswer(jsonObject);
+						return;
+					case 8 : // 28
 						statusManager.exitRoomResponse(jsonObject);
 						return;
 
@@ -764,13 +815,13 @@ class Websocket{
 			}
 			else if( jsonObject.major_code == 3){
 				switch(jsonObject.minor_code ){
-					case 0 :
+					case 0 : // 30
 						statusManager.userAddResponse(jsonObject);
 						return;
-					case 1 : 
+					case 1 :  // 31
 						statusManager.setScoreResponse(jsonObject);
 						return;
-					case 2 :
+					case 2 : // 32
 						statusManager.userPopHandle(jsonObject);
 						return;
 					default : console.log("undefined msg "); return;
