@@ -61,7 +61,6 @@ size_t iso8859_1_to_utf8(char *content, size_t max_size)
 }
 
 
-
 int base64_encode(unsigned char *in_str, int in_len, char *out_str){
 	BIO *b64, *bio;
 	BUF_MEM *bptr = NULL;
@@ -888,23 +887,24 @@ SETSCOREFAIL:
 int waitingList(client_data * client, frame_head * sendHead, struct packet * p){
 
 	char queryBuffer[QUERY_SIZE] = 	"select gameroom.id, gameroom.status, gameroom.leader_id, count(playerlist.user_id) from gameroom "
-									"left join playerlist on gameroom.id = playerlist.room_id "
-									"where gameroom.status <> 0 and (gameroom.status/10) < 1";
+					"left join playerlist on gameroom.id = playerlist.room_id "
+					"where gameroom.status <> 0 and (gameroom.status/10) < 1";
 
-
-
-	MYSQL_RES * result =  db_query(queryBuffer, client, SELECT);
+	MYSQL_RES * result = NULL;
+	result = db_query(queryBuffer, client, SELECT);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "get waiting list failed","after db query(select)");
 		goto WAITINGLISTFAIL;
 	}
 
 	struct packet sendPacket;
+	memset(&sendPacket, 0x00, sizeof(struct packet));
 	sendPacket.major_code = 2;
 	sendPacket.minor_code = 0;
 	sendPacket.ptr = (ROOM_LIST_DATA*)malloc(sizeof(ROOM_LIST_DATA));
 
 	MYSQL_ROW row;
+	memset(&row, 0x00, sizeof(MYSQL_ROW));
 	int idx = 0;
 
 	while( (row = mysql_fetch_row(result)) && idx < MAX_ROOM){
@@ -918,11 +918,13 @@ int waitingList(client_data * client, frame_head * sendHead, struct packet * p){
 	}
 	if( result ){
 		mysql_free_result(result);
+		result = NULL;
 	}
 
 	((ROOM_LIST_DATA*)(sendPacket.ptr))->idx = idx;
 	((ROOM_LIST_DATA*)(sendPacket.ptr))->success = 1;
-	const char * contents = packet_to_json(sendPacket);	
+	const char * contents = NULL;
+	contents = packet_to_json(sendPacket);	
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
 	send_frame_head(client->fd, sendHead);
@@ -932,24 +934,32 @@ int waitingList(client_data * client, frame_head * sendHead, struct packet * p){
 		goto WAITINGLISTFAIL;
 	}
 
-
-	free(sendPacket.ptr);
-	free((char*)contents);
-	sendPacket.ptr = NULL;
-	contents = NULL;
+	if(sendPacket.ptr){
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
+	if(contents){
+		free((char*)contents);	
+		contents = NULL;
+	}
 	return 0;
 
 
 
 WAITINGLISTFAIL:
-	sendPacket;
+	memset(&sendPacket, 0x00, sizeof(struct packet));
 	sendPacket.major_code = 2;
 	sendPacket.minor_code = 0;
-	if( sendPacket.ptr ) free( sendPacket.ptr);
+	if( sendPacket.ptr ) {
+		free( sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
 	sendPacket.ptr = (ROOM_LIST_DATA*)malloc(sizeof(ROOM_LIST_DATA));
 	((ROOM_LIST_DATA*)(sendPacket.ptr))->success = 0;
 	((ROOM_LIST_DATA*)(sendPacket.ptr))->idx = 0;
 
+
+	contents = NULL;
 	contents = packet_to_json(sendPacket);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	size = sendHead->payload_length = strlen(contents);
@@ -959,12 +969,17 @@ WAITINGLISTFAIL:
 		serverLog(WSSERVER, ERROR, "get waiting list failed","fail to send error packet");
 	}
 
-	free(sendPacket.ptr);
-	free((char*)contents);
-	sendPacket.ptr = NULL;
-	contents = NULL;
+	if(sendPacket.ptr){
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
+	if(contents){
+		free((char*)contents);	
+		contents = NULL;
+	}
 	if( result ){
-		mysql_free_result(result);	
+		mysql_free_result(result);
+		result = NULL;
 	} 
 	return 1;
 }
@@ -975,27 +990,30 @@ int requestEnterRoom(client_data * client, frame_head * sendHead, struct packet 
 	  room data 갱신 해야함
 	  user data 갱신 해야함
 	 */
-	char logbuffer[QUERY_SIZE];//tmp
+	char logbuffer[QUERY_SIZE];//debug
 	char queryBuffer[QUERY_SIZE];
 	sprintf(queryBuffer, "select gameroom.id, gameroom.status, gameroom.leader_id, count(playerlist.user_id)"
-			"from gameroom "
-			"left join playerlist on gameroom.id = playerlist.room_id "
-			"where gameroom.id = %d && (gameroom.status/10) = 0;", ((REQUEST_ENTER_ROOM *)(p->ptr))->room_id);
+		    	     "from gameroom "
+			     "left join playerlist on gameroom.id = playerlist.room_id "
+			     "where gameroom.id = %d && (gameroom.status/10) = 0;", ((REQUEST_ENTER_ROOM *)(p->ptr))->room_id);
+	serverLog(WSSERVER, LOG, queryBuffer,"enter room");
 
-	MYSQL_RES * result =  db_query(queryBuffer, client, SELECT);
+	MYSQL_RES * result = NULL;
+	result = db_query(queryBuffer, client, SELECT);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "entering waiting room failed","after db query(select)");
 		goto ENTERROOMFAIL;
 	}
 
 	struct packet sendPacket;
+	memset(&sendPacket, 0x00, sizeof(struct packet));
 	sendPacket.major_code = 2; 
 	sendPacket.minor_code = 1; 
 	sendPacket.ptr = (ROOM_DATA*)malloc(sizeof(ROOM_DATA));
-
 	((ROOM_DATA*)(sendPacket.ptr))->success = 1; 
 
 	MYSQL_ROW row; 
+	memset(&row, 0x00, sizeof(row));
 	int idx = 0; 
 
 	while( (row = mysql_fetch_row(result)) ){
@@ -1008,7 +1026,6 @@ int requestEnterRoom(client_data * client, frame_head * sendHead, struct packet 
 	}
 
 	sprintf(logbuffer, "21.success%d room(#%d, %d, %d)", ((ROOM_DATA*)(sendPacket.ptr))->success, ((ROOM_DATA*)(sendPacket.ptr))->room.id, ((ROOM_DATA*)(sendPacket.ptr))->room.status, ((ROOM_DATA*)(sendPacket.ptr))->room.num );//debug
-	serverLog(WSSERVER, LOG, logbuffer,"");
 
 	sprintf(queryBuffer, "select users.id, users.nickname "
 			"from users "
@@ -1017,6 +1034,7 @@ int requestEnterRoom(client_data * client, frame_head * sendHead, struct packet 
 
 	if( result ){
 		mysql_free_result(result);
+		result = NULL;
 	}
 	result =  db_query(queryBuffer, client, SELECT);
 	if( result == -1 ){
@@ -1033,7 +1051,8 @@ int requestEnterRoom(client_data * client, frame_head * sendHead, struct packet 
 	}
 	//((ROOM_DATA*)(sendPacket.ptr))->idx = idx;
 
-	const char * contents = packet_to_json(sendPacket);
+	const char * contents = NULL;
+	contents = packet_to_json(sendPacket);
 
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
@@ -1045,17 +1064,24 @@ int requestEnterRoom(client_data * client, frame_head * sendHead, struct packet 
 		goto ENTERROOMFAIL;
 	}
 
-	free(sendPacket.ptr);
-	free((char*)contents);
-	sendPacket.ptr = NULL;
-	contents = NULL;
+	if(sendPacket.ptr){
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
+	if(contents){
+		free((char*)contents);	
+		contents = NULL;
+	}
 	if( result ){
 		mysql_free_result(result);
+		result = NULL;
 	}
 	return 0;
 
+
+
 ENTERROOMFAIL:
-	sendPacket;
+	memset(&sendPacket, 0x00, sizeof(struct packet));
 	sendPacket.major_code = 2;
 	sendPacket.minor_code = 1;
 	sendPacket.ptr = (ROOM_DATA*)malloc(sizeof(ROOM_DATA));
@@ -1063,6 +1089,7 @@ ENTERROOMFAIL:
 	((ROOM_DATA*)(sendPacket.ptr))->idx = 0;
 
 
+	contents = NULL;
 	contents = packet_to_json(sendPacket);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	size = sendHead->payload_length = strlen(contents);
@@ -1072,34 +1099,43 @@ ENTERROOMFAIL:
 		serverLog(WSSERVER, ERROR, "entering waiting room failed","packet sending error");
 	}
 
-	free(sendPacket.ptr);
-	free((char*)contents);
-	sendPacket.ptr = NULL;
-	contents = NULL;
+	if(sendPacket.ptr){
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
+	if(contents){
+		free((char*)contents);	
+		contents = NULL;
+	}
 	if( result ){
 		mysql_free_result(result);
+		result = NULL;
 	}
-
 	return 1;
 }
 
 int makeRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	char queryBuffer[QUERY_SIZE];
 	sprintf(queryBuffer, "select * from `gameroom` where status = 0");
-	MYSQL_RES * result;
+	MYSQL_RES * result = NULL;
 	result = db_query(queryBuffer, client, SELECT);
 	if( result == -1){
 		serverLog(WSSERVER,ERROR, "makeRoom error","after db query(select)");
 		goto MAKEROOMFAIL;
 	}
 	MYSQL_ROW row;
+	memset(&row, 0x00, sizeof(MYSQL_ROW));
 	row = mysql_fetch_row(result);
 	if( row[0] == NULL ) goto MAKEROOMFAIL; // all rooms are occupied;
 
 	struct packet sendPacket;
+	memset(&sendPacket , 0x0, sizeof(struct packet));
 	sendPacket.major_code = 2;
 	sendPacket.minor_code = 1;
-	if( sendPacket.ptr) free( sendPacket.ptr);
+	if( sendPacket.ptr) {
+		free( sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
 	sendPacket.ptr = (ROOM_DATA*)malloc(sizeof(ROOM_DATA));
 
 	((ROOM_DATA*)(sendPacket.ptr))->room.id = atoi(row[0]);
@@ -1108,7 +1144,6 @@ int makeRoom(client_data * client, frame_head * sendHead, struct packet * p){
 		mysql_free_result(result);	
 		result = NULL;
 	}
-
 
 
 
@@ -1142,6 +1177,7 @@ int makeRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	}
 
 	int idx = 0;
+	memset(&row, 0x00, sizeof(MYSQL_ROW));
 	while( (row = mysql_fetch_row(result)) && idx < MAX_USER){
 		if( row[0] == NULL ) break;
 		((ROOM_DATA*)(sendPacket.ptr))->members[idx].uid = atoi(row[3]);
@@ -1151,13 +1187,14 @@ int makeRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	}
 	if( result ){
 		mysql_free_result(result);
+		result = NULL;
 	}
-
 	((ROOM_DATA*)(sendPacket.ptr))->idx = idx;
 	((ROOM_DATA*)(sendPacket.ptr))->room.num = idx;
 	((ROOM_DATA*)(sendPacket.ptr))->success = 1;
 
-	const char * contents = packet_to_json(sendPacket);
+	const char * contents = NULL;
+	contents = packet_to_json(sendPacket);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
 	send_frame_head(client->fd, sendHead);
@@ -1166,20 +1203,33 @@ int makeRoom(client_data * client, frame_head * sendHead, struct packet * p){
 		serverLog(WSSERVER, ERROR, "failed to make room","packet sending error");
 		goto MAKEROOMFAIL;
 	}
-
-
-	free((char*)contents);
-	free(sendPacket.ptr);
+	
+	if(sendPacket.ptr){
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
+	if(contents){
+		free((char*)contents);	
+		contents = NULL;
+	}
 	return 0;
 
+
+
 MAKEROOMFAIL:
+	memset(&sendPacket, 0x00, sizeof(struct packet));
 	sendPacket.major_code = 2;
 	sendPacket.minor_code = 1;
-	if( sendPacket.ptr) free( sendPacket.ptr);
+	if( sendPacket.ptr) {
+		free( sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
 	sendPacket.ptr = (ROOM_DATA*)malloc(sizeof(ROOM_DATA));
 	((ROOM_DATA*)(sendPacket.ptr))->idx = 0;
 	((ROOM_DATA*)(sendPacket.ptr))->success = 0;
 
+
+	contents = NULL;
 	contents = packet_to_json(sendPacket);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	size = sendHead->payload_length = strlen(contents);
@@ -1189,12 +1239,17 @@ MAKEROOMFAIL:
 		serverLog(WSSERVER, ERROR, "failed to make room","fail to send error packet");
 	}
 
-	free(sendPacket.ptr);
-	free((char*)contents);
-	sendPacket.ptr = NULL;
-	contents = NULL;
+	if(sendPacket.ptr){
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
+	if(contents){
+		free((char*)contents);	
+		contents = NULL;
+	}
 	if( result ){
-		mysql_free_result(result);	
+		mysql_free_result(result);
+		result = NULL;
 	} 
 	return 1;
 }
@@ -1204,9 +1259,11 @@ MAKEROOMFAIL:
 // waiting room
 
 int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
+	
 	char queryBuffer[QUERY_SIZE];
 	sprintf(queryBuffer, "delete from playerlist where room_id = %d and user_id = %d", ((REQUEST_EXIT_ROOM*)(p->ptr))->room_id, ((REQUEST_EXIT_ROOM*)(p->ptr))->from.uid);
-	MYSQL_RES * result = db_query(queryBuffer, client, NONSELECT);
+	MYSQL_RES * result = NULL;
+	result = db_query(queryBuffer, client, NONSELECT);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "exit room fail", "after db query(delete)");
 		goto EXITROOMFAIL;
@@ -1224,7 +1281,8 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	}
 	int number = 0;
 	MYSQL_ROW row;
-	const char * contents;
+	memset(&row, 0x00, sizeof(MYSQL_ROW));
+	const char * contents = NULL;
 	int size;
 	int fd;
 	
@@ -1233,6 +1291,7 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 
 		fd = atoi(row[6]);
 		struct packet tmp;
+		memset(&tmp, 0x00, sizeof(struct packet));
 		tmp.major_code = 3;
 		tmp.minor_code = 2;
 		tmp.ptr = (POP_MEMBER_DATA*)malloc(sizeof(POP_MEMBER_DATA));
@@ -1241,6 +1300,7 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 		((POP_MEMBER_DATA*)(tmp.ptr))->user.uid = ((REQUEST_EXIT_ROOM*)(p->ptr))->from.uid;
 		strcpy( ((POP_MEMBER_DATA*)(tmp.ptr))->user.nickname, ((REQUEST_EXIT_ROOM*)(p->ptr))->from.nickname );
 
+		contents = NULL;
 		contents = packet_to_json(tmp);
 		iso8859_1_to_utf8(contents, strlen(contents));
 		size = sendHead->payload_length = strlen(contents);
@@ -1249,8 +1309,15 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 			serverLog(WSSERVER, ERROR, "failed to make room","packet sending error");
 			goto EXITROOMFAIL;
 		}
-		free(tmp.ptr);
-		tmp.ptr = NULL;
+
+		if(tmp.ptr){
+			free(tmp.ptr);
+			tmp.ptr = NULL;
+		}
+		if(contents){
+			free(contents);
+			contents = NULL;
+		}
 	}
 	if( result ){
 		mysql_free_result(result);
@@ -1290,9 +1357,9 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 		}
 		if( result == 0 ) goto EXITROOMFAIL;
 
+		memset(&row, 0x00, sizeof(MYSQL_ROW));
 		row = mysql_fetch_row(result);
 		int uid = atoi(row[0]);
-
 		if( result ){
 			mysql_free_result(result);
 			result = NULL;
@@ -1317,6 +1384,7 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 			serverLog(WSSERVER, ERROR, "exit room fail", "after db query(select)");
 			goto EXITROOMFAIL;
 		}
+		memset(&row, 0x00, sizeof(MYSQL_ROW));
 		row = mysql_fetch_row(result);
 		if( row[0] == NULL ) goto EXITROOMFAIL;
 
@@ -1340,6 +1408,7 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 				result = NULL;
 			}
 			struct packet tmp;
+			memset(&tmp, 0x00, sizeof(struct packet));
 			tmp.major_code = 3;
 			tmp.minor_code = 3;
 			tmp.ptr = (STATUS_CHANGED*)malloc(sizeof(STATUS_CHANGED));
@@ -1348,6 +1417,7 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 			((STATUS_CHANGED*)(tmp.ptr))->leader.uid = leader_uid;
 			strcpy( ((STATUS_CHANGED*)(tmp.ptr))->leader.nickname, leader_nickname );
 
+			contents = NULL;
 			contents = packet_to_json(tmp);
 			iso8859_1_to_utf8(contents, strlen(contents));
 			size = sendHead->payload_length = strlen(contents);
@@ -1356,8 +1426,11 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 				serverLog(WSSERVER, ERROR, "failed to make room","packet sending error");
 				goto EXITROOMFAIL;
 			}
-			free(tmp.ptr);
-			tmp.ptr = NULL;
+
+			if(tmp.ptr){
+				free(tmp.ptr);
+				tmp.ptr = NULL;
+			}
 		}
 		else{
 			sprintf(queryBuffer, "select * from `gameroom` where id = %d", room_id);
@@ -1366,6 +1439,8 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 				serverLog(WSSERVER, ERROR, "exit room fail", "after db query(select)");
 				goto EXITROOMFAIL;
 			}
+			
+			memset(&row, 0x00, sizeof(MYSQL_ROW));
 			row = mysql_fetch_row(result);
 			if( row[0] == NULL ) goto EXITROOMFAIL;
 
@@ -1389,6 +1464,7 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 				if( row[0] == NULL ) break;
 				int fd = atoi(row[6]);
 				struct packet tmp;
+				memset(&tmp, 0x00, sizeof(struct packet));
 				tmp.major_code = 3;
 				tmp.minor_code = 3;
 				tmp.ptr = (STATUS_CHANGED*)malloc(sizeof(STATUS_CHANGED));
@@ -1399,6 +1475,7 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 				strcpy(((STATUS_CHANGED*)(tmp.ptr))->leader.nickname, leader_nickname);
 
 
+				contents = NULL;
 				contents = packet_to_json(tmp);
 				iso8859_1_to_utf8(contents, strlen(contents));
 				size = sendHead->payload_length = strlen(contents);
@@ -1408,8 +1485,14 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 					goto EXITROOMFAIL;
 				}
 
-				free(tmp.ptr);
-				tmp.ptr = NULL;
+				if(tmp.ptr){
+					free(tmp.ptr);
+					tmp.ptr = NULL;
+				}
+				if(contents){
+					free(contents);
+					contents = NULL;
+				}
 			}
 
 			if( result ){
@@ -1420,22 +1503,27 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	}
 	if( result ){
 		mysql_free_result(result);
+		result = NULL;
 	} 
 
 
 	if( client->fd == -1 ){	 // when triggered by deleteUser
 		if( result ){
 			mysql_free_result(result);
+			result = NULL;
 		} 
 		return 0;
 	}
 
 	struct packet sendPacket;
+	memset(&sendPacket, 0x00, sizeof(struct packet));
 	sendPacket.major_code = 2;
 	sendPacket.minor_code = 8;
 	sendPacket.ptr = (RESPONSE_EXIT*)malloc(sizeof(RESPONSE_EXIT));
 	((RESPONSE_EXIT*)(sendPacket.ptr))->success = 1;
 
+
+	contents = NULL;
 	contents = packet_to_json(sendPacket);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	size = sendHead->payload_length = strlen(contents);
@@ -1444,21 +1532,32 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 		serverLog(WSSERVER, ERROR, "failed to make room","packet sending error");
 		goto EXITROOMFAIL;
 	}
-
-	free(sendPacket.ptr);
-	free((char*)contents);
-	sendPacket.ptr = NULL;
-	contents = NULL;
-
+	
+	if(sendPacket.ptr){
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
+	if(contents){
+		free((char*)contents);	
+		contents = NULL;
+	}
 	return 0;
+
+
+
 EXITROOMFAIL:
+	memset(&sendPacket, 0x00, sizeof(struct packet));
 	sendPacket.major_code = 2;
 	sendPacket.minor_code = 8;
-	if( sendPacket.ptr ) free(sendPacket.ptr);
+	if( sendPacket.ptr ) {
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
 	sendPacket.ptr = (RESPONSE_EXIT*)malloc(sizeof(RESPONSE_EXIT));
 	((RESPONSE_EXIT*)(sendPacket.ptr))->success = 0;
 
 
+	contents = NULL;
 	contents = packet_to_json(sendPacket);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	size = sendHead->payload_length = strlen(contents);
@@ -1468,13 +1567,17 @@ EXITROOMFAIL:
 		goto EXITROOMFAIL;
 	}
 
-	free(sendPacket.ptr);
-	free((char*)contents);
-	sendPacket.ptr = NULL;
-	contents = NULL;
-
+	if(sendPacket.ptr){
+		free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
+	if(contents){
+		free((char*)contents);	
+		contents = NULL;
+	}
 	if( result ){
-		mysql_free_result(result);	
+		mysql_free_result(result);
+		result = NULL;
 	} 
 	return 1;
 }
@@ -1491,7 +1594,8 @@ int enterGameRoom(client_data * client, frame_head * sendHead, struct packet * p
 // gameroom
 int drawingPoint(client_data * client, frame_head * sendHead, struct packet * p){
 	// struct packet sendPacket = *p;
-	const char * contents = packet_to_json(*p);
+	const char * contents = NULL;
+	contents = packet_to_json(*p);
 
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
@@ -1500,22 +1604,29 @@ int drawingPoint(client_data * client, frame_head * sendHead, struct packet * p)
 	if( write( client->fd, contents, size ) <= 0){
 		free((char*)contents);
 		return 1;
-	}	
-	free((char*)contents);
+	}
+	if(contents){
+		free((char*)contents);
+		contents = NULL;
+	}
 	return 0;
 }
 int validateChatMsg(client_data * client, frame_head * sendHead, struct packet * p){
 	// struct packet sendPacket = *p;
 	int isCorrect = 0;
 
-	const char * contents = packet_to_json(*p);
+	const char * contents = NULL;
+	contents = packet_to_json(*p);
 
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
 	send_frame_head(client->fd, sendHead);
 
 	if( write( client->fd, contents, size ) <= 0){
-		free((char*)contents);
+		if(contents){
+			free((char*)contents);
+			contents = NULL;
+		}
 		return 1;
 	}
 	// some statement for validate the msg which it equals answer.
@@ -1525,6 +1636,9 @@ int validateChatMsg(client_data * client, frame_head * sendHead, struct packet *
 	else{
 
 	}
-	free((char*)contents);
+	if(contents){
+		free((char*)contents);
+		contents = NULL;
+	}
 	return 0;
 }
