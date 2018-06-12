@@ -102,11 +102,13 @@ typedef struct chat_data{ //01 채팅 데이터
 
 typedef struct start_drawing_msg{ //02 그리기 시작 요청
 	int room_id;
+	int success;
 	User from;
 }REQUEST_DRAWING_START;
 
 typedef struct finish_drawing_msg{ //03 그리기 종료 요청
 	int room_id;
+	int success;
 	User from;
 }REQUEST_DRAWING_END;
 
