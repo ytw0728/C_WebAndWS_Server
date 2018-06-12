@@ -354,7 +354,7 @@ void *WSconnect(void* args){
 					exitCondition = drawingPoint(client, &sendHead, &p);
 					break;
 				case 1 : // 01
-					exitCondition = validateChatMsg(client, &sendHead, &p);
+					exitCondition = echoChatData(client, &sendHead, &p);
 					break;
 					/*case 2 :
 					  break;
@@ -1908,99 +1908,32 @@ DRAWDATAFAIL:
 	return 1;
 }
 
-int validateChatMsg(client_data * client, frame_head * sendHead, struct packet * p){
-	// struct packet sendPacket = *p;
-	int isCorrect = 0;
 
-	const char * contents = NULL;
-	contents = packet_to_json(*p);
-
-	iso8859_1_to_utf8(contents, strlen(contents));
-	int size = sendHead->payload_length = strlen(contents);
-	send_frame_head(client->fd, sendHead);
-
-	if( write( client->fd, contents, size ) <= 0){
-		if(contents){
-			free((char*)contents);
-			contents = NULL;
-		}
-		return 1;
-	}
-	// some statement for validate the msg which it equals answer.
-	if( isCorrect ){
-
-	}
-	else{
-
-	}
-	if(contents){
-		free((char*)contents);
-		contents = NULL;
-	}
-	return 0;
-}
 
 int echoChatData(client_data *client, frame_head *sendHead, struct packet *p) {
 	char queryBuffer[QUERY_SIZE];
 	MYSQL_RES *result = NULL;
-	MYSQL_RES *clnt_res = NULL;
-
-	int clnt_fd;
-	char msg[CHAT_SIZE + 1], timestamp[CHAT_SIZE + 1], clnt_nickname[CHAT_SIZE + 1];
-	strcpy(msg, ((CHAT_DATA *) (p->ptr))->msg);
-	strcpy(timestamp, ((CHAT_DATA *) (p->ptr))->timestamp);
-
-	int room_id = ((CHAT_DATA *) (p->ptr))->room_id;
-	int success = ((CHAT_DATA *) (p->ptr))->success;
-	int uid = ((CHAT_DATA *) (p->ptr))->from.uid;
-
-	sprintf(queryBuffer,
-			"select * from users where id = %d",
-			((CHAT_DATA *) (p->ptr))->from.uid);
-	clnt_res = db_query(queryBuffer, client, SELECT);
-
-	if (clnt_res == -1) {
-		serverLog(WSSERVER, ERROR, "echoChatData error", "after db query(select),requesting uid's fd");
-		goto ECHOCHATDATAFAIL;
-	}
-
 	MYSQL_ROW row;
-	memset(&row, 0x00, sizeof(MYSQL_ROW));
-
-	while (row = mysql_fetch_row(clnt_res)) {
-		if (row[0] == NULL) break;
-		clnt_fd = atoi(row[3]);
-		strcpy(clnt_nickname, row[1]);
-	}
-	if (clnt_res) {
-		mysql_free_result(clnt_res);
-		clnt_res = NULL;
-	}
 
 	sprintf(queryBuffer,
-			"select * from playerlist left join users on playerlist.us r_id  = users.id where room_id = %d",
-			((CHAT_DATA *) (p->ptr))->room_id);
-
+			"select * from playerlist left join users on playerlist.user_id  = users.id where room_id = %d",
+			((CHAT_DATA *) (p->ptr))->room_id
+	);
 	result = db_query(queryBuffer, client, SELECT);
 	if (result == -1) {
 		serverLog(WSSERVER, ERROR, "echoChatData error", "after db query(select)");
 		goto ECHOCHATDATAFAIL;
-
 	}
-
-
 
 	int idx = 0;
 	memset(&row, 0x00, sizeof(MYSQL_ROW));
 
 
-	int fd_table[QUERY_SIZE];
+	int fd_table[MAX_USER+1];
 
 	while ((row = mysql_fetch_row(result)) && idx < MAX_USER) {
 		if (row[0] == NULL) break;
-		if(clnt_fd != atoi(row[6])) {
-			fd_table[idx] = atoi(row[6]);
-		}
+		fd_table[idx] = atoi(row[6]);
 		idx++;
 	}
 	if (result) {
@@ -2008,58 +1941,82 @@ int echoChatData(client_data *client, frame_head *sendHead, struct packet *p) {
 		result = NULL;
 	}
 
-	struct packet sendPacket;
-	memset(&sendPacket, 0x0, sizeof(struct packet));
-	sendPacket.major_code = 0;
-	sendPacket.minor_code = 1;
-	if (sendPacket.ptr) {
-		free(sendPacket.ptr);
-		sendPacket.ptr = NULL;
-	}
-	sendPacket.ptr = (CHAT_DATA *) malloc(sizeof(CHAT_DATA));
 
-	strcpy(((CHAT_DATA *) (sendPacket.ptr))->msg, msg);
-	strcpy(((CHAT_DATA *) (sendPacket.ptr))->timestamp, timestamp);
-	strcpy(((CHAT_DATA *) (sendPacket.ptr))->from.nickname, clnt_nickname);
-	((CHAT_DATA *) (sendPacket.ptr))->room_id = room_id;
-	((CHAT_DATA *) (sendPacket.ptr))->success = success;
-	((CHAT_DATA *) (sendPacket.ptr))->from.uid = uid;
+
+	sprintf(queryBuffer,
+			"select questions.* from questions left join gameroom on gameroom.answer_id = questions.id where gameroom.id = %d;",
+			((CHAT_DATA *) (p->ptr))->room_id
+	);
+	result = db_query(queryBuffer, client, SELECT);
+	if (result == -1) {
+		serverLog(WSSERVER, ERROR, "echoChatData error", "after db query(select)");
+		goto ECHOCHATDATAFAIL;
+	}
+
+	row = mysql_fetch_row(result);
+	if( row[0] == NULL ) goto ECHOCHATDATAFAIL;
+
+
+	int correct = 0;
+	if( strcmp(row[1], ((CHAT_DATA *)(p->ptr))->msg) == 0 ) correct = 1;
+
+	((CHAT_DATA *)(p->ptr))->success = 1;
 
 
 	const char *contents = NULL;
-	contents = packet_to_json(sendPacket);
+	contents = packet_to_json(*p);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
-	send_frame_head(client->fd, sendHead);
-
-	for (int i = 0; i < idx-1; i++) {
+	
+	for (int i = 0; i < idx; i++) {
+		send_frame_head(fd_table[i], sendHead);
 		if (write(fd_table[i], contents, size) <= 0) {
 			serverLog(WSSERVER, ERROR, "failed to start drawing", "packet sending error");
 			goto ECHOCHATDATAFAIL;
-
 		}
-	}
-
-	if (sendPacket.ptr) {
-		free(sendPacket.ptr);
-		sendPacket.ptr = NULL;
 	}
 	if (contents) {
 		free((char *) contents);
 		contents = NULL;
 	}
+
+
+
+	if( correct ){
+		struct packet sendPacket;
+		sendPacket.major_code = 0;
+		sendPacket.minor_code = 5;
+		sendPacket.ptr = (WINNER_DATA*)malloc(sizeof(WINNER_DATA));
+
+		((WINNER_DATA*)(sendPacket.ptr))->room_id = ((CHAT_DATA *) (p->ptr))->room_id;
+		((WINNER_DATA*)(sendPacket.ptr))->winner.uid = ((CHAT_DATA *) (p->ptr))->from.uid;
+		strcpy( ((WINNER_DATA*)(sendPacket.ptr))->winner.nickname, ((CHAT_DATA *) (p->ptr))->from.nickname);
+
+		if( contents ) free((char*)contents);
+		contents = NULL;
+		contents = packet_to_json(sendPacket);
+		iso8859_1_to_utf8(contents, strlen(contents));
+		int size = sendHead->payload_length = strlen(contents);
+		
+		for (int i = 0; i < idx; i++) {
+			send_frame_head(fd_table[i], sendHead);
+			if (write(fd_table[i], contents, size) <= 0) {
+				serverLog(WSSERVER, ERROR, "failed to start drawing", "packet sending error");
+				goto ECHOCHATDATAFAIL;
+			}
+		}
+
+		if( sendPacket.ptr ) free(sendPacket.ptr);
+		sendPacket.ptr = NULL;
+	}
+
 	return 0;
 
 
-	ECHOCHATDATAFAIL:
-	sendPacket.major_code = 0;
-	sendPacket.minor_code = 1;
-	if (sendPacket.ptr) free(sendPacket.ptr);
-	sendPacket.ptr = (CHAT_DATA *) malloc(sizeof(CHAT_DATA));
+ECHOCHATDATAFAIL:
+	((CHAT_DATA *) (p->ptr))->success = 0;
 
-	((CHAT_DATA *) (sendPacket.ptr))->success = 0;
-
-	contents = packet_to_json(sendPacket);
+	contents = packet_to_json(*p);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	size = sendHead->payload_length = strlen(contents);
 	send_frame_head(client->fd, sendHead);
@@ -2068,9 +2025,7 @@ int echoChatData(client_data *client, frame_head *sendHead, struct packet *p) {
 		serverLog(WSSERVER, ERROR, "failed to start drawing", "packet sending error");
 	}
 
-	free(sendPacket.ptr);
 	free((char *) contents);
-	sendPacket.ptr = NULL;
 	contents = NULL;
 
 	if (result) {
@@ -2084,10 +2039,9 @@ int startDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 	MYSQL_RES * result = NULL;
 
 	int room_id = ((REQUEST_DRAWING_START*)(p->ptr))->room_id;
-	int success = ((REQUEST_DRAWING_START*)(p->ptr))->success;
 	int uid = ((REQUEST_DRAWING_START*)(p->ptr))->from.uid;
 
-	sprintf(queryBuffer, "select * from playerlist left join users on playerlist.us r_id  = users.id where room_id = %d", ((REQUEST_DRAWING_START*)(p->ptr))->room_id);
+	sprintf(queryBuffer, "select * from playerlist left join users on playerlist.user_id  = users.id where room_id = %d", ((REQUEST_DRAWING_START*)(p->ptr))->room_id);
 
 	result = db_query(queryBuffer, client, SELECT);
 	if( result == -1){
@@ -2100,7 +2054,7 @@ int startDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 	memset(&row, 0x00, sizeof(MYSQL_ROW));
 
 
-	int fd_table[QUERY_SIZE];
+	int fd_table[MAX_USER+1];
 
 	while( (row = mysql_fetch_row(result)) && idx < MAX_USER){
 		if( row[0] == NULL ) break;
@@ -2112,29 +2066,18 @@ int startDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 		result = NULL;
 	}
 
-	struct packet sendPacket;
-	memset(&sendPacket , 0x0, sizeof(struct packet));
-	sendPacket.major_code = 0;
-	sendPacket.minor_code = 2;
-	if( sendPacket.ptr) {
-		free( sendPacket.ptr);
-		sendPacket.ptr = NULL;
-	}
-	sendPacket.ptr = (REQUEST_DRAWING_START*)malloc(sizeof(REQUEST_DRAWING_START));
-
-	((REQUEST_DRAWING_START*)(sendPacket.ptr))->room_id = room_id;
-	((REQUEST_DRAWING_START*)(sendPacket.ptr))->success = success;
-	((REQUEST_DRAWING_START*)(sendPacket.ptr))->from.uid = uid;
+	((REQUEST_DRAWING_START*)(p->ptr))->success = 1;
 
 
 
 	const char *contents = NULL;
-	contents = packet_to_json(sendPacket);
+	contents = packet_to_json(*p);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
-	send_frame_head(client->fd, sendHead);
+	
 
 	for(int i=0; i<idx; i++){
+		send_frame_head(fd_table[i], sendHead);
 		if( write (fd_table[i], contents, size)  <= 0){
 			serverLog(WSSERVER, ERROR, "failed to start drawing","packet sending error");
 			goto STARTDRAWINGFAIL;
@@ -2142,10 +2085,6 @@ int startDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 		}
 	}
 
-	if(sendPacket.ptr){
-		free(sendPacket.ptr);
-		sendPacket.ptr = NULL;
-	}
 	if(contents){
 		free((char*)contents);
 		contents = NULL;
@@ -2154,14 +2093,9 @@ int startDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 
 
 STARTDRAWINGFAIL:
-	sendPacket.major_code = 0;
-	sendPacket.minor_code = 2;
-	if( sendPacket.ptr ) free(sendPacket.ptr);
-	sendPacket.ptr = (REQUEST_DRAWING_START*)malloc(sizeof(REQUEST_DRAWING_START));
+	((REQUEST_DRAWING_START*)(p->ptr))->success = 0;
 
-	((REQUEST_DRAWING_START*)(sendPacket.ptr))->success = 0;
-
-	contents = packet_to_json(sendPacket);
+	contents = packet_to_json(*p);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	size = sendHead->payload_length = strlen(contents);
 	send_frame_head(client->fd, sendHead);
@@ -2170,9 +2104,7 @@ STARTDRAWINGFAIL:
 		serverLog(WSSERVER, ERROR, "failed to start drawing","packet sending error");
 	}
 
-	free(sendPacket.ptr);
 	free((char*)contents);
-	sendPacket.ptr = NULL;
 	contents = NULL;
 
 	if( result ){
@@ -2186,7 +2118,6 @@ int endDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 	MYSQL_RES * result = NULL;
 
 	int room_id = ((REQUEST_DRAWING_END*)(p->ptr))->room_id;
-	int success = ((REQUEST_DRAWING_END*)(p->ptr))->success;
 	int uid = ((REQUEST_DRAWING_END*)(p->ptr))->from.uid;
 
 	sprintf(queryBuffer, "select * from playerlist left join users on playerlist.user_id  = users.id where room_id = %d", ((REQUEST_DRAWING_END*)(p->ptr))->room_id);
@@ -2202,7 +2133,7 @@ int endDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 	memset(&row, 0x00, sizeof(MYSQL_ROW));
 
 
-	int fd_table[QUERY_SIZE];
+	int fd_table[MAX_USER+1];
 
 	while( (row = mysql_fetch_row(result)) && idx < MAX_USER){
 		if( row[0] == NULL ) break;
@@ -2214,23 +2145,11 @@ int endDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 		result = NULL;
 	}
 
-	struct packet sendPacket;
-	memset(&sendPacket , 0x0, sizeof(struct packet));
-	sendPacket.major_code = 0;
-	sendPacket.minor_code = 3;
-	if( sendPacket.ptr) {
-		free( sendPacket.ptr);
-		sendPacket.ptr = NULL;
-	}
-	sendPacket.ptr = (REQUEST_DRAWING_END*)malloc(sizeof(REQUEST_DRAWING_END));
-
-	((REQUEST_DRAWING_END*)(sendPacket.ptr))->room_id = room_id;
-	((REQUEST_DRAWING_END*)(sendPacket.ptr))->success = success;
-	((REQUEST_DRAWING_END*)(sendPacket.ptr))->from.uid = uid;
+	((REQUEST_DRAWING_END*)(p->ptr))->success = 1;
 
 
 	const char *contents = NULL;
-	contents = packet_to_json(sendPacket);
+	contents = packet_to_json(*p);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
 	send_frame_head(client->fd, sendHead);
@@ -2239,13 +2158,7 @@ int endDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 		if( write (fd_table[i], contents, size)  <= 0){
 			serverLog(WSSERVER, ERROR, "failed to end drawing","packet sending error");
 			goto ENDDRAWINGFAIL;
-
 		}
-	}
-
-	if(sendPacket.ptr){
-		free(sendPacket.ptr);
-		sendPacket.ptr = NULL;
 	}
 	if(contents){
 		free((char*)contents);
@@ -2254,13 +2167,9 @@ int endDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 	return 0;
 
 ENDDRAWINGFAIL:
-	sendPacket.major_code = 0;
-	sendPacket.minor_code = 3;
-	if( sendPacket.ptr ) free(sendPacket.ptr);
-	sendPacket.ptr = (REQUEST_DRAWING_END*)malloc(sizeof(REQUEST_DRAWING_END));
-	((REQUEST_DRAWING_END*)(sendPacket.ptr))->success = 0;
+	((REQUEST_DRAWING_END*)(p->ptr))->success = 0;
 
-	contents = packet_to_json(sendPacket);
+	contents = packet_to_json(*p);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	size = sendHead->payload_length = strlen(contents);
 	send_frame_head(client->fd, sendHead);
@@ -2269,9 +2178,7 @@ ENDDRAWINGFAIL:
 		serverLog(WSSERVER, ERROR, "failed to end drawing","packet sending error");
 	}
 
-	free(sendPacket.ptr);
 	free((char*)contents);
-	sendPacket.ptr = NULL;
 	contents = NULL;
 
 	if( result ){
@@ -2286,9 +2193,7 @@ int shareTime(client_data *client, frame_head * sendHead, struct packet * p){
 	MYSQL_RES * result = NULL;
 
 	int room_id = ((REQUEST_TIME_SHARE*)(p->ptr))->room_id;
-	int success = ((REQUEST_TIME_SHARE*)(p->ptr))->success;
 	int uid = ((REQUEST_TIME_SHARE*)(p->ptr))->from.uid;
-	int time = ((REQUEST_TIME_SHARE*)(p->ptr))->time;
 
 	sprintf(queryBuffer, "select * from playerlist left join users on playerlist.user_id  = users.id where room_id = %d", ((REQUEST_DRAWING_END*)(p->ptr))->room_id);
 
@@ -2303,7 +2208,7 @@ int shareTime(client_data *client, frame_head * sendHead, struct packet * p){
 	memset(&row, 0x00, sizeof(MYSQL_ROW));
 
 
-	int fd_table[QUERY_SIZE];
+	int fd_table[MAX_USER+1];
 
 	while( (row = mysql_fetch_row(result)) && idx < MAX_USER){
 		if( row[0] == NULL ) break;
@@ -2315,40 +2220,22 @@ int shareTime(client_data *client, frame_head * sendHead, struct packet * p){
 		result = NULL;
 	}
 
-	struct packet sendPacket;
-	memset(&sendPacket , 0x0, sizeof(struct packet));
-	sendPacket.major_code = 0;
-	sendPacket.minor_code = 3;
-	if( sendPacket.ptr) {
-		free( sendPacket.ptr);
-		sendPacket.ptr = NULL;
-	}
-	sendPacket.ptr = (REQUEST_TIME_SHARE*)malloc(sizeof(REQUEST_TIME_SHARE));
-
-	((REQUEST_TIME_SHARE*)(sendPacket.ptr))->room_id = room_id;
-	((REQUEST_TIME_SHARE*)(sendPacket.ptr))->success = success;
-	((REQUEST_TIME_SHARE*)(sendPacket.ptr))->from.uid = uid;
-	((REQUEST_TIME_SHARE*)(sendPacket.ptr))->time = time;
-
-
+	((REQUEST_TIME_SHARE*)(p->ptr))->success = 1;
+	
 	const char *contents = NULL;
-	contents = packet_to_json(sendPacket);
+	contents = packet_to_json(*p);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
-	send_frame_head(client->fd, sendHead);
+	
 
 	for(int i=0; i<idx; i++){
+		send_frame_head(fd_table[i], sendHead);
 		if( write (fd_table[i], contents, size)  <= 0){
 			serverLog(WSSERVER, ERROR, "failed to share time","packet sending error");
 			goto TIMESHAREFAIL;
-
 		}
 	}
 
-	if(sendPacket.ptr){
-		free(sendPacket.ptr);
-		sendPacket.ptr = NULL;
-	}
 	if(contents){
 		free((char*)contents);
 		contents = NULL;
@@ -2357,13 +2244,9 @@ int shareTime(client_data *client, frame_head * sendHead, struct packet * p){
 	return 0;
 
 TIMESHAREFAIL:
-	sendPacket.major_code = 0;
-	sendPacket.minor_code = 4;
-	if( sendPacket.ptr ) free(sendPacket.ptr);
-	sendPacket.ptr = (REQUEST_TIME_SHARE*)malloc(sizeof(REQUEST_TIME_SHARE));
-	((REQUEST_TIME_SHARE*)(sendPacket.ptr))->success = 0;
+	((REQUEST_TIME_SHARE*)(p->ptr))->success = 0;
 
-	contents = packet_to_json(sendPacket);
+	contents = packet_to_json(*p);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	size = sendHead->payload_length = strlen(contents);
 	send_frame_head(client->fd, sendHead);
@@ -2372,9 +2255,7 @@ TIMESHAREFAIL:
 		serverLog(WSSERVER, ERROR, "failed to share time","packet sending error");
 	}
 
-	free(sendPacket.ptr);
 	free((char*)contents);
-	sendPacket.ptr = NULL;
 	contents = NULL;
 
 	if( result ){
