@@ -6,6 +6,8 @@ let SCORE = 0; // SCORE
 let isPainter = true; // which now client is painter.
 let painterUID = null;
 
+let leaderUID = null;
+
 let ws;
 let chat;
 
@@ -76,7 +78,6 @@ class StatusManager{
 				let msg = JSON.stringify(scoreJson);
 				ws.send(msg);
 			}
-
 			UID = jsonObject.user.uid;
 			NICKNAME = jsonObject.user.nickname;
 			nicknameInputBox.hide();
@@ -91,14 +92,12 @@ class StatusManager{
 			}
 		} 
 	}
-
 	setScoreResponse(jsonObject){
 		if( !jsonObject.success){
 			alert("재연결 시 스코어 등록에 실패했습니다.");
 			SCORE = 0;
 		}
 	}
-
 	refreshRoomList(event){
 		event.preventDefault();
 		waiting.showList();
@@ -134,13 +133,16 @@ class StatusManager{
 	enterRoomResponse(jsonObject){
 		if( jsonObject.success){
 			ROOM_ID = jsonObject.room.id;
+			leaderUID = jsonObject.leader_id;
 			waiting.hideList();
 			waiting.showWaitingRoom(jsonObject);
 			status = 1;
 		}
 		else{
-			alert("접속에 실패했습니다.");
+			alert("접속에 실패했습니다. 새로고침 해주세요.");
+			leaderUID = null;
 		}
+		console.log(leaderUID);
 	}
 	makeRoom(event){
 		if( event != null ) event.preventDefault();
@@ -155,6 +157,8 @@ class StatusManager{
 		}
 		let msg = JSON.stringify(json);
 
+		leaderUID = UID;
+		console.log(leaderUID);
 		ws.send(msg);
 	}
 	exitRoom(event){
@@ -200,6 +204,14 @@ class StatusManager{
 // app
 	enterGameRoom(event){
 		if( event != null ) event.preventDefault();
+		if( leaderUID != UID ){
+			alert("방장만 게임을 시작할 수 있습니다.");
+			return;
+		}
+		if( waiting.members.length < 2 ){
+			alert("2명 이상일 때 게임을 시작할 수 있습니다.");
+			return;
+		}
 		let json = { // 12
 			major_code : 1,
 			minor_code : 2,
@@ -231,7 +243,7 @@ class StatusManager{
 
 	setAnswer(jsonObject){
 		if( jsonObject.success ){
-			notice.showAnswer();
+			notice.showAnswer(jsonObject);
 			app.startGame(jsonObject);
 		}
 		else{
@@ -254,6 +266,21 @@ class StatusManager{
 	}
 
 
+	resetRoomStatus(jsonObject){
+		leaderUID = jsonObject.leader.uid;
+		waiting.userNodeAddToList();
+
+		switch(jsonObject.room.status){
+			case 0 :
+				break;
+			case 1 :
+				break;
+			case 2 :
+				break;
+			case 3 :
+				break;
+		}
+	}
 }
 
 
@@ -345,7 +372,7 @@ class Waiting{
 
 		for( let i = 0 ; i < this.members.length;i++){
 			let node = document.createElement("li");
-			node.className = "members";
+			node.className = "members " + (this.members[i].uid == leaderUID ? "leader " : "") + ( this.members[i].uid == UID ? "itsyou " : "");
 			node.setAttribute("data-uid", this.members[i].uid);
 
 			let nickname = document.createElement("span");
@@ -356,7 +383,15 @@ class Waiting{
 			this.waitingMembers.append(node);
 
 			let node2 = document.createElement("li");
-			node2.className = "user " + this.members[i].uid == painterUID ? "painter" : "";
+			node2.className = "user " + (this.members[i].uid == painterUID ? "painter " : "") + (this.members[i].uid == leaderUID ? "leader " : "");
+
+			let nickname2 = document.createElement("span");
+			nickname.className = "nickname";
+
+			this.gameMembers.append(node2);
+			nickname2.innerHTML = this.members[i].nickname;
+
+			node2.append(nickname2);
 			this.gameMembers.append(node2);
 
 			console.log(this.members);
@@ -391,9 +426,10 @@ class Waiting{
 		
 		for( let i = since; i < until; i++){
 			let node = document.createElement("li");
-			node.className = "room " + (this.room[i].state == 0 ? "" : "ongame");
+			node.className = "room " + (this.room[i].state <= 1 ? "" : "ongame");
 			node.addEventListener("click", statusManager.enterRoom, false);
 			node.setAttribute("data-room_id", this.room[i].id);
+			node.setAttribute("data-room_num", this.room[i].num);
 
 			let roomID = document.createElement("span");
 			roomID.innerHTML = "Room No." + this.room[i].id;
@@ -402,6 +438,7 @@ class Waiting{
 			let roomNum = document.createElement("span");
 			roomNum.innerHTML = this.room[i].num + "/6"; // 6 is max number of member;
 			roomNum.className = "roomNum";
+
 
 			node.append(roomID);
 			node.append(roomNum);
@@ -823,6 +860,9 @@ class Websocket{
 						return;
 					case 2 : // 32
 						statusManager.userPopHandle(jsonObject);
+						return;
+					case 3 : // 33
+						statusManager.resetRoomStatus(jsonObject);
 						return;
 					default : console.log("undefined msg "); return;
 				}

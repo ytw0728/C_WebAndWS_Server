@@ -602,6 +602,16 @@ container#main{
 					background: #505050;
 				}
 
-
+				
+				li.itsyou{
+					background: #333 !important;
+					color: white !important;
+				}
+				li.painter{
+					border-color: #C0E4DA !important;
+				}
+				li.leader{
+					border-color: #FEE893 !important;
+				}
 
 

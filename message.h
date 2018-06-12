@@ -83,8 +83,6 @@ typedef struct request_exit_msg{ // 16 대기방 나가기
 
 
 // 게임방 
-
-
 typedef struct drawing_data{ //00 그림 데이터	
 	int prevX;
 	int prevY;
@@ -162,6 +160,7 @@ typedef struct enter_room_data{ //21대기방 접속
 	int success;
 	Room room;
 	User members[MAX_USER];
+	int leader_id;
 	int idx;
 }ROOM_DATA;
 

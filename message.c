@@ -166,23 +166,27 @@ const char * packet_to_json(struct packet p)
 		}
 		else if(minor_code == 1){ // 21
 			serverLog(WSSERVER, LOG, "21대기방 접속\n", "");
-
-			robj = json_object_new_object();
-				json_object_object_add(robj, "id", json_object_new_int(((ROOM_DATA *)(p.ptr))->room.id));
-				json_object_object_add(robj, "num", json_object_new_int(((ROOM_DATA *)(p.ptr))->room.num));
-				json_object_object_add(robj, "status", json_object_new_int(((ROOM_DATA *)(p.ptr))->room.status));
-			json_object_object_add(pobj, "room", robj);
-			aobj = json_object_new_array();
-			int i;
-			for(i = 0; i < (int)((ROOM_DATA *)(p.ptr))->idx; i++){
-				uobj = json_object_new_object();
-					json_object_object_add(uobj, "uid", json_object_new_int(((ROOM_DATA *)(p.ptr))->members[i].uid));
-					json_object_object_add(uobj, "nickname", json_object_new_string(((ROOM_DATA *)(p.ptr))->members[i].nickname));
-					json_object_object_add(uobj, "score", json_object_new_int(((ROOM_DATA *)(p.ptr))->members[i].score));
-				json_object_array_add(aobj, uobj);
-			}
-			json_object_object_add(pobj, "members", aobj);
 			json_object_object_add(pobj, "success", json_object_new_int(((ROOM_DATA *)(p.ptr))->success));
+			if( ((ROOM_DATA *)(p.ptr))->success ){
+
+				robj = json_object_new_object();
+					json_object_object_add(robj, "id", json_object_new_int(((ROOM_DATA *)(p.ptr))->room.id));
+					json_object_object_add(robj, "num", json_object_new_int(((ROOM_DATA *)(p.ptr))->room.num));
+					json_object_object_add(robj, "status", json_object_new_int(((ROOM_DATA *)(p.ptr))->room.status));
+				json_object_object_add(pobj, "room", robj);
+				aobj = json_object_new_array();
+				int i;
+				for(i = 0; i < (int)((ROOM_DATA *)(p.ptr))->idx; i++){
+					uobj = json_object_new_object();
+						json_object_object_add(uobj, "uid", json_object_new_int(((ROOM_DATA *)(p.ptr))->members[i].uid));
+						json_object_object_add(uobj, "nickname", json_object_new_string(((ROOM_DATA *)(p.ptr))->members[i].nickname));
+						json_object_object_add(uobj, "score", json_object_new_int(((ROOM_DATA *)(p.ptr))->members[i].score));
+					json_object_array_add(aobj, uobj);
+				}
+				json_object_object_add(pobj, "members", aobj);
+				json_object_object_add(pobj, "leader_id", json_object_new_int(((ROOM_DATA *)(p.ptr))->leader_id));
+			}
+			
 
 			// json_object_object_add(pobj, "ptr", obj);
 
