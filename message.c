@@ -218,8 +218,10 @@ const char * packet_to_json(struct packet p)
 		}
 		else if(minor_code == 4){ // 24
 			serverLog(WSSERVER, LOG, "24정답 알림\n", "");
-
-			json_object_object_add(pobj, "answer", json_object_new_string(((ANSWER_DATA *)(p.ptr))->answer));
+			json_object_object_add(pobj, "success", json_object_new_int( ((ANSWER_DATA*)(p.ptr))->success));
+			if(((ANSWER_DATA*)(p.ptr))->success ){ 
+				json_object_object_add(pobj, "answer", json_object_new_string(((ANSWER_DATA *)(p.ptr))->answer));
+			}
 			// json_object_object_add(pobj, "ptr", obj);
 		}
 		else if(minor_code == 5){ //25 
@@ -250,12 +252,13 @@ const char * packet_to_json(struct packet p)
 		if( minor_code == 0 ){ // 30
 			serverLog(WSSERVER, LOG, "30 닉네임 등록 응답\n","");
 			json_object_object_add(pobj, "success", json_object_new_int( ((RESPONSE_REGISTER*)(p.ptr))->success ));
-
-				uobj = json_object_new_object();
-				json_object_object_add(uobj, "uid", json_object_new_int(((RESPONSE_REGISTER*)(p.ptr))->user.uid));
-				json_object_object_add(uobj, "nickname", json_object_new_string(((RESPONSE_REGISTER*)(p.ptr))->user.nickname));
-				json_object_object_add(uobj, "score", json_object_new_int(((RESPONSE_REGISTER*)(p.ptr))->user.score));
-			json_object_object_add(pobj, "user", uobj);
+			if( ((RESPONSE_REGISTER*)(p.ptr))->success ){
+					uobj = json_object_new_object();
+					json_object_object_add(uobj, "uid", json_object_new_int(((RESPONSE_REGISTER*)(p.ptr))->user.uid));
+					json_object_object_add(uobj, "nickname", json_object_new_string(((RESPONSE_REGISTER*)(p.ptr))->user.nickname));
+					json_object_object_add(uobj, "score", json_object_new_int(((RESPONSE_REGISTER*)(p.ptr))->user.score));
+				json_object_object_add(pobj, "user", uobj);
+			}
 
 			// json_object_object_add(pobj, "ptr", obj);
 
@@ -477,6 +480,8 @@ int json_to_packet(const char * json_string, struct packet * p)
 				((REQUEST_ENTER_ROOM *)(p->ptr))->from.uid = json_object_get_int(jbuf);
 				json_object_object_get_ex(uobj, "nickname", &jbuf);
 				strcpy(((REQUEST_ENTER_ROOM *)(p->ptr))->from.nickname, json_object_get_string(jbuf));
+				json_object_object_get_ex(uobj, "score", &jbuf);
+				((REQUEST_ENTER_ROOM *)(p->ptr))->from.score = json_object_get_int(jbuf);
 
 			// room_id
 			json_object_object_get_ex(obj, "room_id", &jbuf);
@@ -490,6 +495,13 @@ int json_to_packet(const char * json_string, struct packet * p)
 
 			json_object_object_get_ex(obj, "room_id", &jbuf);
 			((REQUEST_START *)(p->ptr))->room_id = json_object_get_int(jbuf);
+
+			json_object_object_get_ex(obj, "from", &uobj);
+				json_object_object_get_ex(uobj, "uid", &jbuf);
+				((REQUEST_START *)(p->ptr))->from.uid = json_object_get_int(jbuf);
+				json_object_object_get_ex(uobj, "nickname", &jbuf);
+				strcpy(((REQUEST_START *)(p->ptr))->from.nickname, json_object_get_string(jbuf));
+
 		}
 		else if(minor_code == 3 ){ // 13 // 임시 폐쇄
 			serverLog(WSSERVER, LOG, "13 게임방 나가기\n", "");

@@ -72,6 +72,7 @@ typedef struct make_room_msg{ // 15 대기방 생성
 // 대기방
 typedef struct start_game_msg{ //12 게임 시작 요청
 	int room_id;
+	User from;
 }REQUEST_START;
 
 typedef struct request_exit_msg{ // 16 대기방 나가기 
@@ -190,12 +191,13 @@ typedef struct game_starting_data{ //23 게임 시작 알림
 
 typedef struct answer_data{ //24 정답정보, painter에게 전송
 	char answer[CHAT_SIZE+1];
+	int success;
 }ANSWER_DATA;
 
 typedef struct invalid_room_data{ //25 방이 사라짐(문제 발생)
 	int room_id;
 }INVALID_ROOM_DATA;
-
+	
 typedef struct game_finished_data{ //26 그리기 종료 알림
 	char answer[CHAT_SIZE+1];
 }END_ROUND_DATA;
