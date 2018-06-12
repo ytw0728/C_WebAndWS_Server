@@ -2022,4 +2022,107 @@ int validateChatMsg(client_data * client, frame_head * sendHead, struct packet *
 
 
 	}
+
+	int shareTime(client_data *client, frame_head * sendHead, struct packet * p){
+		char queryBuffer[QUERY_SIZE];
+		MYSQL_RES * result = NULL;
+
+		int room_id = ((REQUEST_TIME_SHARE*)(p->ptr))->room_id;
+		int success = ((REQUEST_TIME_SHARE*)(p->ptr))->success;
+		int uid = ((REQUEST_TIME_SHARE*)(p->ptr))->from.uid;
+		int time = ((REQUEST_TIME_SHARE*)(p->ptr))->time;
+
+		sprintf(queryBuffer, "select * from playerlist left join users on playerlist.user_id  = users.id where room_id = %d", ((REQUEST_DRAWING_END*)(p->ptr))->room_id);
+
+		result = db_query(queryBuffer, client, SELECT);
+		if( result == -1){
+			serverLog(WSSERVER,ERROR, "shareTime error","after db query(select)");
+			goto ENDDRAWINGFAIL;
+		}
+
+		int idx =0;
+		MYSQL_ROW row;
+		memset(&row, 0x00, sizeof(MYSQL_ROW));
+
+
+		int fd_table[QUERY_SIZE];
+
+		while( (row = mysql_fetch_row(result)) && idx < MAX_USER){
+			if( row[0] == NULL ) break;
+			fd_table[idx] = atoi(row[6]);
+			idx ++;
+		}
+		if( result ){
+			mysql_free_result(result);
+			result = NULL;
+		}
+
+		struct packet sendPacket;
+		memset(&sendPacket , 0x0, sizeof(struct packet));
+		sendPacket.major_code = 0;
+		sendPacket.minor_code = 3;
+		if( sendPacket.ptr) {
+			free( sendPacket.ptr);
+			sendPacket.ptr = NULL;
+		}
+		sendPacket.ptr = (REQUEST_TIME_SHARE*)malloc(sizeof(REQUEST_TIME_SHARE));
+
+		((REQUEST_TIME_SHARE*)(sendPacket.ptr))->room_id = room_id;
+		((REQUEST_TIME_SHARE*)(sendPacket.ptr))->success = success;
+		((REQUEST_TIME_SHARE*)(sendPacket.ptr))->from.uid = uid;
+		((REQUEST_TIME_SHARE*)(sendPacket.ptr))->time = time;
+
+
+		const char *contents = NULL;
+		contents = packet_to_json(sendPacket);
+		iso8859_1_to_utf8(contents, strlen(contents));
+		int size = sendHead->payload_length = strlen(contents);
+		send_frame_head(client->fd, sendHead);
+
+		for(int i=0; i<idx; i++){
+			if( write (fd_table[i], contents, size)  <= 0){
+				serverLog(WSSERVER, ERROR, "failed to share time","packet sending error");
+				goto TIMESHAREFAIL;
+
+			}
+		}
+
+		if(sendPacket.ptr){
+			free(sendPacket.ptr);
+			sendPacket.ptr = NULL;
+		}
+		if(contents){
+			free((char*)contents);
+			contents = NULL;
+		}
+		return 0;
+
+		TIMESHAREFAIL:
+		sendPacket.major_code = 0;
+		sendPacket.minor_code = 4;
+		if( sendPacket.ptr ) free(sendPacket.ptr);
+		sendPacket.ptr = (REQUEST_TIME_SHARE*)malloc(sizeof(REQUEST_TIME_SHARE));
+		((REQUEST_TIME_SHARE*)(sendPacket.ptr))->success = 0;
+
+		contents = packet_to_json(sendPacket);
+		iso8859_1_to_utf8(contents, strlen(contents));
+		size = sendHead->payload_length = strlen(contents);
+		send_frame_head(client->fd, sendHead);
+
+		if( write( client->fd, contents, size) <= 0 ){
+			serverLog(WSSERVER, ERROR, "failed to share time","packet sending error");
+		}
+
+		free(sendPacket.ptr);
+		free((char*)contents);
+		sendPacket.ptr = NULL;
+		contents = NULL;
+
+		if( result ){
+			mysql_free_result(result);
+		}
+		return 1;
+
+
+	}
 }

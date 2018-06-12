@@ -114,7 +114,7 @@ typedef struct finish_drawing_msg{ //03 그리기 종료 요청
 
 typedef struct finish_drawing_data{ //04 제한시간 정보
 	int room_id;
-	
+	int success;
 	User from;
 	int time;
 }REQUEST_TIME_SHARE;
