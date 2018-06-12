@@ -1012,7 +1012,7 @@ int requestEnterRoom(client_data * client, frame_head * sendHead, struct packet 
 	if( row[0] == NULL ) goto ENTERROOMFAIL;
 
 	((ROOM_DATA*)(sendPacket.ptr))->room.id = room_id;
-	((ROOM_DATA*)(sendPacket.ptr))->room.status = atoi(row[1]);
+	int status = ((ROOM_DATA*)(sendPacket.ptr))->room.status = atoi(row[1]);
 	((ROOM_DATA*)(sendPacket.ptr))->leader_id = atoi(row[2]);
 	int room_num = ((ROOM_DATA*)(sendPacket.ptr))->room.num = atoi(row[3]) + 1;
 	if( result ){
@@ -1020,6 +1020,18 @@ int requestEnterRoom(client_data * client, frame_head * sendHead, struct packet 
 	}
 
 
+
+	if( room_num == MAX_USER ){
+		sprintf(queryBuffer, "update `gameroom` set `status`= %d where id = %d ", status + 10, room_id);
+		result =  db_query(queryBuffer, client, NONSELECT);
+		if( result == -1 ){
+			serverLog(WSSERVER, ERROR, "entering waiting room failed","after db query for members(UPDATE)");
+			goto ENTERROOMFAIL;
+		}
+		status = status + 10;
+	}
+	else if ( room_num > MAX_USER ) goto ENTERROOMFAIL;
+	
 
 	sprintf(queryBuffer, "insert into playerlist values(0, %d, %d)", room_id, ((REQUEST_ENTER_ROOM *)(p->ptr))->from.uid);
 	result =  db_query(queryBuffer, client, NONSELECT);
@@ -1033,7 +1045,7 @@ int requestEnterRoom(client_data * client, frame_head * sendHead, struct packet 
 
 	sprintf(queryBuffer, "select users.id, users.nickname, users.score, users.fd from users "
 			"left join playerlist on playerlist.room_id = %d "
-			"where playerlist.user_id = users.id;", room_id
+			"where playerlist.user_id = users.id", room_id
 	);
 
 	result =  db_query(queryBuffer, client, SELECT);
@@ -1055,6 +1067,7 @@ int requestEnterRoom(client_data * client, frame_head * sendHead, struct packet 
 
 		idx++;
 	}
+
 	((ROOM_DATA*)(sendPacket.ptr))->idx = idx;
 	((ROOM_DATA*)(sendPacket.ptr))->success = 1; 
 
@@ -1327,6 +1340,16 @@ int exitRoom(client_data * client, frame_head * sendHead, struct packet * p){
 	if( row[0] == NULL ) goto EXITROOMFAIL;
 	int status = atoi(row[0]);
 	room_num = atoi(row[1]);
+
+	if( room_num < MAX_USER ){
+		sprintf(queryBuffer, "update `gameroom` set `status` =  %d where id = %d", status % 10, room_id);
+		result = db_query(queryBuffer, client, NONSELECT);
+		if( result == -1 ){
+			serverLog(WSSERVER, ERROR, "exit room fail", "after db query(update");
+			goto EXITROOMFAIL;
+		}
+		status = status % 10;
+	}
 
 
 	sprintf(queryBuffer, "select * from playerlist left join users on playerlist.user_id = users.id where playerlist.room_id = %d ", room_id);
@@ -1656,6 +1679,20 @@ int enterGameRoom(client_data * client, frame_head * sendHead, struct packet * p
 	}
 	row = mysql_fetch_row(result);
 	if( row[0] == NULL ) goto ENTERGAMEROOMFAIL;
+	int status = atoi(row[1]);
+
+
+	status = status - (status % 10);
+	status = status + 2;
+
+	sprintf(queryBuffer, "update gameroom set status = %d where id = %d", status ,room_id);
+	result = db_query(queryBuffer, client, NONSELECT);
+	if( result == -1 ){
+		serverLog(WSSERVER, ERROR, "fail to start game","after db_query(update)");
+		goto ENTERGAMEROOMFAIL;
+	}
+
+
 
 	struct packet sendPacket;
 	sendPacket.major_code = 2;
@@ -1676,7 +1713,7 @@ int enterGameRoom(client_data * client, frame_head * sendHead, struct packet * p
 
 
 
-	sprintf(queryBuffer, "update `gameroom` set `answer_id` = %d ", answer_id);
+	sprintf(queryBuffer, "update `gameroom` set `answer_id` = %d where id = %d", answer_id, room_id);
 	result = db_query(queryBuffer, client, NONSELECT);
 	if( result == -1 ){
 		serverLog(WSSERVER, ERROR, "fail to start game","after db_query(select)");
@@ -1712,7 +1749,7 @@ int enterGameRoom(client_data * client, frame_head * sendHead, struct packet * p
 		send_frame_head(fd, sendHead);
 
 		if( write( fd, contents, size ) <= 0){
-			free((char*)contents);
+			serverLog(WSSERVER, ERROR, "fail to start game", "packet sending to all ( enterGameRoom )");
 			goto ENTERGAMEROOMFAIL;
 		}
 		free(tmp.ptr);
@@ -1751,6 +1788,8 @@ ENTERGAMEROOMFAIL:
 	if( sendPacket.ptr ) free(sendPacket.ptr);
 	sendPacket.ptr = (ANSWER_DATA*)malloc(sizeof(ANSWER_DATA));
 	((ANSWER_DATA*)(sendPacket.ptr))->success = 0;
+
+	if( contents) free((char*)contents);
 
 	contents = packet_to_json(sendPacket);
 	iso8859_1_to_utf8(contents, strlen(contents));
@@ -2203,6 +2242,6 @@ TIMESHAREFAIL:
 	if( result ){
 		mysql_free_result(result);
 	}
-	
+
 	return 1;
 }

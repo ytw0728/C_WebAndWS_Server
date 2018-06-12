@@ -48,7 +48,7 @@ function layout(){
 
 class StatusManager{
 	constructor(){
-
+		this.startGameRequest = false;
 	}
 
 	userAdd(event){		
@@ -83,7 +83,6 @@ class StatusManager{
 			nicknameInputBox.hide();
 			waiting.showList();
 			scrollTo(0,0);
-
 		}
 		else{
 			alert("닉네임 등록에 실패했습니다.");	
@@ -114,7 +113,7 @@ class StatusManager{
 		let target = event.target;
 		window.target = target;
 		if( !target.hasAttribute("data-room_id") ) target = target.parentNode
-		let roomid = target.getAttribute("data-room_id");
+		let roomid = target.getAttribute("data-room_id");		
 
 		let json = { // 11
 			major_code : 1,
@@ -158,7 +157,6 @@ class StatusManager{
 		let msg = JSON.stringify(json);
 
 		leaderUID = UID;
-		console.log(leaderUID);
 		ws.send(msg);
 	}
 	exitRoom(event){
@@ -222,6 +220,7 @@ class StatusManager{
 			}
 		}
 
+		statusManager.startGameRequest = true;
 		let msg = JSON.stringify(json);
 
 		ws.send(msg);
@@ -231,8 +230,6 @@ class StatusManager{
 
 		if( jsonObject.painter.uid == UID ) isPainter = true;
 		else isPainter = false;
-
-
 
 		notice.showAnswerLen(jsonObject);
 		waiting.hideAll();
@@ -247,7 +244,9 @@ class StatusManager{
 			app.startGame(jsonObject);
 		}
 		else{
-			alert("게임 시작에 실패했습니다.");
+			alert("게임 시작에 실패했습니다. 다시 시도해주세요.");
+			painterUID = null;
+			isPainter = null;
 		}
 	}
 	exitGameRoom(event){
@@ -382,19 +381,23 @@ class Waiting{
 			node.append(nickname);
 			this.waitingMembers.append(node);
 
+
 			let node2 = document.createElement("li");
 			node2.className = "user " + (this.members[i].uid == painterUID ? "painter " : "") + (this.members[i].uid == leaderUID ? "leader " : "");
+			node2.setAttribute("data-uid", this.members[i].uid);
 
 			let nickname2 = document.createElement("span");
-			nickname.className = "nickname";
-
-			this.gameMembers.append(node2);
+			nickname2.className = "nickname";
 			nickname2.innerHTML = this.members[i].nickname;
 
-			node2.append(nickname2);
-			this.gameMembers.append(node2);
+			let score = document.createElement("span");
+			score.className = "score";
+			score.innerHTML = this.members[i].score + " point";
 
-			console.log(this.members);
+			node2.append(nickname2);
+			node2.append(score);
+
+			this.gameMembers.append(node2);
 		}
 	}
 
@@ -426,7 +429,7 @@ class Waiting{
 		
 		for( let i = since; i < until; i++){
 			let node = document.createElement("li");
-			node.className = "room " + (this.room[i].state <= 1 ? "" : "ongame");
+			node.className = "room " + ( (this.room[i].status%10) <= 1 ? "" : "ongame");
 			node.addEventListener("click", statusManager.enterRoom, false);
 			node.setAttribute("data-room_id", this.room[i].id);
 			node.setAttribute("data-room_num", this.room[i].num);
@@ -480,7 +483,6 @@ class App{
 		this.app.style.zIndex = 1000;
 		draw.clear();
 		chat.clear();
-
 	}
 	hideAll(){
 		this.app.style.display = "none";
@@ -497,7 +499,7 @@ class App{
 	}
 
 	startGame(jsonObject){
-
+		draw.clear();
 	}
 }
 
@@ -528,16 +530,18 @@ class Chatting{
 		this.chatInput.value = null;
 	}
 	addMsg(jsonObject){
-		this.chatHistory.innerHTML += "\
-			<div class = 'msg'>\
-				<span class = 'sender'>"
-					+ jsonObject.from.nickname  + " | " + 
-				"</span>\
-				<span class = 'contents'>"
-				 + jsonObject.msg + 
-				"</span>\
-			</div>";
-		this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
+		if(jsonObject.success ){
+			this.chatHistory.innerHTML += "\
+				<div class = 'msg'>\
+					<span class = 'sender'>"
+						+ jsonObject.from.nickname  + " | " + 
+					"</span>\
+					<span class = 'contents'>"
+					 + jsonObject.msg + 
+					"</span>\
+				</div>";
+			this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
+		}
 	}
 
 	initEvent(){
@@ -605,6 +609,8 @@ class Draw{
 		this.initEvent();
 		this.prepareToDraw();
 	}
+
+
 	clear(){
 		this.canvas.fillStyle = this.canvas.strokeStyle = this.color = this.colors[1].getAttribute("data-color");
 
@@ -718,10 +724,21 @@ class Draw{
         this.sendDrawingPoint();
   	}
 
-  	drawWithJson(){
+  	drawWithJson(jsonObject){
   		if( isPainter ) return;
+  		if( jsonObject.success){
+			this.canvas.fillStyle = jsonObject.color;
+	        this.canvas.strokeStyle = jsonObject.color;
+	        this.canvas.lineWidth = jsonObject.px;
 
+	        this.prevX = jsonObject.prevX;
+	        this.prevY = jsonObject.prevY;
+	        this.x = jsonObject.x;
+	        this.y = jsonObject.y;
+	        this.draw();
+	    }
   	}
+
   	sendDrawingPoint(){
   		if( !isPainter ) return;
   		let jsonObject = { // 00
@@ -799,12 +816,6 @@ class Websocket{
 		this.ws = new WebSocket("ws://"+window.location.hostname+":8889");
 		this.ws.onopen = function (event) {
 			console.log("ws connected");
-			// this.send(JSON.stringify({major_code : 1, minor_code : 4, nickname : "Lorem Ipsum"}));
-			// this.send(JSON.stringify({major_code : 1, minor_code : 7, score: 12345}));
-			// this.send(JSON.stringify({major_code : 1, minor_code : 0, from : {uid: 1, nickname:"Lorem Ipsum"}}));
-			// this.send(JSON.stringify({major_code : 1, minor_code : 5, from : {uid:1, nickname:"Lorem Ipsum"}}));
-			// this.send(JSON.stringify({major_code : 1, minor_code : 6, from : {uid:1, nickname:"Lorem Ipsum"}, room_id : 1}));
-
 			if( UID != null ) statusManager.userAdd();
 		};
 		this.ws.onmessage = function (event){
