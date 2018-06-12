@@ -1822,19 +1822,24 @@ int validateChatMsg(client_data * client, frame_head * sendHead, struct packet *
 	int echoChatData(client_data *client, frame_head * sendHead, struct packet * p){
 		char queryBuffer[QUERY_SIZE];
 		MYSQL_RES * result = NULL;
-		char msg[CHAT_SIZE];
+		MYSQL_RES * clnt_res = NULL;
 
-
+		char msg[CHAT_SIZE+1],char timestamp[CHAT_SIZE+1];
 		strcpy(msg, ((CHAT_DATA*)(p->ptr))->msg);
-		int success = ((REQUEST_DRAWING_START*)(p->ptr))->success;
-		int uid = ((REQUEST_DRAWING_START*)(p->ptr))->from.uid;
+		strcpy(timestamp, ((CHAT_DATA*)(p->ptr))->timestamp);
+
+		int roomid = ((CHAT_DATA*)(p->ptr))->room_id;
+		int success = ((CHAT_DATA*)(p->ptr))->success;
+		int uid = ((CHAT_DATA*)(p->ptr))->from.uid;
+
+		sprintf(queryBuffer, "select * from playerlist left join users on playerlist.us r_id  = users.id where room_id = %d", ((REQUEST_DRAWING_START*)(p->ptr))->room_id);
 
 		sprintf(queryBuffer, "select * from playerlist left join users on playerlist.us r_id  = users.id where room_id = %d", ((REQUEST_DRAWING_START*)(p->ptr))->room_id);
 
 		result = db_query(queryBuffer, client, SELECT);
 		if( result == -1){
-			serverLog(WSSERVER,ERROR, "startDrawing error","after db query(select)");
-			goto STARTDRAWINGFAIL;
+			serverLog(WSSERVER,ERROR, "echoChatData error","after db query(select)");
+			goto ECHOCHATDATAFAIL;
 
 		}
 
@@ -1880,7 +1885,7 @@ int validateChatMsg(client_data * client, frame_head * sendHead, struct packet *
 		for(int i=0; i<idx; i++){
 			if( write (fd_table[i], contents, size)  <= 0){
 				serverLog(WSSERVER, ERROR, "failed to start drawing","packet sending error");
-				goto STARTDRAWINGFAIL;
+				goto ECHOCHATDATAFAIL;
 
 			}
 		}
@@ -1896,7 +1901,7 @@ int validateChatMsg(client_data * client, frame_head * sendHead, struct packet *
 		return 0;
 
 
-		STARTDRAWINGFAIL:
+		ECHOCHATDATAFAIL:
 		sendPacket.major_code = 0;
 		sendPacket.minor_code = 2;
 		if( sendPacket.ptr ) free(sendPacket.ptr);
