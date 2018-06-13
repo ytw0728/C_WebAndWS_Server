@@ -15,7 +15,7 @@ let SOMEONEGOTIT = false; // 누군가 정답을 맞췄다.
 let ws;
 let chat;
 
-let timelimit = 10000; //60초
+let timelimit = 120000; //60초
 
 let nicknameInputBox;
 let waiting;
@@ -27,7 +27,7 @@ function setDevOption(){ UID = 9999; ROOM_ID =9999;}
 window.onload= function(){
 	chat = new Chatting();
 	nicknameInputBox = new NickNameInput();
-	
+
 	waiting = new Waiting();
 	app = new App();
 	notice = new Notice();
@@ -57,9 +57,9 @@ class StatusManager{
 		if( (NICKNAME = document.getElementById("nickname").value) == "" ) NICKNAME = "Lorem Ipsum";
 
 		let jsonObject = { // 14
-			major_code : 1,
-			minor_code : 4,
-			nickname : NICKNAME
+major_code : 1,
+	     minor_code : 4,
+	     nickname : NICKNAME
 		}
 
 		let json = JSON.stringify(jsonObject);
@@ -72,9 +72,9 @@ class StatusManager{
 			}
 			else{ // score set
 				let scoreJson = { // 17
-					major_code : 1,
-					minor_code : 7,
-					score: SCORE
+major_code : 1,
+	     minor_code : 7,
+	     score: SCORE
 				}
 
 				let msg = JSON.stringify(scoreJson);
@@ -103,7 +103,7 @@ class StatusManager{
 		event.preventDefault();
 		waiting.showList();
 	}
-// waiting room
+	// waiting room
 	userPopHandle(jsonObject){
 		waiting.popMember(jsonObject);
 		if( jsonObject.room.num == 1 && status > 1){
@@ -115,17 +115,17 @@ class StatusManager{
 		let target = event.target;
 		window.target = target;
 		if( !target.hasAttribute("data-room_id") ) target = target.parentNode
-		let roomid = target.getAttribute("data-room_id");		
+			let roomid = target.getAttribute("data-room_id");		
 
 		let json = { // 11
-			major_code : 1,
-			minor_code : 1,
-			from : {
-				uid: UID,
-				nickname : NICKNAME,
-				score : SCORE
-			},
-			room_id : roomid
+major_code : 1,
+	     minor_code : 1,
+	     from : {
+uid: UID,
+     nickname : NICKNAME,
+     score : SCORE
+	     },
+room_id : roomid
 		}
 
 		let msg = JSON.stringify(json);
@@ -148,12 +148,12 @@ class StatusManager{
 		if( event != null ) event.preventDefault();
 
 		let json = { // 15
-			major_code : 1,
-			minor_code : 5,
-			from : {
-				uid : UID,
-				nickname : NICKNAME
-			}
+major_code : 1,
+	     minor_code : 5,
+	     from : {
+uid : UID,
+      nickname : NICKNAME
+	     }
 		}
 		let msg = JSON.stringify(json);
 
@@ -164,13 +164,13 @@ class StatusManager{
 		if( event != null ) event.preventDefault();
 
 		let json = { // 16
-			major_code : 1,
-			minor_code : 6,
-			room_id : ROOM_ID,
-			from : {
-				uid : UID,
-				nickname : NICKNAME
-			}
+major_code : 1,
+	     minor_code : 6,
+	     room_id : ROOM_ID,
+	     from : {
+uid : UID,
+      nickname : NICKNAME
+	     }
 		}
 
 		let msg = JSON.stringify(json);
@@ -199,7 +199,7 @@ class StatusManager{
 		}
 	}
 
-// app
+	// app
 	enterGameRoom(event){
 		if( event != null ) event.preventDefault();
 		if( leaderUID != UID ){
@@ -211,13 +211,13 @@ class StatusManager{
 			return;
 		}
 		let json = { // 12
-			major_code : 1,
-			minor_code : 2,
-			room_id : ROOM_ID,
-			from : {
-				uid : UID,
-				nickname : NICKNAME
-			}
+major_code : 1,
+	     minor_code : 2,
+	     room_id : ROOM_ID,
+	     from : {
+uid : UID,
+      nickname : NICKNAME
+	     }
 		}
 
 		statusManager.startGameRequest = true;
@@ -256,13 +256,13 @@ class StatusManager{
 		if( event != null ) event.preventDefault();
 		app.gameDone();
 		let json = { // 16
-			major_code : 1,
-			minor_code : 6,
-			room_id : ROOM_ID,
-			from : {
-				uid : UID,
-				nickname : NICKNAME
-			}
+major_code : 1,
+	     minor_code : 6,
+	     room_id : ROOM_ID,
+	     from : {
+uid : UID,
+      nickname : NICKNAME
+	     }
 		}
 		let msg = JSON.stringify(json);
 		ws.send(msg);
@@ -364,12 +364,12 @@ class Waiting{
 		document.getElementsByClassName("waitingHeader")[0].style.display = "inline-block";
 
 		let json = { // 10 
-			major_code : 1,
-			minor_code : 0,
-			from : {
-				uid : UID,
-				nickname : NICKNAME
-			}
+major_code : 1,
+	     minor_code : 0,
+	     from : {
+uid : UID,
+      nickname : NICKNAME
+	     }
 		}
 
 		let msg = JSON.stringify(json);
@@ -461,7 +461,7 @@ class Waiting{
 		let since = this.nowPage * 8;
 		let until = this.room.length < since + 8 ? this.room.length : since + 8;
 
-		
+
 		for( let i = since; i < until; i++){
 			let node = document.createElement("li");
 			node.className = "room " + ( (this.room[i].status%10) <= 1 ? "" : "ongame");
@@ -573,16 +573,16 @@ class App{
 	sendTime(){
 		this.lastTime = this.nowTime;
 		let json = { // 04
-			major_code : 0,
-			minor_code : 4,
-			room_id : ROOM_ID,
-			from : {
-				uid : UID,
-				nickname : NICKNAME,
-				score : SCORE
-			},
-			nowTime : ""+this.nowTime,
-			endTime : ""+this.roundEndTime
+major_code : 0,
+	     minor_code : 4,
+	     room_id : ROOM_ID,
+	     from : {
+uid : UID,
+      nickname : NICKNAME,
+      score : SCORE
+	     },
+nowTime : ""+this.nowTime,
+	  endTime : ""+this.roundEndTime
 		}
 		let msg = JSON.stringify(json);
 		ws.send(msg);
@@ -622,15 +622,15 @@ class App{
 
 	timeDone(){
 		let json = { // 03
-			major_code : 0,
-			minor_code : 3,
-			room_id : ROOM_ID,
-			from : {
-				uid : UID,
-				nickname : NICKNAME,
-				score : SCORE
-			},
-			answer : ANSWER
+major_code : 0,
+	     minor_code : 3,
+	     room_id : ROOM_ID,
+	     from : {
+uid : UID,
+      nickname : NICKNAME,
+      score : SCORE
+	     },
+answer : ANSWER
 		}
 
 		let msg = JSON.stringify(json);
@@ -710,14 +710,14 @@ class Chatting{
 			if( jsonObject.from.uid == UID ) SCORE = jsonObject.from.score;
 
 			this.chatHistory.innerHTML += "\
-				<div class = 'msg'>\
-					<span class = 'sender'>"
-						+ jsonObject.from.nickname  + " | " + 
-					"</span>\
-					<span class = 'contents'>"
-					 + jsonObject.msg + 
-					"</span>\
-				</div>";
+						       <div class = 'msg'>\
+						       <span class = 'sender'>"
+						       + jsonObject.from.nickname  + " | " + 
+						       "</span>\
+						       <span class = 'contents'>"
+						       + jsonObject.msg + 
+						       "</span>\
+						       </div>";
 			this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
 		}
 	}
@@ -728,32 +728,32 @@ class Chatting{
 
 				if( !SOMEONEGOTIT ){
 					this.chatHistory.innerHTML += "\
-						<div class = 'msg'>\
-							<span class = 'contents system'>"
-							 +"시간초과! 정답은 ["+ jsonObject.answer +"] 입니다!"+
-							"</span>\
-						</div>";
+								       <div class = 'msg'>\
+								       <span class = 'contents system'>"
+								       +"시간초과! 정답은 ["+ jsonObject.answer +"] 입니다!"+
+								       "</span>\
+								       </div>";
 					this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
 				}
 			}
 			if(jsonObject.minor_code == 5){ // 정답자 공개 
 				this.chatHistory.innerHTML += "\
-					<div class = 'msg'>\
-						<span class = 'contents system'>"
-						 +"["+jsonObject.answer+"] '"+ jsonObject.winner.nickname + "' 님 정답입니다! (+10)"  +
-						"</span>\
-					</div>";
+							       <div class = 'msg'>\
+							       <span class = 'contents system'>"
+							       +"["+jsonObject.answer+"] '"+ jsonObject.winner.nickname + "' 님 정답입니다! (+10)"  +
+							       "</span>\
+							       </div>";
 				this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
 			}
 		}
 		else if( jsonObject.major_code == 2){
 			if( jsonObject.minor_code == 3){ // 23
 				this.chatHistory.innerHTML += "\
-					<div class = 'msg'>\
-						<span class = 'contents system'>"
-						 +"다음 문제 시작합니다. 그릴 사람은 '"+ jsonObject.painter.nickname + "' ("+jsonObject.answerLen+"글자)"
-						"</span>\
-					</div>";
+							       <div class = 'msg'>\
+							       <span class = 'contents system'>"
+							       +"다음 문제 시작합니다. 그릴 사람은 '"+ jsonObject.painter.nickname + "' ("+jsonObject.answerLen+"글자)"
+							       "</span>\
+							       </div>";
 				this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
 			}
 		}
@@ -771,16 +771,16 @@ class Chatting{
 		let box = document.getElementById("chatInput");
 		if( box.value == "" ) return;		
 		let jsonObject = { // 01
-			major_code : 0,
-			minor_code : 1,
-			msg : box.value,
-			from : {
-				uid : UID,
-				nickname : NICKNAME,
-				score : SCORE
-			},
-			timestamp : (new Date()).getTime(),
-			room_id : ROOM_ID
+major_code : 0,
+	     minor_code : 1,
+	     msg : box.value,
+	     from : {
+uid : UID,
+      nickname : NICKNAME,
+      score : SCORE
+	     },
+timestamp : (new Date()).getTime(),
+	    room_id : ROOM_ID
 		}
 		let msg = JSON.stringify(jsonObject);
 		ws.send(msg);
@@ -808,16 +808,16 @@ class Draw{
 		canvas.addEventListener("mousemove", this.mouseHandle.bind(this));
 		canvas.addEventListener("mouseup", this.mouseHandle.bind(this));
 		this.canvas = this.tag.getContext("2d");
-		
+
 		this.brushType = true;
 		this.color = "#000000";
 		this.canvas.fillStyle = this.color;
-        this.canvas.strokeStyle = this.color;
+		this.canvas.strokeStyle = this.color;
 
-        this.px = 3;
-        this.canvas.lineWidth = this.px;
-        this.canvas.lineCap = "round";
-        this.canvas.lineJoin = "round";
+		this.px = 3;
+		this.canvas.lineWidth = this.px;
+		this.canvas.lineCap = "round";
+		this.canvas.lineJoin = "round";
 
 		this.prevX = this.prevY = 0;
 		this.x = this.y = 0;
@@ -838,14 +838,14 @@ class Draw{
 		this.colors[1].className = "color on";
 		this.setPencil();
 
-  		this.canvas.lineWidth = this.px = this.brush[0].getAttribute("data-px");
+		this.canvas.lineWidth = this.px = this.brush[0].getAttribute("data-px");
 
-  		for( let i = 0 ; i < this.brush.length; i++){
-  			this.brush[i].style.background = "none";
-  		}
-  		this.brush[0].style.background = "#D2EAFF";
+		for( let i = 0 ; i < this.brush.length; i++){
+			this.brush[i].style.background = "none";
+		}
+		this.brush[0].style.background = "#D2EAFF";
 
-  		this.clearCanvas();
+		this.clearCanvas();
 	}
 
 	initEvent(){
@@ -855,7 +855,7 @@ class Draw{
 			this.colors[i].style.background = this.colors[i].getAttribute("data-color");
 		}
 
-		
+
 		this.brush = document.getElementsByClassName("brush");
 		for( let i = 0 ; i < this.brush.length ; i++){
 			this.brush[i].addEventListener("click", this.brushChange.bind(this));
@@ -863,11 +863,11 @@ class Draw{
 			this.brush[i].children[0].style.height = this.brush[i].getAttribute("data-px") + "px";
 			this.brush[i].children[0].style.borderRadius = this.brush[i].getAttribute("data-px")/2 + 2 + "px";
 		}
-		
+
 
 		this.pencil = document.getElementsByClassName("pencil")[0];
 		this.pencil.addEventListener("click", this.setPencil.bind(this));
-		
+
 
 		this.eraser = document.getElementsByClassName("eraser")[0];
 		this.eraser.addEventListener("click", this.setEraser.bind(this));
@@ -920,64 +920,70 @@ class Draw{
 			this.y = position.y;
 			this.draw();
 		}
-		
+
 	}
 
 	getMousePos(evt) {
 		let rect = this.tag.getBoundingClientRect();
 		return {
-			x: evt.offsetX,
-			y: evt.offsetY
+x: evt.offsetX,
+	   y: evt.offsetY
 		};
-  	}
+	}
 
-  	draw(){
-        this.canvas.beginPath();
-        this.canvas.moveTo(this.prevX,this.prevY);
-        this.canvas.lineTo(this.x, this.y);
-        this.canvas.stroke();
+	draw(){
+		this.canvas.beginPath();
+		this.canvas.moveTo(this.prevX,this.prevY);
+		this.canvas.lineTo(this.x, this.y);
+		this.canvas.stroke();
 
-        this.sendDrawingPoint();
-  	}
+		this.sendDrawingPoint(0);
+	}
 
-  	drawWithJson(jsonObject){
-  		if( isPainter ) return;
-  		if( jsonObject.success){
-			this.canvas.fillStyle = jsonObject.color;
-	        this.canvas.strokeStyle = jsonObject.color;
-	        this.canvas.lineWidth = jsonObject.px;
+	drawWithJson(jsonObject){
+		if( isPainter ) return;
+		if( jsonObject.success){
+			if(jsonObject.clear){
+				this.canvas.clearRect(0, 0, this.tag.clientWidth, this.tag.clientHeight);
+			}
+			else{
+				this.canvas.fillStyle = jsonObject.color;
+				this.canvas.strokeStyle = jsonObject.color;
+				this.canvas.lineWidth = jsonObject.px;
 
-	        this.prevX = jsonObject.prevX;
-	        this.prevY = jsonObject.prevY;
-	        this.x = jsonObject.x;
-	        this.y = jsonObject.y;
-	        this.draw();
-	    }
-  	}
+				this.prevX = jsonObject.prevX;
+				this.prevY = jsonObject.prevY;
+				this.x = jsonObject.x;
+				this.y = jsonObject.y;
+				this.draw();
+			}
+		}
+	}
 
-  	sendDrawingPoint(){
-  		if( !isPainter ) return;
-  		let jsonObject = { // 00
-  			major_code : 0,
-  			minor_code : 0,
-  			prevX : this.prevX,
-  			prevY : this.prevY,
-  			x : this.x,
-  			y : this.y,
-  			color : this.color,
-  			px : this.px,
-  			room_id : ROOM_ID
-  		}
-  		let msg = JSON.stringify(jsonObject);
-  		ws.send(msg);
-  	}
+	sendDrawingPoint(clear_flag){
+		if( !isPainter ) return;
+		let jsonObject = { // 00
+major_code : 0,
+	     minor_code : 0,
+	     prevX : this.prevX,
+	     prevY : this.prevY,
+	     x : this.x,
+	     y : this.y,
+	     color : this.brushType ? this.color : "#ffffff",
+	     px : this.px,
+	     room_id : ROOM_ID,
+	     clear : clear_flag
+		}
+		let msg = JSON.stringify(jsonObject);
+		ws.send(msg);
+	}
 
-  	colorChange(event){
-  		if( !isPainter ) return;
-  		let target = event.target;
-  		if( !target.hasAttribute("data-color") ) target = target.parentNode;
+	colorChange(event){
+		if( !isPainter ) return;
+		let target = event.target;
+		if( !target.hasAttribute("data-color") ) target = target.parentNode;
 
-  		let color = target.getAttribute("data-color");
+		let color = target.getAttribute("data-color");
 		this.canvas.fillStyle = this.canvas.strokeStyle = this.color = color;
 
 		for(let i = 0; i< this.colors.length; i++){
@@ -987,42 +993,44 @@ class Draw{
 		target.style.backgroundBlendMode = "darken";
 		target.className = "color on";
 		this.setPencil();
-  	}
+	}
 
-  	brushChange(event){
-  		if( !isPainter ) return;
-  		event.preventDefault();
-  		let target = event.target;
-  		if( !target.hasAttribute("data-px") )target = target.parentNode;
+	brushChange(event){
+		if( !isPainter ) return;
+		event.preventDefault();
+		let target = event.target;
+		if( !target.hasAttribute("data-px") )target = target.parentNode;
 
-  		this.px = target.getAttribute("data-px");
-  		this.canvas.lineWidth = this.px;
+		this.px = target.getAttribute("data-px");
+		this.canvas.lineWidth = this.px;
 
-  		for( let i = 0 ; i < this.brush.length; i++){
-  			this.brush[i].style.background = "none";
-  		}
+		for( let i = 0 ; i < this.brush.length; i++){
+			this.brush[i].style.background = "none";
+		}
 
-  		target.style.background = "#D2EAFF";
-  	}
-  	setPencil(event){
-  		if( !isPainter ) return;
-  		this.brushType = true;
-  		this.canvas.fillStyle = this.color;
-  		this.canvas.strokeStyle = this.color;
+		target.style.background = "#D2EAFF";
+	}
+	setPencil(event){
+		if( !isPainter ) return;
+		this.brushType = true;
+		this.canvas.fillStyle = this.color;
+		this.canvas.strokeStyle = this.color;
 		this.eraser.style.backgroundColor = "#fff";
 		this.pencil.style.backgroundColor = "#ccc";
-  	}
-  	setEraser(event){
-  		if( !isPainter ) return;
-  		this.brushType = false;
+	}
+	setEraser(event){
+		if( !isPainter ) return;
+		this.brushType = false;
 		this.canvas.fillStyle = "#ffffff";
-        this.canvas.strokeStyle = "#ffffff";
-        this.pencil.style.backgroundColor = "#fff";
-        this.eraser.style.backgroundColor = "#ccc";
-  	}
-  	clearCanvas(event){
-  		this.canvas.clearRect(0, 0, this.tag.clientWidth, this.tag.clientHeight);
-  	}
+		this.canvas.strokeStyle = "#ffffff";
+		this.pencil.style.backgroundColor = "#fff";
+		this.eraser.style.backgroundColor = "#ccc";
+	}
+	clearCanvas(event){
+		if(!isPainter) return;
+		this.canvas.clearRect(0, 0, this.tag.clientWidth, this.tag.clientHeight);
+		this.sendDrawingPoint(1);
+	}
 }
 
 
@@ -1108,14 +1116,14 @@ class Websocket{
 		}
 		this.ws.onclose = function(event) {
 			console.log("ws close");
-		    setTimeout(() => {
-		    	ws = new Websocket();
-		    	if( status != 0 ){
-		    		console.log("reconnect ws");
-		    		if( status == 1 ) statusManager.exitRoom();
-		    		else if( status == 2 ) statusManager.exitGameRoom();
-		    	}
-			}, 500);
+			setTimeout(() => {
+					ws = new Websocket();
+					if( status != 0 ){
+					console.log("reconnect ws");
+					if( status == 1 ) statusManager.exitRoom();
+					else if( status == 2 ) statusManager.exitGameRoom();
+					}
+					}, 500);
 		};
 		this.ws.onerror = function(event){
 			// this.ws.close();

@@ -44,6 +44,7 @@ const char * packet_to_json(struct packet p)
 				json_object_object_add(pobj, "color", json_object_new_string(((DRAW_DATA *)(p.ptr))->color));
 				json_object_object_add(pobj, "px", json_object_new_int(((DRAW_DATA *)(p.ptr))->px));
 				json_object_object_add(pobj,"room_id", json_object_new_int(((DRAW_DATA *)(p.ptr))->room_id));
+				json_object_object_add(pobj,"clear", json_object_new_int(((DRAW_DATA *)(p.ptr))->clear));
 			}
 
 			// json_object_object_add(pobj, "ptr", obj);
@@ -394,6 +395,8 @@ int json_to_packet(const char * json_string, struct packet * p)
 			json_object_object_get_ex(obj, "room_id", &jbuf);
 			((DRAW_DATA *)(p->ptr))->room_id = json_object_get_int(jbuf);
 			((DRAW_DATA *)(p->ptr))->success = 0;
+			json_object_object_get_ex(obj, "clear", &jbuf);
+			((DRAW_DATA *)(p->ptr))->clear = json_object_get_int(jbuf);
 
 		}
 		else if(minor_code == 1){  // 01

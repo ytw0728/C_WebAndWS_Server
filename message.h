@@ -93,6 +93,7 @@ typedef struct drawing_data{ //00 그림 데이터
 	int px;
 	int room_id;
 	int success;
+	int clear;//0 그리기 1 다지우기
 }DRAW_DATA;
 
 typedef struct chat_data{ //01 채팅 데이터
