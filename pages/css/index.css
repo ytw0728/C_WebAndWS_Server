@@ -63,6 +63,19 @@ div#waiting{
 
 div#waiting > header{
 	display: none;
+	position: relative;
+}
+div#waiting > header > span#roomnumber{
+	display: none;
+	position: absolute;
+	right: 2rem;
+	top : 0;
+	height: 3rem;
+	line-height: 3rem;
+	
+	font-family: "Pangolin";
+	font-size: 1.3rem;
+	width: auto;
 }
 div#waiting > container#waitingBoard{
 	display: inline-block;
@@ -79,7 +92,7 @@ div#waiting > container#waitingBoard{
 		content:"DOODLE";
 		position: absolute;
 		top: -15vh;
-		left: 10vw;
+		left: 12vw;
 		width: 10vw;
 		text-align:center;
 		font-family: "Pangolin";
@@ -91,8 +104,8 @@ div#waiting > container#waitingBoard{
 		display: block;
 		text-align:center;
 		margin-top: 20vh;
-		width: 20vw;
-		padding: 10vw 10vh;
+		width: 30vw;
+    	padding: 20vh 2vw;
 		border: .1rem solid #000000;
 		border-radius: 1rem;
 	}
@@ -102,11 +115,13 @@ div#waiting > container#waitingBoard{
 			width: 8vw;
 			height: 2rem;
 			font-size: 1.3rem;
+
+			margin-left: 4vw;
 		}
 		div#waiting > container#waitingBoard > div.nicknameInputBox > input[type="text"]{
 			margin-left: 1vw;
 			font-size: 1.2rem;
-			width: 11vw;
+			width: 15vw;
 		}
 		div#waiting > container#waitingBoard > div.nicknameInputBox > button{
 			display: block;
@@ -323,9 +338,7 @@ header::selection{
 	header > div.answer{
 		width: 78%;
 		text-align: center;
-		font-size: 2rem;
-
-
+		font-size: 1.8rem;
 	}
 	header > div.clock{
 		width: 8%;
@@ -563,6 +576,13 @@ container#main{
 					display: inline-block;
 					width: 100%;
 				}
+				container#main > div#chat > div.chatHistory > div.msg > span.contents.system{
+					padding-top: .5rem;
+					padding-bottom: .5rem;
+					display: inline-block;
+					color: blue;
+					font-weight: bold;
+				}
 
 			container#main > div#chat > div.inputBox{
 				position: absolute;
@@ -649,4 +669,9 @@ container#main{
 
 				li.itsyou.user{
 					color: blue !important;
+				}
+
+
+				li.leader.painter{
+					border-color: #F9F5AA !important;
 				}

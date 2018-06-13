@@ -96,6 +96,7 @@ const char * packet_to_json(struct packet p)
 				json_object_object_add(uobj, "nickname",
 									   json_object_new_string(((REQUEST_DRAWING_END *) (p.ptr))->from.nickname));
 				json_object_object_add(pobj, "from", uobj);
+				json_object_object_add(pobj, "answer", json_object_new_string(((REQUEST_DRAWING_END *) (p.ptr))->answer));
 			}
 
 
@@ -109,7 +110,8 @@ const char * packet_to_json(struct packet p)
 				json_object_object_add( uobj, "uid", json_object_new_int( ((REQUEST_TIME_SHARE*)(p.ptr))->from.uid ));
 				json_object_object_add( uobj, "nickname", json_object_new_string( ((REQUEST_TIME_SHARE*)(p.ptr))->from.nickname ));
 			json_object_object_add(pobj, "from", uobj);
-			json_object_object_add(pobj, "time", json_object_new_int( ((REQUEST_TIME_SHARE*)(p.ptr))->time ));
+			json_object_object_add(pobj, "nowTime", json_object_new_string( ((REQUEST_TIME_SHARE*)(p.ptr))->nowTime ));
+			json_object_object_add(pobj, "endTime", json_object_new_string( ((REQUEST_TIME_SHARE*)(p.ptr))->endTime ));
 
 			// json_object_object_add( pobj, "ptr", obj);
 			
@@ -123,6 +125,9 @@ const char * packet_to_json(struct packet p)
 				json_object_object_add(uobj, "nickname", json_object_new_string(((WINNER_DATA *)(p.ptr))->winner.nickname));
 				json_object_object_add(uobj, "score", json_object_new_int(((WINNER_DATA *)(p.ptr))->winner.score));
 			json_object_object_add(pobj, "winner", uobj);
+
+
+			json_object_object_add(uobj, "answer", json_object_new_string(((WINNER_DATA *)(p.ptr))->answer));
 
 			// json_object_object_add(pobj, "ptr", obj);
 		}
@@ -440,8 +445,11 @@ int json_to_packet(const char * json_string, struct packet * p)
 				((REQUEST_DRAWING_END*)(p->ptr))->from.uid = json_object_get_int(jbuf);
 				json_object_object_get_ex(uobj, "nickname", &jbuf);
 				strcpy(((REQUEST_DRAWING_END*)(p->ptr))->from.nickname, json_object_get_string(jbuf));
+
+			json_object_object_get_ex(obj, "answer", &jbuf);
+			strcpy(((REQUEST_DRAWING_END*)(p->ptr))->answer, json_object_get_string(jbuf));
 		}
-		/*
+		
 		else if(minor_code == 4){
 			serverLog(WSSERVER, LOG, "04제한 시간 정보(그림 그리는 사람)\n", "");
 
@@ -457,9 +465,12 @@ int json_to_packet(const char * json_string, struct packet * p)
 				json_object_object_get_ex(uobj, "nickname", &jbuf);
 				strcpy(((REQUEST_TIME_SHARE*)(p->ptr))->from.nickname, json_object_get_string(jbuf));
 
-			json_object_object_get_ex(obj, "time", &jbuf);
-			((REQUEST_TIME_SHARE*)(p->ptr))->time = json_object_get_int(jbuf);
+			json_object_object_get_ex(obj, "nowTime", &jbuf);
+			strcpy(((REQUEST_TIME_SHARE*)(p->ptr))->nowTime, json_object_get_string(jbuf));
+			json_object_object_get_ex(obj, "endTime", &jbuf);
+			strcpy(((REQUEST_TIME_SHARE*)(p->ptr))->endTime, json_object_get_string(jbuf));
 		}
+		/*
 		else if(minor_code == 5){
 			serverLog(WSSERVER, LOG, "05정답자 데이터(그림 그리는 사람)\n", "");
 

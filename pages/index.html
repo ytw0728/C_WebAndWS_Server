@@ -12,10 +12,10 @@
 <body>
 	<div id = "wrap">
 		<div id = "waiting">
-			<header class = "waitingHeader"><a href = "/">DOODLE</a></header>
+			<header class = "waitingHeader"><a href = "/">DOODLE</a> <span id = "roomnumber"></span></header>
 			<container id = "waitingBoard">
 				<div class = "nicknameInputBox">
-					<label for="nickname">Nickname | </label><input type="text" placeholder="Type your nickname" id="nickname"/>
+					<label for="nickname">Nickname | </label><input type="text" placeholder="Type your nickname" id="nickname" maxlength="20" />
 					<button onclick = "statusManager.userAdd(event)">Play</button>
 				</div>
 				<div class = "roomLists">

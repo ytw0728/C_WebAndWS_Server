@@ -17,10 +17,11 @@ example : { "major_code": 0, "minor_code": 1, "ptr": { "msg": "Hello, Server! I'
 
 
 #define CHAT_SIZE 128
-#define NICKNAME_SIZE 30
+#define NICKNAME_SIZE 60
 #define MAX_USER 6
 #define MAX_ROOM 20
 #define COLOR_SIZE 8
+#define TIME_LEN 20
 
 struct packet{
 	int major_code;
@@ -112,13 +113,15 @@ typedef struct finish_drawing_msg{ //03 그리기 종료 요청
 	int room_id;
 	int success;
 	User from;
+	char answer[CHAT_SIZE + 1];
 }REQUEST_DRAWING_END;
 
 typedef struct finish_drawing_data{ //04 제한시간 정보
 	int room_id;
 	int success;
 	User from;
-	int time;
+	char nowTime[TIME_LEN];
+	char endTime[TIME_LEN];
 }REQUEST_TIME_SHARE;
 
 //-------------------1------------------------
@@ -179,6 +182,7 @@ typedef struct response_exit_room{ // 28 대기방 나가기 응답
 typedef struct winner_data{ //05 정답자
 	int room_id;
 	User winner;
+	char answer[CHAT_SIZE+1];
 }WINNER_DATA;
 //-------------------2------------------------
 

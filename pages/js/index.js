@@ -8,9 +8,14 @@ let painterUID = null;
 
 let leaderUID = null;
 
+let ANSWER = null;
+let SOMEONEGOTIT = false; // 누군가 정답을 맞췄다.
+
+
 let ws;
 let chat;
 
+let timelimit = 10000; //60초
 
 let nicknameInputBox;
 let waiting;
@@ -18,7 +23,7 @@ let app;
 let notice; 
 let draw;
 
-function setDevOption(){ uid = 9999; room_id =9999;}
+function setDevOption(){ UID = 9999; ROOM_ID =9999;}
 window.onload= function(){
 	chat = new Chatting();
 	nicknameInputBox = new NickNameInput();
@@ -31,11 +36,8 @@ window.onload= function(){
 	ws = new Websocket();
 	statusManager = new StatusManager();
 
-	setDevOption();
+	// setDevOption();
 	layout();	
-
-
-	
 }
 
 function layout(){
@@ -141,7 +143,6 @@ class StatusManager{
 			alert("접속에 실패했습니다. 새로고침 해주세요.");
 			leaderUID = null;
 		}
-		console.log(leaderUID);
 	}
 	makeRoom(event){
 		if( event != null ) event.preventDefault();
@@ -180,7 +181,6 @@ class StatusManager{
 			if( status == 1 ) {
 				waiting.showList();
 				waiting.hideWaitingRoom();
-				console.log("awef");
 				ROOM_ID = null;
 				status = 0;
 			}
@@ -235,6 +235,8 @@ class StatusManager{
 		waiting.hideAll();
 		app.showAll();
 
+		SOMEONEGOTIT = false;
+		chat.addSystemMsg(jsonObject);
 		status = 2;
 	}
 
@@ -249,8 +251,10 @@ class StatusManager{
 			isPainter = null;
 		}
 	}
+
 	exitGameRoom(event){
 		if( event != null ) event.preventDefault();
+		app.gameDone();
 		let json = { // 16
 			major_code : 1,
 			minor_code : 6,
@@ -269,16 +273,40 @@ class StatusManager{
 		leaderUID = jsonObject.leader.uid;
 		waiting.userNodeAddToList();
 
-		switch(jsonObject.room.status){
-			case 0 :
-				break;
-			case 1 :
-				break;
-			case 2 :
-				break;
-			case 3 :
-				break;
+		if( status >= 2){
+			switch(jsonObject.room.status){
+				case 0 :
+
+					break;
+				case 1 :
+					app.switchToWaiting();
+					break;
+				case 2 :
+					app.switchToWaiting();
+					app.gameDone();
+					break;
+				case 3 :
+
+					break;
+			}	
 		}
+	}
+
+
+	answerShow(jsonObject){
+		if (jsonObject.winner.uid ==UID ) SCORE = jsonObject.winner.score;
+		SOMEONEGOTIT = true;
+		app.stopTimer();
+		chat.addSystemMsg(jsonObject);
+		waiting.changeUserValue(jsonObject.winner);
+	}
+
+	timeOut(jsonObject){
+		chat.addSystemMsg(jsonObject);
+		app.gameDone(jsonObject);
+	}
+	timeSync(jsonObject){
+		app.syncTime(jsonObject);
 	}
 }
 
@@ -308,6 +336,8 @@ class Waiting{
 		this.members = new Array();
 		this.waiting = document.getElementById("waiting");
 
+		this.roomTitle = document.getElementById("roomnumber");
+
 		this.roomLists = document.getElementsByClassName("roomLists")[0];
 		this.ul = document.getElementsByClassName("rooms")[0];
 		this.li = document.getElementsByClassName("room");
@@ -327,6 +357,7 @@ class Waiting{
 	showAll(){
 		this.waiting.style.display = "inline-block";
 		this.waiting.style.zIndex = 1000;
+		this.userNodeAddToList();
 	}
 	showList(){
 		this.roomLists.style.display = "inline-block";
@@ -350,11 +381,15 @@ class Waiting{
 	showWaitingRoom(jsonObject){
 		this.waitingRoom.style.display = "inline-block";
 		this.waitingMembers.innerHTML = null;
+		this.roomTitle.innerHTML = "Room No. " + ROOM_ID;
+		this.roomTitle.style.display = "inline-block";
 		this.memberListSet(jsonObject);
 		this.userNodeAddToList();
 	}
 	hideWaitingRoom(){
 		this.waitingRoom.style.display = "none";
+		this.roomTitle.style.display = "none";
+		this.roomTitle.innerHTML = null;
 	}
 
 
@@ -371,7 +406,7 @@ class Waiting{
 
 		for( let i = 0 ; i < this.members.length;i++){
 			let node = document.createElement("li");
-			node.className = "members " + (this.members[i].uid == leaderUID ? "leader " : "") + ( this.members[i].uid == UID ? "itsyou " : "");
+			node.className = "members " + (this.members[i].uid == leaderUID ? "leader " : "") + ( this.members[i].uid == UID ? "itsyou " : "" );
 			node.setAttribute("data-uid", this.members[i].uid);
 
 			let nickname = document.createElement("span");
@@ -383,7 +418,7 @@ class Waiting{
 
 
 			let node2 = document.createElement("li");
-			node2.className = "user " + (this.members[i].uid == painterUID ? "painter " : "") + (this.members[i].uid == leaderUID ? "leader " : "");
+			node2.className = "user " + (this.members[i].uid == painterUID ? "painter " : "") + (this.members[i].uid == leaderUID ? "leader " : "") + ( this.members[i].uid == UID ? "itsyou " : "");
 			node2.setAttribute("data-uid", this.members[i].uid);
 
 			let nickname2 = document.createElement("span");
@@ -456,6 +491,15 @@ class Waiting{
 			this.ul.append(node);
 		}
 	}
+	changeUserValue(member){
+		for( let i = 0 ; i < this.members.length;i ++){
+			if( this.members[i].uid == member.uid ){
+				this.members[i].nickname = member.nickname;
+				this.members[i].score = member.score;
+			}
+		}
+		this.userNodeAddToList();
+	}
 	insertMember(jsonObject){
 		this.members.push( { uid : jsonObject.user.uid, nickname : jsonObject.user.nickname, score : jsonObject.user.score } );
 		this.userNodeAddToList();
@@ -476,15 +520,29 @@ class Waiting{
 
 class App{
 	constructor(){
+		this.onGame = false;
+
 		this.app = document.getElementById("app");
+		this.clock = document.getElementsByClassName("clock")[0];
+
+		this.nowTime = 0;
+		this.roundEndTime = 0;
+
+		this.loop = false;
 	}
 	showAll(){
 		this.app.style.display = "inline-block";
 		this.app.style.zIndex = 1000;
 		draw.clear();
-		chat.clear();
+		if( !this.onGame ){
+			this.onGame = true;
+			chat.clear();
+		}
+		waiting.userNodeAddToList();
 	}
 	hideAll(){
+		this.onGame = false;
+		this.stopTimer();
 		this.app.style.display = "none";
 		this.app.style.zIndex = 0;
 	}
@@ -494,12 +552,124 @@ class App{
 		isPainter = false;
 		waiting.showAll();
 		waiting.hideList();
-		waiting.userNodeAddToList();
 		status = 1;
 	}
 
 	startGame(jsonObject){
 		draw.clear();
+		this.nowTime = (new Date()).getTime();
+		this.lastTime = this.nowTime;
+		this.roundEndTime = this.nowTime + timelimit;
+		this.clock.innerHTML = Math.floor( (this.roundEndTime - this.nowTime)/10) / 100;
+		this.loop = false;
+		this.sendTime();
+	}
+
+	stopTimer(){
+		this.loop = false;
+		this.initTime();
+	}
+
+	sendTime(){
+		this.lastTime = this.nowTime;
+		let json = { // 04
+			major_code : 0,
+			minor_code : 4,
+			room_id : ROOM_ID,
+			from : {
+				uid : UID,
+				nickname : NICKNAME,
+				score : SCORE
+			},
+			nowTime : ""+this.nowTime,
+			endTime : ""+this.roundEndTime
+		}
+		let msg = JSON.stringify(json);
+		ws.send(msg);
+	}
+
+	painterTimer(){
+		if( !isPainter ) return;
+		this.nowTime = (new Date()).getTime();
+		if( this.nowTime - this.lastTime > 500 )this.sendTime(this.nowTime);
+		if( this.roundEndTime > this.nowTime ){
+			this.clock.innerHTML = Math.floor( (this.roundEndTime - this.nowTime)/10) / 100;
+			if( this.loop ) setTimeout(() => this.painterTimer(), 10);
+		}
+		else{
+			this.clock.innerHTML = "0.00";
+			this.timeDone();
+			return;
+		}
+	}
+
+	timer(){
+		if( isPainter ) return;	
+		if( this.roundEndTime > this.nowTime ){
+			this.clock.innerHTML = Math.floor( (this.roundEndTime - this.nowTime)/10) / 100;
+			if(this.loop){
+				this.nowTime += 10;
+				setTimeout( () =>this.timer(), 10);
+			}
+		}
+		else{
+			this.clock.innerHTML = "0.00";
+			this.initTime();
+			return;
+		}
+	}
+
+
+	timeDone(){
+		let json = { // 03
+			major_code : 0,
+			minor_code : 3,
+			room_id : ROOM_ID,
+			from : {
+				uid : UID,
+				nickname : NICKNAME,
+				score : SCORE
+			},
+			answer : ANSWER
+		}
+
+		let msg = JSON.stringify(json);
+		ws.send(msg);
+		this.initTime();
+	}
+
+	gameDone(){
+		this.initTime();
+		ANSWER = null;
+		this.loop = false;
+		this.nowTime = this.endTime = 0;
+		isPainter = null; ANSWER = null; painterUID = null;
+		notice.hideAnswer();
+	}
+
+	initTime(){
+		this.nowTime = 0;
+		this.roundEndTime = 0;
+		this.loop = false;
+
+	}
+
+	syncTime(jsonObject){
+		if( isPainter && !this.loop){
+			this.loop = true;
+			setTimeout(() => this.painterTimer(), 10);
+			return;
+		}
+		if( this.nowTime == 0 ){
+			this.nowTime = parseInt(jsonObject.nowTime);
+			this.roundEndTime = parseInt(jsonObject.endTime);
+			this.loop = true;
+			setTimeout( () => this.timer(), 10);
+		}
+		else{
+			this.nowTime = parseInt(jsonObject.nowTime);
+			this.roundEndTime = parseInt(jsonObject.endTime);
+		}
 	}
 }
 
@@ -509,13 +679,19 @@ class Notice{
 		this.clock = document.getElementsByClassName("clock")[0];
 	}
 	showAnswerLen(jsonObject){
-		this.answer.innerHTMl = null;
+		if( isPainter ) return;
+		ANSWER = null;
+		this.answer.innerHTML = null;
 		for( let i = 0 ; i < jsonObject.answerLen; i++){
 			this.answer.innerHTML += "_ ";
 		}
 	}
 	showAnswer(jsonObject){
-		this.answer.innerHTML = jsonObject.answer;
+		this.answer.innerHTML = null;
+		ANSWER = this.answer.innerHTML = jsonObject.answer;
+	}
+	hideAnswer(){
+		this.answer.innerHTML = null;
 	}
 }
 
@@ -531,6 +707,8 @@ class Chatting{
 	}
 	addMsg(jsonObject){
 		if(jsonObject.success ){
+			if( jsonObject.from.uid == UID ) SCORE = jsonObject.from.score;
+
 			this.chatHistory.innerHTML += "\
 				<div class = 'msg'>\
 					<span class = 'sender'>"
@@ -541,6 +719,43 @@ class Chatting{
 					"</span>\
 				</div>";
 			this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
+		}
+	}
+
+	addSystemMsg(jsonObject){
+		if(jsonObject.major_code == 0 ){
+			if( jsonObject.minor_code == 3 ){ // 시간 초과 
+
+				if( !SOMEONEGOTIT ){
+					this.chatHistory.innerHTML += "\
+						<div class = 'msg'>\
+							<span class = 'contents system'>"
+							 +"시간초과! 정답은 ["+ jsonObject.answer +"] 입니다!"+
+							"</span>\
+						</div>";
+					this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
+				}
+			}
+			if(jsonObject.minor_code == 5){ // 정답자 공개 
+				this.chatHistory.innerHTML += "\
+					<div class = 'msg'>\
+						<span class = 'contents system'>"
+						 +"["+jsonObject.answer+"] '"+ jsonObject.winner.nickname + "' 님 정답입니다! (+10)"  +
+						"</span>\
+					</div>";
+				this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
+			}
+		}
+		else if( jsonObject.major_code == 2){
+			if( jsonObject.minor_code == 3){ // 23
+				this.chatHistory.innerHTML += "\
+					<div class = 'msg'>\
+						<span class = 'contents system'>"
+						 +"다음 문제 시작합니다. 그릴 사람은 '"+ jsonObject.painter.nickname + "' ("+jsonObject.answerLen+"글자)"
+						"</span>\
+					</div>";
+				this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
+			}
 		}
 	}
 
@@ -561,9 +776,10 @@ class Chatting{
 			msg : box.value,
 			from : {
 				uid : UID,
-				nickname : NICKNAME
+				nickname : NICKNAME,
+				score : SCORE
 			},
-			timestamp : new Date(),
+			timestamp : (new Date()).getTime(),
 			room_id : ROOM_ID
 		}
 		let msg = JSON.stringify(jsonObject);
@@ -834,8 +1050,16 @@ class Websocket{
 						chat.addMsg(jsonObject);
 						return;
 					case 2: // 02
+
 						return;
 					case 3: // 03
+						statusManager.timeOut(jsonObject);
+						return;
+					case 4: // 04
+						statusManager.timeSync(jsonObject);
+						return;
+					case 5: // 05
+						statusManager.answerShow(jsonObject);
 						return;
 					default : console.log("undefined msg");return;
 				}
