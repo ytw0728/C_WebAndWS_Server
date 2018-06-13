@@ -2361,8 +2361,8 @@ int echoChatData(client_data *client, frame_head *sendHead, struct packet *p) {
 	contents = packet_to_json(*p);
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
-	
-	for (int i = 0; i < idx; i++) {
+	int i;
+	for (i = 0; i < idx; i++) {
 		send_frame_head(fd_table[i], sendHead);
 		if (write(fd_table[i], contents, size) <= 0) {
 			serverLog(WSSERVER, ERROR, "ECHOcHATdATA ERROR", "packet sending error");
@@ -2401,7 +2401,7 @@ int echoChatData(client_data *client, frame_head *sendHead, struct packet *p) {
 		iso8859_1_to_utf8(contents, strlen(contents));
 		int size = sendHead->payload_length = strlen(contents);
 		
-		for (int i = 0; i < idx; i++) {
+		for (i = 0; i < idx; i++) {
 			send_frame_head(fd_table[i], sendHead);
 			if (write(fd_table[i], contents, size) <= 0) {
 				serverLog(WSSERVER, ERROR, "failed to start drawing", "packet sending error");
@@ -2478,8 +2478,8 @@ int startDrawing(client_data *client, frame_head * sendHead, struct packet * p){
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
 	
-
-	for(int i=0; i<idx; i++){
+	int i;
+	for(i=0; i<idx; i++){
 		send_frame_head(fd_table[i], sendHead);
 		if( write (fd_table[i], contents, size)  <= 0){
 			serverLog(WSSERVER, ERROR, "failed to start drawing","packet sending error");
@@ -2769,8 +2769,8 @@ int shareTime(client_data *client, frame_head * sendHead, struct packet * p){
 	iso8859_1_to_utf8(contents, strlen(contents));
 	int size = sendHead->payload_length = strlen(contents);
 	
-
-	for(int i=0; i<idx; i++){
+	int i;
+	for(i=0; i<idx; i++){
 		send_frame_head(fd_table[i], sendHead);
 		if( write (fd_table[i], contents, size)  <= 0){
 			serverLog(WSSERVER, ERROR, "failed to share time","packet sending error");
