@@ -38,6 +38,7 @@ window.onload= function(){
 
 	// setDevOption();
 	layout();	
+	window.addEventListener("mouseup", () => draw.flag = false );
 }
 
 function layout(){
@@ -921,6 +922,8 @@ class Draw{
 			this.draw();
 		}
 
+		console.log( event.type , this.flag);
+
 	}
 
 	getMousePos(evt) {
@@ -1045,7 +1048,7 @@ class Websocket{
 		this.ws.onmessage = function (event){
 
 			let json = event.data;
-			console.log("receive : " + json);
+			// ("receive : " + json);
 
 			let jsonObject = JSON.parse(json);
 
@@ -1132,7 +1135,7 @@ class Websocket{
 	}
 
 	send(msg){
-		console.log("send : " + msg);
+		// console.log("send : " + msg);
 		this.ws.send(msg);
 	}
 }
