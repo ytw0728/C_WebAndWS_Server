@@ -922,7 +922,7 @@ class Draw{
 			this.draw();
 		}
 
-		console.log( event.type , this.flag);
+		// console.log( event.type , this.flag);
 
 	}
 
