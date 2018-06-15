@@ -954,10 +954,10 @@ x: evt.offsetX,
 				this.canvas.strokeStyle = jsonObject.color;
 				this.canvas.lineWidth = jsonObject.px;
 
-				this.prevX = jsonObject.prevX;
-				this.prevY = jsonObject.prevY;
-				this.x = jsonObject.x;
-				this.y = jsonObject.y;
+				this.prevX = jsonObject.prevX / ( 5000/ this.tag.clientWidth);
+				this.prevY = jsonObject.prevY / ( 5000/this.tag.clientHeight);
+				this.x = jsonObject.x/ ( 5000/ this.tag.clientWidth);
+				this.y = jsonObject.y/ ( 5000/this.tag.clientHeight);
 				this.draw();
 			}
 		}
@@ -966,16 +966,17 @@ x: evt.offsetX,
 	sendDrawingPoint(clear_flag){
 		if( !isPainter ) return;
 		let jsonObject = { // 00
-major_code : 0,
-	     minor_code : 0,
-	     prevX : this.prevX,
-	     prevY : this.prevY,
-	     x : this.x,
-	     y : this.y,
-	     color : this.brushType ? this.color : "#ffffff",
-	     px : this.px,
-	     room_id : ROOM_ID,
-	     clear : clear_flag
+
+			major_code : 0,
+			minor_code : 0,
+			prevX : this.prevX * ( 5000 / this.tag.clientWidth ),
+			prevY : this.prevY * ( 5000 / this.tag.clientHeight),
+			x : this.x * ( 5000 / this.tag.clientWidth ),
+			y : this.y * ( 5000 / this.tag.clientHeight),
+			color : this.brushType ? this.color : "#ffffff",
+			px : this.px,
+			room_id : ROOM_ID,
+			clear : clear_flag
 		}
 		let msg = JSON.stringify(jsonObject);
 		ws.send(msg);
